@@ -20,6 +20,14 @@ public class SinhVienController {
     public SinhVienController(QuanLySinhVienPanel view, SinhVienService service) {
         this.view    = view;
         this.service = service;
+
+        view.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentShown(java.awt.event.ComponentEvent e) {
+                loadAll();
+            }
+        });
+
         loadAll();
         bindListeners();
     }

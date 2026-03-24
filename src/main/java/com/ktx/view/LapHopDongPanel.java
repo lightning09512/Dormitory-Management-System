@@ -11,6 +11,8 @@ import java.awt.event.ActionListener;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import com.github.lgooddatepicker.components.DatePicker;
+import com.github.lgooddatepicker.components.DatePickerSettings;
 
 /**
  * Panel Lập Hợp Đồng – form xếp phòng + bảng hợp đồng hiện có.
@@ -30,8 +32,8 @@ public class LapHopDongPanel extends JPanel {
     private final JComboBox<SinhVien> cbSinhVien = new JComboBox<>();
     private final JComboBox<Phong>    cbPhong     = new JComboBox<>();
 
-    private final JSpinner spNgayBD  = dateSpinner();
-    private final JSpinner spNgayKT  = dateSpinner();
+    private final DatePicker dpNgayBD  = createDatePicker();
+    private final DatePicker dpNgayKT  = createDatePicker();
 
     private final JButton btnLap    = UITheme.button("Lập hợp đồng", UITheme.INDIGO);
     private final JButton btnChamDut = UITheme.button("Chấm dứt HĐ", UITheme.RED);
@@ -79,12 +81,11 @@ public class LapHopDongPanel extends JPanel {
         styleCombo(cbPhong);
         formCard.add(cbPhong, fc2);
 
-        // Row 1: Ngày BĐ / Ngày KT
         lc.gridy = fc.gridy = lc2.gridy = fc2.gridy = 1;
         formCard.add(boldLabel("Ngày bắt đầu:"), lc);
-        formCard.add(spNgayBD, fc);
+        formCard.add(dpNgayBD, fc);
         formCard.add(boldLabel("Ngày kết thúc:"), lc2);
-        formCard.add(spNgayKT, fc2);
+        formCard.add(dpNgayKT, fc2);
 
         // Row 2: Buttons
         lc.gridy = 2; lc.gridwidth = 4; lc.insets = new Insets(14, 0, 0, 0);
@@ -131,13 +132,15 @@ public class LapHopDongPanel extends JPanel {
         cb.setPreferredSize(new Dimension(0, 34));
     }
 
-    private static JSpinner dateSpinner() {
-        LocalDate today = LocalDate.now();
-        SpinnerDateModel m = new SpinnerDateModel();
-        JSpinner s = new JSpinner(m);
-        s.setEditor(new JSpinner.DateEditor(s, "dd/MM/yyyy"));
-        s.setFont(UITheme.FONT_BODY);
-        return s;
+    private static DatePicker createDatePicker() {
+        DatePickerSettings settings = new DatePickerSettings();
+        settings.setFormatForDatesCommonEra("dd/MM/yyyy");
+        settings.setFormatForDatesBeforeCommonEra("dd/MM/yyyy");
+        settings.setFontValidDate(UITheme.FONT_BODY);
+        settings.setFontInvalidDate(UITheme.FONT_BODY);
+        DatePicker dp = new DatePicker(settings);
+        dp.setDateToToday();
+        return dp;
     }
 
     // ---- Public API ----
@@ -184,8 +187,8 @@ public class LapHopDongPanel extends JPanel {
 
     public SinhVien getSelectedSinhVien() { return (SinhVien) cbSinhVien.getSelectedItem(); }
     public Phong    getSelectedPhong()    { return (Phong)    cbPhong.getSelectedItem(); }
-    public LocalDate getNgayBatDau()  { return ((java.util.Date) spNgayBD.getValue()).toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate(); }
-    public LocalDate getNgayKetThuc() { return ((java.util.Date) spNgayKT.getValue()).toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate(); }
+    public LocalDate getNgayBatDau()  { return dpNgayBD.getDate(); }
+    public LocalDate getNgayKetThuc() { return dpNgayKT.getDate(); }
 
     public String getSelectedMaHopDong() {
         int row = table.getSelectedRow();

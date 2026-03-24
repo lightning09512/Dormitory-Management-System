@@ -39,7 +39,20 @@ public class DashboardPanel extends JPanel {
         JPanel topWrap = new JPanel(new BorderLayout());
         topWrap.setOpaque(false);
         topWrap.add(cards, BorderLayout.NORTH);
-        add(topWrap, BorderLayout.CENTER);
+        add(topWrap, BorderLayout.NORTH);
+        
+        // ---- Cover image at bottom ----
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        bottomPanel.setOpaque(false);
+        bottomPanel.setBorder(BorderFactory.createEmptyBorder(30, 0, 0, 0));
+        
+        ImageIcon coverIcon = new ImageIcon("Ktx-2.jpg");
+        Image scaledCover = coverIcon.getImage().getScaledInstance(900, 500, Image.SCALE_SMOOTH);
+        JLabel coverLabel = new JLabel(new ImageIcon(scaledCover));
+        coverLabel.setBorder(BorderFactory.createLineBorder(UITheme.BORDER_COLOR));
+        
+        bottomPanel.add(coverLabel);
+        add(bottomPanel, BorderLayout.CENTER);
     }
 
     private JPanel statCard(String title, JLabel valueLabel, Color accent, String hexBg) {

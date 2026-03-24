@@ -67,6 +67,14 @@ public class HopDongServiceImpl implements HopDongService {
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Sinh viên không tồn tại: " + maSV));
 
+        // Kiểm tra hợp đồng đang hiệu lực của sinh viên
+        List<HopDong> listHD = hopDongRepo.findBySinhVien(maSV);
+        for (HopDong hd : listHD) {
+            if ("Đang hiệu lực".equals(hd.getTrangThai())) {
+                throw new IllegalStateException("Sinh viên này đang có hợp đồng phòng " + hd.getMaPhong() + " đang hiệu lực. Không thể xếp thêm phòng!");
+            }
+        }
+
         // ---- Bước 2: Kiểm tra phòng và sức chứa ------------------
         Phong phong = phongRepo.findById(maPhong)
                 .orElseThrow(() -> new IllegalArgumentException(
@@ -192,14 +200,8 @@ public class HopDongServiceImpl implements HopDongService {
     // HELPER – Sinh mã hợp đồng tự động
     // ================================================================
 
-    /**
-     * Sinh mã hợp đồng theo định dạng {@code HD-yyyyMMdd-xxxxx}
-     * (5 ký tự ngẫu nhiên để giảm khả năng trùng trong cùng một ngày).
-     *
-     * <p>Trong production nên thay bằng cơ chế sinh mã từ DB (sequence/auto-increment).</p>
-     */
     private String sinhMaHopDong() {
-        String ngay = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String ngay = LocalDate.now().format(DateTimeFormatter.ofPattern("yyMMdd"));
         String rand = String.valueOf((int)(Math.random() * 90000) + 10000);
         return "HD-" + ngay + "-" + rand;
     }

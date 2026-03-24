@@ -53,6 +53,13 @@ public class HopDongController {
         this.phongService    = phongService;
         this.currentUser     = currentUser;
 
+        view.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentShown(java.awt.event.ComponentEvent e) {
+                refreshView();
+            }
+        });
+
         initView();
         bindListeners();
     }
@@ -187,7 +194,11 @@ public class HopDongController {
 
     private void loadComboBoxes() {
         try {
-            List<SinhVien> svList    = sinhVienService.layTatCa();
+            // Chỉ hiển thị sinh viên chưa có phòng vào ComboBox lập hợp đồng
+            List<SinhVien> svList = sinhVienService.layTatCa().stream()
+                    .filter(sv -> "Chưa xếp phòng".equals(sv.getPhongHienTai()))
+                    .toList();
+                    
             List<Phong>    phongList = phongService.layPhongConTrong();
             view.setSinhVienList(svList);
             view.setPhongList(phongList);
@@ -198,7 +209,8 @@ public class HopDongController {
 
     private void loadTable() {
         try {
-            List<HopDong> hopDongs = hopDongService.layTatCa();
+            // Chỉ hiển thị hợp đồng Đang hiệu lực theo yêu cầu
+            List<HopDong> hopDongs = hopDongService.layHopDongHieuLuc();
             view.setHopDongList(hopDongs);
         } catch (Exception ex) {
             showError("Không thể tải danh sách hợp đồng:\n" + ex.getMessage());

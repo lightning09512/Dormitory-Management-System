@@ -118,7 +118,7 @@ public class PhongRepositoryImpl implements PhongRepository {
         EntityManager em = JpaUtil.getEmf().createEntityManager();
         try {
             TypedQuery<Phong> query = em.createQuery(
-                    "SELECT p FROM Phong p WHERE p.trangThai = 'Còn trống'",
+                    "SELECT p FROM Phong p WHERE p.trangThai != 'Bảo trì' AND p.soNguoiHienTai < p.sucChua",
                     Phong.class);
             return query.getResultList();
         } catch (Exception e) {

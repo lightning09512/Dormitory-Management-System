@@ -28,6 +28,7 @@ public class QuanLyPhongPanel extends JPanel {
     private final JButton btnLoc    = UITheme.button("Lọc",       UITheme.BLUE);
     private final JButton btnThem   = UITheme.button("Thêm phòng", UITheme.GREEN);
     private final JButton btnSua    = UITheme.button("Sửa",       UITheme.AMBER);
+    private final JButton btnXoa    = UITheme.button("Xóa",       UITheme.RED);
     private final JButton btnLamMoi = UITheme.button("Làm mới",   UITheme.SLATE);
 
     public QuanLyPhongPanel() {
@@ -51,9 +52,11 @@ public class QuanLyPhongPanel extends JPanel {
         card.setBorder(BorderFactory.createLineBorder(UITheme.BORDER_COLOR));
 
         // Toolbar
-        JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 12));
+        JPanel toolbar = new JPanel(new GridBagLayout());
         toolbar.setBackground(Color.WHITE);
-        toolbar.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, UITheme.BORDER_COLOR));
+        toolbar.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 0, 1, 0, UITheme.BORDER_COLOR),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)));
 
         JLabel filterLabel = new JLabel("Lọc theo TT: ");
         filterLabel.setFont(UITheme.FONT_BOLD);
@@ -61,16 +64,22 @@ public class QuanLyPhongPanel extends JPanel {
         cbFilter.setFont(UITheme.FONT_BODY);
         cbFilter.setPreferredSize(new Dimension(150, 34));
 
-        toolbar.add(filterLabel);
-        toolbar.add(cbFilter);
-        toolbar.add(btnLoc);
-        toolbar.add(new JSeparator(JSeparator.VERTICAL) {{
-            setPreferredSize(new Dimension(1, 28));
-            setForeground(UITheme.BORDER_COLOR);
-        }});
-        toolbar.add(btnThem);
-        toolbar.add(btnSua);
-        toolbar.add(btnLamMoi);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.insets = new Insets(0, 0, 0, 10);
+
+        gbc.gridx = 0; toolbar.add(filterLabel, gbc);
+        gbc.gridx = 1; toolbar.add(cbFilter, gbc);
+        gbc.gridx = 2; toolbar.add(btnLoc, gbc);
+
+        gbc.gridx = 3; gbc.weightx = 1.0; toolbar.add(Box.createHorizontalGlue(), gbc);
+
+        gbc.weightx = 0;
+        gbc.gridx = 4; toolbar.add(btnThem, gbc);
+        gbc.gridx = 5; toolbar.add(btnSua, gbc);
+        gbc.gridx = 6; toolbar.add(btnXoa, gbc);
+        gbc.gridx = 7; gbc.insets = new Insets(0, 0, 0, 0); toolbar.add(btnLamMoi, gbc);
+        
         card.add(toolbar, BorderLayout.NORTH);
 
         // Table
@@ -104,5 +113,6 @@ public class QuanLyPhongPanel extends JPanel {
     public void addLocListener   (ActionListener l) { btnLoc.addActionListener(l); }
     public void addThemListener  (ActionListener l) { btnThem.addActionListener(l); }
     public void addSuaListener   (ActionListener l) { btnSua.addActionListener(l); }
+    public void addXoaListener    (ActionListener l) { btnXoa.addActionListener(l); }
     public void addLamMoiListener(ActionListener l) { btnLamMoi.addActionListener(l); }
 }

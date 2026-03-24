@@ -64,6 +64,9 @@ public class SinhVien {
     @Size(min = 8, message = "Mật khẩu tối thiểu 8 ký tự")
     private String matKhau;
 
+    @Transient
+    private String phongHienTai = "Chưa xếp phòng";
+
     public SinhVien() {}
 
     public SinhVien(String maSV, String hoTen, LocalDate ngaySinh,
@@ -98,6 +101,8 @@ public class SinhVien {
     public void setTaiKhoan(String v)    { this.taiKhoan = v; }
     public String getMatKhau()           { return matKhau; }
     public void setMatKhau(String v)     { this.matKhau = v; }
+    public String getPhongHienTai()      { return phongHienTai; }
+    public void setPhongHienTai(String v){ this.phongHienTai = v; }
 
     @Override
     public String toString() {

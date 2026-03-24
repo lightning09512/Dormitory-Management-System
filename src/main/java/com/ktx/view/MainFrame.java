@@ -19,6 +19,7 @@ public class MainFrame extends JFrame {
     public static final String CARD_SINH_VIEN  = "sinhvien";
     public static final String CARD_PHONG      = "phong";
     public static final String CARD_HOP_DONG   = "hopdong";
+    public static final String CARD_HOA_DON    = "hoadon";
 
     private final CardLayout  cardLayout  = new CardLayout();
     private final JPanel      contentPane = new JPanel(cardLayout);
@@ -53,22 +54,40 @@ public class MainFrame extends JFrame {
         sidebar.setPreferredSize(new Dimension(260, 0));
         sidebar.setOpaque(false);
 
-        // Brand / Logo
+        // Brand / Logo with Cover Image
         JPanel brand = new JPanel();
         brand.setOpaque(false);
         brand.setLayout(new BoxLayout(brand, BoxLayout.Y_AXIS));
-        brand.setBorder(BorderFactory.createEmptyBorder(32, 24, 24, 24));
+        brand.setBorder(BorderFactory.createEmptyBorder(0, 0, 24, 0));
+        
+        // Cover Image
+        ImageIcon coverIcon = new ImageIcon("sinh-vien-truong-nao-duoc-thue-ktx-khu-b-dhqg-tphcm-o-tro-hay-o-ktx-tiet-kiem-hon.webp");
+        Image scaledCover = coverIcon.getImage().getScaledInstance(240, 120, Image.SCALE_SMOOTH);
+        JLabel coverLabel = new JLabel(new ImageIcon(scaledCover));
+        coverLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        coverLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+        brand.add(coverLabel);
+        
+        // Logo Text
+        JPanel logoPanel = new JPanel();
+        logoPanel.setOpaque(false);
+        logoPanel.setLayout(new BoxLayout(logoPanel, BoxLayout.Y_AXIS));
+        logoPanel.setBorder(BorderFactory.createEmptyBorder(16, 24, 16, 24));
+        
         JLabel logo = new JLabel("KTX Manager");
         logo.setFont(new Font("Segoe UI", Font.BOLD, 20));
         logo.setForeground(Color.WHITE);
         logo.setAlignmentX(Component.LEFT_ALIGNMENT);
-        brand.add(logo);
+        logoPanel.add(logo);
+        
         JLabel role = new JLabel(user.getVaiTro());
         role.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         role.setForeground(UITheme.SIDEBAR_TEXT);
         role.setAlignmentX(Component.LEFT_ALIGNMENT);
-        brand.add(Box.createVerticalStrut(6));
-        brand.add(role);
+        logoPanel.add(Box.createVerticalStrut(6));
+        logoPanel.add(role);
+        
+        brand.add(logoPanel);
         sidebar.add(brand);
 
         // Separator
@@ -82,6 +101,7 @@ public class MainFrame extends JFrame {
         sidebar.add(navButton("Quản lý Sinh viên", CARD_SINH_VIEN));
         sidebar.add(navButton("Quản lý Phòng",     CARD_PHONG));
         sidebar.add(navButton("Lập Hợp Đồng",      CARD_HOP_DONG));
+        sidebar.add(navButton("Quản lý Hóa đơn",   CARD_HOA_DON));
 
         sidebar.add(Box.createVerticalGlue());
         sidebar.add(createSidebarSep());
@@ -167,8 +187,9 @@ public class MainFrame extends JFrame {
 
     private void configFrame() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1100, 700);
-        setMinimumSize(new Dimension(900, 600));
+        setSize(1200, 750);
+        setMinimumSize(new Dimension(1000, 650));
+        setExtendedState(JFrame.MAXIMIZED_BOTH); // Tự động phóng to toàn màn hình
         setLocationRelativeTo(null);
     }
 

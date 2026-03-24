@@ -26,6 +26,14 @@ public class PhongController {
         this.view       = view;
         this.service    = service;
         this.dayNhaRepo = dayNhaRepo;
+
+        view.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentShown(java.awt.event.ComponentEvent e) {
+                loadAll();
+            }
+        });
+
         loadAll();
         bindListeners();
     }
@@ -34,12 +42,42 @@ public class PhongController {
         view.addLocListener   (e -> handleLoc());
         view.addThemListener  (e -> handleThem());
         view.addSuaListener   (e -> handleSua());
+        view.addXoaListener   (e -> handleXoa());
         view.addLamMoiListener(e -> loadAll());
     }
 
     // ----------------------------------------------------------------
     // Handlers
     // ----------------------------------------------------------------
+    private void handleXoa() {
+        String maPhong = view.getSelectedMaPhong();
+        if (maPhong == null) { 
+            showError("Vui lòng chọn phòng cần xóa."); 
+            return; 
+        }
+        
+        int confirm = JOptionPane.showConfirmDialog(
+                null,
+                "Xác nhận xóa phòng " + maPhong + "?\nThao tác này không thể hoàn tác.",
+                "Xác nhận xóa",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
+                
+        if (confirm == JOptionPane.YES_OPTION) {
+            try {
+                service.xoaPhong(maPhong);
+                showInfo("Xóa phòng thành công!");
+                loadAll();
+            } catch (Exception ex) {
+                String cause = getRootCause(ex).toLowerCase();
+                if (cause.contains("foreign key") || cause.contains("constraint") || cause.contains("tham chiếu")) {
+                    showError("Không thể xóa phòng này vì đang liên kết với hợp đồng hoặc sinh viên!");
+                } else {
+                    showError("Lỗi xóa phòng:\n" + getRootCause(ex));
+                }
+            }
+        }
+    }
     private void handleLoc() {
         String filter = view.getSelectedFilter();
         try {

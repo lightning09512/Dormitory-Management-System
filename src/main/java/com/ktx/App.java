@@ -74,22 +74,25 @@ public class App {
         DayNhaRepository   dayNhaRepo   = new DayNhaRepositoryImpl();
 
         // ---- Services ----
-        SinhVienService sinhVienSvc = new SinhVienServiceImpl(sinhVienRepo);
+        SinhVienService sinhVienSvc = new SinhVienServiceImpl(sinhVienRepo, hopDongRepo);
         PhongService    phongSvc    = new PhongServiceImpl(phongRepo);
         HopDongService  hopDongSvc  = new HopDongServiceImpl(hopDongRepo, sinhVienRepo, phongRepo);
         ThongKeService  thongKeSvc  = new ThongKeServiceImpl(thongKeRepo);
+        HoaDonService   hoaDonSvc   = new HoaDonServiceImpl();
 
         // ---- Views ----
         DashboardPanel        dashPanel = new DashboardPanel();
         QuanLySinhVienPanel   svPanel   = new QuanLySinhVienPanel();
         QuanLyPhongPanel      phongPanel= new QuanLyPhongPanel();
         LapHopDongPanel       hdPanel   = new LapHopDongPanel();
+        QuanLyHoaDonPanel     hdnPanel  = new QuanLyHoaDonPanel();
 
         // ---- Controllers ----
         DashboardController  dashCtrl = new DashboardController(dashPanel, thongKeSvc);
         new SinhVienController(svPanel,   sinhVienSvc);
         new PhongController   (phongPanel, phongSvc, dayNhaRepo);
         new HopDongController (hdPanel, hopDongSvc, sinhVienSvc, phongSvc, user);
+        new HoaDonController  (hdnPanel, hoaDonSvc, user.getMaNV());
 
         // ---- MainFrame ----
         MainFrame frame = new MainFrame(user);
@@ -97,6 +100,7 @@ public class App {
         frame.setPanel(svPanel,    MainFrame.CARD_SINH_VIEN);
         frame.setPanel(phongPanel, MainFrame.CARD_PHONG);
         frame.setPanel(hdPanel,    MainFrame.CARD_HOP_DONG);
+        frame.setPanel(hdnPanel,   MainFrame.CARD_HOA_DON);
 
         // Refresh dashboard mỗi khi chuyển sang tab (dùng addDangXuatListener tác động phụ)
         // Đăng xuất: đóng MainFrame và quay lại màn hình login

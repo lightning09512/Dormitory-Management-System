@@ -14,6 +14,14 @@ public class DashboardController {
     public DashboardController(DashboardPanel view, ThongKeService thongKeService) {
         this.view           = view;
         this.thongKeService = thongKeService;
+        
+        view.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentShown(java.awt.event.ComponentEvent e) {
+                loadStats();
+            }
+        });
+        
         loadStats();
     }
 

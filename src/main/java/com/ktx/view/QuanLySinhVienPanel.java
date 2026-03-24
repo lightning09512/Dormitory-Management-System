@@ -15,7 +15,7 @@ import java.util.List;
 public class QuanLySinhVienPanel extends JPanel {
 
     private static final String[] COLUMNS = {
-            "Mã SV", "Họ tên", "Ngày sinh", "Giới tính", "Lớp", "Khoa", "SĐT", "Email"
+            "Mã SV", "Họ tên", "Phòng", "Ngày sinh", "Giới tính", "Lớp", "Khoa", "SĐT", "Email"
     };
 
     private final DefaultTableModel tableModel = new DefaultTableModel(COLUMNS, 0) {
@@ -38,11 +38,18 @@ public class QuanLySinhVienPanel extends JPanel {
     }
 
     private void buildUI() {
-        // ---- Header bar ----
+        // ---- Header bar with decorative image ----
         JPanel header = new JPanel(new BorderLayout(16, 0));
         header.setOpaque(false);
         header.setBorder(BorderFactory.createEmptyBorder(0, 0, 18, 0));
+        
+        // Add decorative image on the right
+        ImageIcon decorIcon = new ImageIcon("sinh-vien-truong-nao-duoc-thue-ktx-khu-b-dhqg-tphcm-o-tro-hay-o-ktx-tiet-kiem-hon.webp");
+        Image scaledDecor = decorIcon.getImage().getScaledInstance(120, 80, Image.SCALE_SMOOTH);
+        JLabel decorLabel = new JLabel(new ImageIcon(scaledDecor));
+        decorLabel.setBorder(BorderFactory.createLineBorder(UITheme.BORDER_COLOR));
         header.add(UITheme.pageTitle("Quản lý Sinh viên"), BorderLayout.WEST);
+        header.add(decorLabel, BorderLayout.EAST);
         add(header, BorderLayout.NORTH);
 
         // ---- Card chứa toolbar + table ----
@@ -50,10 +57,11 @@ public class QuanLySinhVienPanel extends JPanel {
         card.setBackground(Color.WHITE);
         card.setBorder(BorderFactory.createLineBorder(UITheme.BORDER_COLOR));
 
-        // Toolbar
-        JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 12));
+        JPanel toolbar = new JPanel(new GridBagLayout());
         toolbar.setBackground(Color.WHITE);
-        toolbar.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, UITheme.BORDER_COLOR));
+        toolbar.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 0, 1, 0, UITheme.BORDER_COLOR),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)));
 
         JLabel searchLabel = new JLabel("Tìm kiếm (MSSV/Tên): ");
         searchLabel.setFont(UITheme.FONT_BOLD);
@@ -62,23 +70,39 @@ public class QuanLySinhVienPanel extends JPanel {
                 BorderFactory.createLineBorder(UITheme.BORDER_COLOR),
                 BorderFactory.createEmptyBorder(6, 10, 6, 10)));
         txtSearch.setFont(UITheme.FONT_BODY);
+        txtSearch.setPreferredSize(new Dimension(220, 36));
+        txtSearch.setMinimumSize(new Dimension(200, 36));
 
-        toolbar.add(searchLabel);
-        toolbar.add(txtSearch);
-        toolbar.add(btnTim);
-        toolbar.add(new JSeparator(JSeparator.VERTICAL) {{
-            setPreferredSize(new Dimension(1, 28));
-            setForeground(UITheme.BORDER_COLOR);
-        }});
-        toolbar.add(btnThem);
-        toolbar.add(btnSua);
-        toolbar.add(btnXoa);
-        toolbar.add(btnLamMoi);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.insets = new Insets(0, 0, 0, 10);
+
+        gbc.gridx = 0; toolbar.add(searchLabel, gbc);
+        gbc.gridx = 1; toolbar.add(txtSearch, gbc);
+        gbc.gridx = 2; toolbar.add(btnTim, gbc);
+
+        // Khoảng trống đẩy các nút về bên phải
+        gbc.gridx = 3; gbc.weightx = 1.0; toolbar.add(Box.createHorizontalGlue(), gbc);
+
+        gbc.weightx = 0;
+        gbc.gridx = 4; toolbar.add(btnThem, gbc);
+        gbc.gridx = 5; toolbar.add(btnSua, gbc);
+        gbc.gridx = 6; toolbar.add(btnXoa, gbc);
+        gbc.gridx = 7; gbc.insets = new Insets(0, 0, 0, 0); toolbar.add(btnLamMoi, gbc);
+
         card.add(toolbar, BorderLayout.NORTH);
 
         // Table
         UITheme.styleTable(table);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        
+        // Tinh chỉnh độ rộng ưu tiên của các cột
+        int[] preferredWidths = {90, 170, 110, 100, 80, 100, 140, 110, 200};
+        for (int i = 0; i < preferredWidths.length; i++) {
+            table.getColumnModel().getColumn(i).setPreferredWidth(preferredWidths[i]);
+            table.getColumnModel().getColumn(i).setMinWidth(preferredWidths[i] - 20);
+        }
+
         JScrollPane scroll = UITheme.cleanScrollPane(table);
         card.add(scroll, BorderLayout.CENTER);
 
@@ -91,7 +115,7 @@ public class QuanLySinhVienPanel extends JPanel {
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         for (SinhVien sv : list) {
             tableModel.addRow(new Object[]{
-                    sv.getMaSV(), sv.getHoTen(),
+                    sv.getMaSV(), sv.getHoTen(), sv.getPhongHienTai(),
                     sv.getNgaySinh() != null ? sv.getNgaySinh().format(fmt) : "",
                     sv.getGioiTinh(), sv.getLop(), sv.getKhoa(),
                     sv.getSoDT(), sv.getEmail()

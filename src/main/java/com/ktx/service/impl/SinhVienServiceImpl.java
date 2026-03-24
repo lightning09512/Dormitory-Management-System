@@ -1,7 +1,9 @@
 package com.ktx.service.impl;
 
 import com.ktx.model.SinhVien;
+import com.ktx.model.HopDong;
 import com.ktx.repository.SinhVienRepository;
+import com.ktx.repository.HopDongRepository;
 import com.ktx.service.SinhVienService;
 import com.ktx.util.LoggerUtil;
 import com.ktx.util.ValidationUtil;
@@ -17,10 +19,34 @@ import java.util.Optional;
 public class SinhVienServiceImpl implements SinhVienService {
 
     private final SinhVienRepository sinhVienRepo;
+    private final HopDongRepository hopDongRepo;
     private static final Logger LOGGER = LoggerUtil.getLogger(SinhVienServiceImpl.class);
 
-    public SinhVienServiceImpl(SinhVienRepository sinhVienRepo) {
+    public SinhVienServiceImpl(SinhVienRepository sinhVienRepo, HopDongRepository hopDongRepo) {
         this.sinhVienRepo = sinhVienRepo;
+        this.hopDongRepo = hopDongRepo;
+    }
+
+    private SinhVien attachPhongHienTai(SinhVien sv) {
+        if (sv == null) return null;
+        sv.setPhongHienTai("Chưa xếp phòng");
+        if (hopDongRepo != null) {
+            List<HopDong> listHD = hopDongRepo.findBySinhVien(sv.getMaSV());
+            for (HopDong hd : listHD) {
+                if ("Đang hiệu lực".equals(hd.getTrangThai())) {
+                    sv.setPhongHienTai(hd.getMaPhong());
+                    break;
+                }
+            }
+        }
+        return sv;
+    }
+
+    private List<SinhVien> attachPhongHienTaiList(List<SinhVien> list) {
+        if (list != null) {
+            for (SinhVien sv : list) attachPhongHienTai(sv);
+        }
+        return list;
     }
 
     @Override
@@ -64,23 +90,24 @@ public class SinhVienServiceImpl implements SinhVienService {
 
     @Override
     public SinhVien timTheoMa(String maSV) {
-        return sinhVienRepo.findById(maSV)
+        SinhVien sv = sinhVienRepo.findById(maSV)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Không tìm thấy sinh viên: " + maSV));
+        return attachPhongHienTai(sv);
     }
 
     @Override
     public List<SinhVien> layTatCa() {
-        return sinhVienRepo.findAll();
+        return attachPhongHienTaiList(sinhVienRepo.findAll());
     }
 
     @Override
     public List<SinhVien> timTheoTen(String keyword) {
-        return sinhVienRepo.findByHoTen(keyword);
+        return attachPhongHienTaiList(sinhVienRepo.findByHoTen(keyword));
     }
     
     @Override
     public List<SinhVien> timTheoKeyword(String keyword) {
-        return sinhVienRepo.findByKeyword(keyword);
+        return attachPhongHienTaiList(sinhVienRepo.findByKeyword(keyword));
     }
 }
