@@ -15,14 +15,12 @@ public class HoaDonServiceImpl implements HoaDonService {
 
     private final HoaDonRepository hoaDonRepo;
     private final PhongRepository phongRepo;
+    private final com.ktx.service.CauHinhGiaService giaSvc;
 
-    // Hardcode giá điện nước tạm thời. Thực tế lấy từ CauHinhGia
-    private static final BigDecimal GIA_DIEN = new BigDecimal("3500");
-    private static final BigDecimal GIA_NUOC = new BigDecimal("20000");
-
-    public HoaDonServiceImpl() {
-        this.hoaDonRepo = new HoaDonRepositoryImpl();
-        this.phongRepo = new PhongRepositoryImpl();
+    public HoaDonServiceImpl(com.ktx.service.CauHinhGiaService giaSvc) {
+        this.hoaDonRepo = new com.ktx.repository.impl.HoaDonRepositoryImpl();
+        this.phongRepo = new com.ktx.repository.impl.PhongRepositoryImpl();
+        this.giaSvc = giaSvc;
     }
 
     @Override
@@ -57,16 +55,17 @@ public class HoaDonServiceImpl implements HoaDonService {
         }
 
         // 3. Tính tiền
+        BigDecimal giaDien = giaSvc.getDonGia("Điện");
+        BigDecimal giaNuoc = giaSvc.getDonGia("Nước");
+
         BigDecimal dienTieuThu = chiSoDienMoi.subtract(chiSoDienCu);
-        BigDecimal tienDien = dienTieuThu.multiply(GIA_DIEN);
+        BigDecimal tienDien = dienTieuThu.multiply(giaDien);
 
         BigDecimal nuocTieuThu = chiSoNuocMoi.subtract(chiSoNuocCu);
-        BigDecimal tienNuoc = nuocTieuThu.multiply(GIA_NUOC);
+        BigDecimal tienNuoc = nuocTieuThu.multiply(giaNuoc);
 
-        BigDecimal giaPhong = phong.getGiaPhong();
         BigDecimal phuPhi = BigDecimal.ZERO; // Có thể mở rộng nhập thêm sau
-
-        BigDecimal tongTien = tienDien.add(tienNuoc).add(giaPhong).add(phuPhi);
+        BigDecimal tongTien = tienDien.add(tienNuoc).add(phuPhi);
 
         // 4. Sinh mã hóa đơn: HD[MM][YY][MaPhong] (Tối đa 15 ký tự nếu MaPhong ~ 8)
         String mm = String.format("%02d", thang);
@@ -102,12 +101,19 @@ public class HoaDonServiceImpl implements HoaDonService {
     }
 
     @Override
-    public void xoaHoaDon(String maHDon) throws Exception {
+    public void xoaHoaDon(String maHDon, String vaiTroNguoiXoa) throws Exception {
         HoaDon hd = hoaDonRepo.findById(maHDon)
                 .orElseThrow(() -> new Exception("Hóa đơn không tồn tại."));
-        if ("Đã thanh toán".equals(hd.getTrangThaiThanhToan())) {
+        
+        // Chỉ cho phép xóa hóa đơn đã thanh toán nếu là Manager
+        if ("Đã thanh toán".equals(hd.getTrangThaiThanhToan()) && !"Manager".equalsIgnoreCase(vaiTroNguoiXoa)) {
             throw new Exception("Không thể xóa hóa đơn đã thanh toán. Vui lòng liên hệ quản lý.");
         }
+        
         hoaDonRepo.delete(maHDon);
+    }
+    @Override
+    public HoaDon layHoaDonGanNhatTheoPhong(String maPhong) {
+        return hoaDonRepo.findLatestByPhong(maPhong).orElse(null);
     }
 }

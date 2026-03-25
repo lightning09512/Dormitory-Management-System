@@ -12,5 +12,6 @@ public interface HoaDonService {
                    BigDecimal chiSoDienCu, BigDecimal chiSoDienMoi, 
                    BigDecimal chiSoNuocCu, BigDecimal chiSoNuocMoi) throws Exception;
     void thanhToanHoaDon(String maHDon) throws Exception;
-    void xoaHoaDon(String maHDon) throws Exception;
+    void xoaHoaDon(String maHDon, String vaiTroNguoiXoa) throws Exception;
+    HoaDon layHoaDonGanNhatTheoPhong(String maPhong);
 }

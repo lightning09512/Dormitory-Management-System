@@ -13,4 +13,5 @@ public interface HoaDonRepository {
     List<HoaDon> findTheoThangNam(int thang, int nam);
     Optional<HoaDon> findById(String maHDon);
     boolean existsByPhongAndThangNam(String maPhong, int thang, int nam);
+    Optional<HoaDon> findLatestByPhong(String maPhong);
 }

@@ -23,6 +23,7 @@ public class MainFrame extends JFrame {
     public static final String CARD_THIET_BI   = "thietbi";
     public static final String CARD_TIEN_PHONG = "tienphong";
     public static final String CARD_NHAN_VIEN  = "nhanvien";
+    public static final String CARD_GIA        = "gia";
 
     private final CardLayout  cardLayout  = new CardLayout();
     private final JPanel      contentPane = new JPanel(cardLayout);
@@ -108,16 +109,20 @@ public class MainFrame extends JFrame {
 
         // Nav items
         boolean isManager = "Manager".equalsIgnoreCase(user.getVaiTro());
+
+        sidebar.add(navButton("Dashboard / Thống kê", CARD_DASHBOARD));
+        sidebar.add(navButton("Quản lý Sinh viên",     CARD_SINH_VIEN));
+        sidebar.add(navButton("Quản lý Phòng",         CARD_PHONG));
+        sidebar.add(navButton("Lập Hợp Đồng",          CARD_HOP_DONG));
+        sidebar.add(navButton("Tiền Phòng",            CARD_TIEN_PHONG));
+        sidebar.add(navButton("Hóa đơn điện nước",     CARD_HOA_DON));
+        sidebar.add(navButton("Trang Thiết Bị",        CARD_THIET_BI));
+
         if (isManager) {
-            sidebar.add(navButton("Dashboard / Thống kê", CARD_DASHBOARD));
-            sidebar.add(navButton("Quản lý Nhân viên",    CARD_NHAN_VIEN));
+            sidebar.add(createSidebarSep()); // Phân tách phần quản trị
+            sidebar.add(navButton("Quản lý Nhân viên", CARD_NHAN_VIEN));
+            sidebar.add(navButton("Cấu hình Giá",      CARD_GIA));
         }
-        sidebar.add(navButton("Quản lý Sinh viên", CARD_SINH_VIEN));
-        sidebar.add(navButton("Quản lý Phòng",     CARD_PHONG));
-        sidebar.add(navButton("Lập Hợp Đồng",      CARD_HOP_DONG));
-        sidebar.add(navButton("Quản lý Hóa đơn",   CARD_HOA_DON));
-        sidebar.add(navButton("Trang Thiết Bị",    CARD_THIET_BI));
-        sidebar.add(navButton("Tiền Phòng",       CARD_TIEN_PHONG));
 
         sidebar.add(Box.createVerticalGlue());
         sidebar.add(createSidebarSep());

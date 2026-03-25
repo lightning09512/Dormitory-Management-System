@@ -75,16 +75,18 @@ public class App {
         DayNhaRepository   dayNhaRepo   = new DayNhaRepositoryImpl();
         TrangThietBiRepository tbRepo   = new TrangThietBiRepositoryImpl();
         HoaDonTienPhongRepository hdtpRepo = new HoaDonTienPhongRepositoryImpl();
+        CauHinhGiaRepository   giaRepo    = new CauHinhGiaRepositoryImpl();
 
         // ---- Services ----
         SinhVienService sinhVienSvc = new SinhVienServiceImpl(sinhVienRepo, hopDongRepo);
         PhongService    phongSvc    = new PhongServiceImpl(phongRepo);
         HopDongService  hopDongSvc  = new HopDongServiceImpl(hopDongRepo, sinhVienRepo, phongRepo);
         ThongKeService  thongKeSvc  = new ThongKeServiceImpl(thongKeRepo);
-        HoaDonService   hoaDonSvc   = new HoaDonServiceImpl();
         TrangThietBiService tbSvc   = new TrangThietBiServiceImpl(tbRepo, phongRepo);
+        CauHinhGiaService   giaSvc   = new CauHinhGiaServiceImpl(giaRepo);
         HoaDonTienPhongService hdtpSvc = new HoaDonTienPhongServiceImpl(hdtpRepo, hopDongRepo, phongRepo);
-        NhanVienService nhanVienSvc = new NhanVienServiceImpl(nhanVienRepo);
+        HoaDonService       hoaDonSvc = new HoaDonServiceImpl(giaSvc);
+        NhanVienService     nhanVienSvc = new NhanVienServiceImpl(nhanVienRepo);
 
         // ---- Views ----
         DashboardPanel        dashPanel = new DashboardPanel();
@@ -95,16 +97,18 @@ public class App {
         TrangThietBiPanel     tbPanel   = new TrangThietBiPanel();
         QuanLyTienPhongPanel  tpPanel   = new QuanLyTienPhongPanel();
         QuanLyNhanVienPanel   nvPanel   = new QuanLyNhanVienPanel();
+        QuanLyGiaPanel        giaPanel  = new QuanLyGiaPanel();
 
         // ---- Controllers ----
         DashboardController  dashCtrl = new DashboardController(dashPanel, thongKeSvc);
         new SinhVienController(svPanel,   sinhVienSvc);
         new PhongController   (phongPanel, phongSvc, dayNhaRepo);
         new HopDongController (hdPanel, hopDongSvc, sinhVienSvc, phongSvc, user);
-        new HoaDonController  (hdnPanel, hoaDonSvc, user.getMaNV());
+        new HoaDonController  (hdnPanel, hoaDonSvc, user.getMaNV(), user.getVaiTro());
         new TrangThietBiController(tbPanel, tbSvc);
         new HoaDonTienPhongController(tpPanel, hdtpSvc, hopDongRepo, user.getMaNV());
         new NhanVienController(nvPanel, nhanVienSvc);
+        new CauHinhGiaController(giaPanel, giaSvc);
 
         // ---- MainFrame ----
         MainFrame frame = new MainFrame(user);
@@ -117,6 +121,7 @@ public class App {
         frame.setPanel(tpPanel,    MainFrame.CARD_TIEN_PHONG);
         if ("Manager".equalsIgnoreCase(user.getVaiTro())) {
             frame.setPanel(nvPanel, MainFrame.CARD_NHAN_VIEN);
+            frame.setPanel(giaPanel, MainFrame.CARD_GIA);
         }
 
         // Refresh dashboard mỗi khi chuyển sang tab (dùng addDangXuatListener tác động phụ)

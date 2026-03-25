@@ -101,4 +101,15 @@ public class HoaDonRepositoryImpl implements HoaDonRepository {
             return query.getSingleResult() > 0;
         }
     }
+    @Override
+    public Optional<HoaDon> findLatestByPhong(String maPhong) {
+        try (EntityManager em = JpaUtil.getEmf().createEntityManager()) {
+            TypedQuery<HoaDon> query = em.createQuery(
+                "SELECT h FROM HoaDon h WHERE h.maPhong = :maPhong ORDER BY h.nam DESC, h.thang DESC", HoaDon.class);
+            query.setParameter("maPhong", maPhong);
+            query.setMaxResults(1);
+            List<HoaDon> results = query.getResultList();
+            return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
+        }
+    }
 }

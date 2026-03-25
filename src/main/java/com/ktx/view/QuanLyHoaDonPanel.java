@@ -41,7 +41,7 @@ public class QuanLyHoaDonPanel extends JPanel {
         JPanel header = new JPanel(new BorderLayout(16, 0));
         header.setOpaque(false);
         header.setBorder(BorderFactory.createEmptyBorder(0, 0, 18, 0));
-        header.add(UITheme.pageTitle("Quản lý Hóa đơn Điện Nước"), BorderLayout.WEST);
+        header.add(UITheme.pageTitle("Hóa đơn điện nước"), BorderLayout.WEST);
         add(header, BorderLayout.NORTH);
 
         JPanel card = new JPanel(new BorderLayout(0, 0));

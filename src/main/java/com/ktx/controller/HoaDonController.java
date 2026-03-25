@@ -17,12 +17,14 @@ public class HoaDonController {
 
     private final QuanLyHoaDonPanel view;
     private final HoaDonService service;
-    private final String maNVDangNhap; // Nhân viên thao tác hiện tại
+    private final String maNVDangNhap;
+    private final String vaiTroNguoiDung;
 
-    public HoaDonController(QuanLyHoaDonPanel view, HoaDonService service, String maNV) {
+    public HoaDonController(QuanLyHoaDonPanel view, HoaDonService service, String maNV, String vaiTro) {
         this.view = view;
         this.service = service;
         this.maNVDangNhap = maNV;
+        this.vaiTroNguoiDung = vaiTro;
         bindListeners();
         loadAll();
     }
@@ -84,7 +86,7 @@ public class HoaDonController {
         int confirm = JOptionPane.showConfirmDialog(view, "Bạn có chắc muốn xóa hóa đơn " + maHD + " không?", "Xác nhận", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
         if (confirm == JOptionPane.YES_OPTION) {
             try {
-                service.xoaHoaDon(maHD);
+                service.xoaHoaDon(maHD, vaiTroNguoiDung);
                 showInfo("Đã xóa hóa đơn!");
                 loadAll();
             } catch (Exception ex) {
@@ -115,13 +117,40 @@ public class HoaDonController {
         JTextField txtNuocCu = new JTextField("0");
         JTextField txtNuocMoi = new JTextField();
 
+        // Thêm listener để tự động lấy chỉ số cũ khi chọn phòng
+        cboPhong.addActionListener(al -> {
+            String selected = (String) cboPhong.getSelectedItem();
+            if (selected != null) {
+                com.ktx.model.HoaDon latest = service.layHoaDonGanNhatTheoPhong(selected);
+                if (latest != null) {
+                    txtDienCu.setText(latest.getChiSoDienMoi().toString());
+                    txtNuocCu.setText(latest.getChiSoNuocMoi().toString());
+                } else {
+                    txtDienCu.setText("0");
+                    txtNuocCu.setText("0");
+                }
+            }
+        });
+        
+        // Kích hoạt load lần đầu nếu có dữ liệu
+        if (cboPhong.getItemCount() > 0) {
+            cboPhong.setSelectedIndex(0);
+            // Kích hoạt thủ công vì addActionListener có thể không chạy khi setSelectedIndex(0) nếu nó đã là 0
+            String selected = (String) cboPhong.getSelectedItem();
+            com.ktx.model.HoaDon latest = service.layHoaDonGanNhatTheoPhong(selected);
+            if (latest != null) {
+                txtDienCu.setText(latest.getChiSoDienMoi().toString());
+                txtNuocCu.setText(latest.getChiSoNuocMoi().toString());
+            }
+        }
+
         p.add(new JLabel("Chọn phòng:")); p.add(cboPhong);
         p.add(new JLabel("Tháng:")); p.add(cboThang);
         p.add(new JLabel("Năm:")); p.add(spinNam);
-        p.add(new JLabel("Điện cũ:")); p.add(txtDienCu);
-        p.add(new JLabel("Điện mới:")); p.add(txtDienMoi);
-        p.add(new JLabel("Nước cũ:")); p.add(txtNuocCu);
-        p.add(new JLabel("Nước mới:")); p.add(txtNuocMoi);
+        p.add(new JLabel("Chỉ số Điện cũ (tháng trước):")); p.add(txtDienCu);
+        p.add(new JLabel("Chỉ số Điện mới:")); p.add(txtDienMoi);
+        p.add(new JLabel("Chỉ số Nước cũ (tháng trước):")); p.add(txtNuocCu);
+        p.add(new JLabel("Chỉ số Nước mới:")); p.add(txtNuocMoi);
 
         int result = JOptionPane.showConfirmDialog(view, p, "Lập Hóa Đơn Điện Nước", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         
