@@ -71,9 +71,11 @@
 - **Maven** - Dependency management
 
 ### Frontend
-- **Java Swing** - Native desktop UI
-- **FlatLaf** - Modern look & feel
-- **Custom Theme** - Consistent design
+- **Java Swing** - Core desktop framework
+- **FlatLaf (Mac Light)** - Modern, high-performance look & feel
+- **FlatLaf Extras** - SVG icon support for crisp visuals
+- **MigLayout** - Flexible and responsive UI layouts
+- **Custom UITheme** - Centralized design system with consistent scales
 
 ### Quality Assurance
 - **JUnit 5** - Unit testing
@@ -185,10 +187,11 @@ mvn test jacoco:report
 ## 🎨 UI/UX Features
 
 ### Modern Design
-- Gradient backgrounds
-- Smooth animations
-- Card-based layouts
-- Consistent theming
+- **FlatLaf Integration**: macOS-style interfaces with clean lines.
+- **Responsive Toolbars**: Smart two-row layouts for management controls.
+- **Card-based Dashboard**: Rounded corners and subtle accent styling.
+- **SVG Graphics**: Resolution-independent icons for high-DPI displays.
+- **Standardized Scaling**: 40px base height for all inputs and buttons.
 
 ### Accessibility
 - Keyboard navigation
@@ -271,6 +274,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Version**: 1.0.0  
-**Last Updated**: 2024  
+**Version**: 1.1.0 (UI Modernized)  
+**Last Updated**: 2026  
 **Maintainer**: KTX Manager Team

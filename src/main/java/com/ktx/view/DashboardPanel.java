@@ -86,18 +86,13 @@ public class DashboardPanel extends JPanel {
     private JPanel statCard(String title, JLabel valueLabel, Color accent, String hexBg) {
         JPanel card = new JPanel(new BorderLayout(0, 0));
         card.setBackground(Color.WHITE);
+        card.putClientProperty("FlatLaf.style", "arc: 16");
         card.setBorder(BorderFactory.createLineBorder(UITheme.BORDER_COLOR));
-
-        // Top colored stripe
-        JPanel stripe = new JPanel();
-        stripe.setBackground(accent);
-        stripe.setPreferredSize(new Dimension(0, 5));
-        card.add(stripe, BorderLayout.NORTH);
 
         // Content
         JPanel body = new JPanel(new GridBagLayout());
-        body.setBackground(Color.WHITE);
-        body.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        body.setOpaque(false);
+        body.setBorder(BorderFactory.createEmptyBorder(24, 24, 24, 24));
 
         GridBagConstraints gc = new GridBagConstraints();
         gc.gridx = 0; gc.gridy = 0; gc.anchor = GridBagConstraints.WEST;
@@ -106,9 +101,15 @@ public class DashboardPanel extends JPanel {
         lbl.setForeground(UITheme.TEXT_SECONDARY);
         body.add(lbl, gc);
 
-        gc.gridy = 1; gc.insets = new Insets(10, 0, 0, 0);
+        gc.gridy = 1; gc.insets = new Insets(8, 0, 0, 0);
         valueLabel.setForeground(accent);
         body.add(valueLabel, gc);
+
+        // Subtle accent bar at the bottom
+        JPanel accentBar = new JPanel();
+        accentBar.setBackground(accent);
+        accentBar.setPreferredSize(new Dimension(0, 4));
+        card.add(accentBar, BorderLayout.SOUTH);
 
         card.add(body, BorderLayout.CENTER);
         return card;

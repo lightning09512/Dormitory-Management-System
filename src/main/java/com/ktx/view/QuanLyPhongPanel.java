@@ -58,28 +58,36 @@ public class QuanLyPhongPanel extends JPanel {
                 BorderFactory.createMatteBorder(0, 0, 1, 0, UITheme.BORDER_COLOR),
                 BorderFactory.createEmptyBorder(10, 10, 10, 10)));
 
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new Insets(0, 0, 10, 10);
+
+        // --- Row 1: Filter ---
+        gbc.gridy = 0;
         JLabel filterLabel = new JLabel("Lọc theo TT: ");
         filterLabel.setFont(UITheme.FONT_BOLD);
         filterLabel.setForeground(UITheme.TEXT_SECONDARY);
-        cbFilter.setFont(UITheme.FONT_BODY);
-        cbFilter.setPreferredSize(new Dimension(150, 34));
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.insets = new Insets(0, 0, 0, 10);
-
         gbc.gridx = 0; toolbar.add(filterLabel, gbc);
+        cbFilter.setFont(UITheme.FONT_BODY);
+        cbFilter.setPreferredSize(new Dimension(180, 42));
         gbc.gridx = 1; toolbar.add(cbFilter, gbc);
         gbc.gridx = 2; toolbar.add(btnLoc, gbc);
 
-        gbc.gridx = 3; gbc.weightx = 1.0; toolbar.add(Box.createHorizontalGlue(), gbc);
-
-        gbc.weightx = 0;
-        gbc.gridx = 4; toolbar.add(btnThem, gbc);
-        gbc.gridx = 5; toolbar.add(btnSua, gbc);
-        gbc.gridx = 6; toolbar.add(btnXoa, gbc);
-        gbc.gridx = 7; gbc.insets = new Insets(0, 0, 0, 0); toolbar.add(btnLamMoi, gbc);
+        // --- Row 2: Actions ---
+        gbc.gridy = 1;
+        gbc.insets = new Insets(0, 0, 0, 10);
+        JPanel btnActions = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0));
+        btnActions.setOpaque(false);
+        btnActions.add(btnThem);
+        btnActions.add(btnSua);
+        btnActions.add(btnXoa);
+        btnActions.add(btnLamMoi);
         
+        gbc.gridx = 0;
+        gbc.gridwidth = 3;
+        toolbar.add(btnActions, gbc);
+
         card.add(toolbar, BorderLayout.NORTH);
 
         // Table

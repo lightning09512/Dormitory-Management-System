@@ -55,33 +55,39 @@ public class QuanLyHoaDonPanel extends JPanel {
                 BorderFactory.createEmptyBorder(10, 10, 10, 10)));
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(0, 0, 0, 10);
-        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = new Insets(0, 0, 10, 10);
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.NONE;
 
+        // --- Row 1: Filter ---
+        gbc.gridy = 0;
         JLabel lblThang = new JLabel("Tháng:");
         lblThang.setFont(UITheme.FONT_BOLD);
         gbc.gridx = 0; toolbar.add(lblThang, gbc);
+        cboThang.setPreferredSize(new Dimension(80, 42));
         gbc.gridx = 1; toolbar.add(cboThang, gbc);
 
         JLabel lblNam = new JLabel("Năm:");
         lblNam.setFont(UITheme.FONT_BOLD);
         gbc.gridx = 2; toolbar.add(lblNam, gbc);
+        spinNam.setPreferredSize(new Dimension(100, 42));
         gbc.gridx = 3; toolbar.add(spinNam, gbc);
 
         gbc.gridx = 4; toolbar.add(btnLoc, gbc);
 
-        // Khoảng trống
-        gbc.gridx = 5;
-        gbc.weightx = 1.0;
-        toolbar.add(Box.createHorizontalStrut(10), gbc);
-
-        // Nhóm nút chức năng
-        gbc.weightx = 0;
-        gbc.gridx = 6; toolbar.add(btnLapHD, gbc);
-        gbc.gridx = 7; toolbar.add(btnThanhToan, gbc);
-        gbc.gridx = 8; toolbar.add(btnXoa, gbc);
-        gbc.gridx = 9; toolbar.add(btnLamMoi, gbc);
+        // --- Row 2: Actions ---
+        gbc.gridy = 1;
+        gbc.insets = new Insets(0, 0, 0, 10);
+        JPanel btnActions = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0));
+        btnActions.setOpaque(false);
+        btnActions.add(btnLapHD);
+        btnActions.add(btnThanhToan);
+        btnActions.add(btnXoa);
+        btnActions.add(btnLamMoi);
+        
+        gbc.gridx = 0;
+        gbc.gridwidth = 5;
+        toolbar.add(btnActions, gbc);
 
         card.add(toolbar, BorderLayout.NORTH);
 
