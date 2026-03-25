@@ -34,7 +34,7 @@ public class LapHopDongPanel extends JPanel {
 
     private final DatePicker dpNgayBD  = createDatePicker();
     private final JComboBox<Integer> cboGoi = new JComboBox<>(new Integer[]{6, 9, 12});
-    private final JTextField txtNgayKT = new JTextField(); // Read-only view
+    private final JTextField txtNgayKT = UITheme.textField(15); // Read-only view
 
     private final JButton btnLap    = UITheme.button("Lập hợp đồng", UITheme.INDIGO);
     private final JButton btnChamDut = UITheme.button("Chấm dứt HĐ", UITheme.RED);

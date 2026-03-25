@@ -43,20 +43,11 @@ public class MainFrame extends JFrame {
         setLayout(new BorderLayout());
 
         // ---- Sidebar ----
-        JPanel sidebar = new JPanel() {
-            @Override protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2 = (Graphics2D) g;
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-                
-                g2.setColor(UITheme.SIDEBAR_BG);
-                g2.fillRect(0, 0, getWidth(), getHeight());
-            }
-        };
+        JPanel sidebar = new JPanel();
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
-        sidebar.setPreferredSize(new Dimension(260, 0));
-        sidebar.setOpaque(false);
+        sidebar.setPreferredSize(new Dimension(300, 0)); // Even wider sidebar
+        sidebar.setBackground(UITheme.SIDEBAR_BG);
+        sidebar.putClientProperty("FlatLaf.style", "arc: 0"); // No rounding on sidebar itself
 
         // Brand / Logo with Cover Image
         JPanel brand = new JPanel();
@@ -89,16 +80,16 @@ public class MainFrame extends JFrame {
         } catch (Exception e) {}
 
         JLabel logo = new JLabel("KTX Manager");
-        logo.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        logo.setFont(new Font("Segoe UI", Font.BOLD, 26));
         logo.setForeground(Color.WHITE);
         logo.setAlignmentX(Component.LEFT_ALIGNMENT);
         logoPanel.add(logo);
         
         JLabel role = new JLabel(user.getVaiTro());
-        role.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        role.setFont(new Font("Segoe UI", Font.PLAIN, 15));
         role.setForeground(UITheme.SIDEBAR_TEXT);
         role.setAlignmentX(Component.LEFT_ALIGNMENT);
-        logoPanel.add(Box.createVerticalStrut(6));
+        logoPanel.add(Box.createVerticalStrut(8));
         logoPanel.add(role);
         
         brand.add(logoPanel);
@@ -111,16 +102,24 @@ public class MainFrame extends JFrame {
         boolean isManager = "Manager".equalsIgnoreCase(user.getVaiTro());
 
         sidebar.add(navButton("Dashboard / Thống kê", CARD_DASHBOARD));
+        sidebar.add(Box.createVerticalStrut(4));
         sidebar.add(navButton("Quản lý Sinh viên",     CARD_SINH_VIEN));
+        sidebar.add(Box.createVerticalStrut(4));
         sidebar.add(navButton("Quản lý Phòng",         CARD_PHONG));
+        sidebar.add(Box.createVerticalStrut(4));
         sidebar.add(navButton("Lập Hợp Đồng",          CARD_HOP_DONG));
+        sidebar.add(Box.createVerticalStrut(4));
         sidebar.add(navButton("Tiền Phòng",            CARD_TIEN_PHONG));
+        sidebar.add(Box.createVerticalStrut(4));
         sidebar.add(navButton("Hóa đơn điện nước",     CARD_HOA_DON));
+        sidebar.add(Box.createVerticalStrut(4));
         sidebar.add(navButton("Trang Thiết Bị",        CARD_THIET_BI));
 
         if (isManager) {
-            sidebar.add(createSidebarSep()); // Phân tách phần quản trị
+            sidebar.add(createSidebarSep());
+            sidebar.add(Box.createVerticalStrut(4));
             sidebar.add(navButton("Quản lý Nhân viên", CARD_NHAN_VIEN));
+            sidebar.add(Box.createVerticalStrut(4));
             sidebar.add(navButton("Cấu hình Giá",      CARD_GIA));
         }
 
@@ -128,7 +127,7 @@ public class MainFrame extends JFrame {
         sidebar.add(createSidebarSep());
 
         // Logout
-        btnDangXuat.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        btnDangXuat.setFont(new Font("Segoe UI", Font.BOLD, 16));
         btnDangXuat.setForeground(new Color(252, 165, 165)); // red-300
         btnDangXuat.setBackground(UITheme.SIDEBAR_BG);
         btnDangXuat.setOpaque(true);
@@ -136,11 +135,8 @@ public class MainFrame extends JFrame {
         btnDangXuat.setBorderPainted(false);
         btnDangXuat.setFocusPainted(false);
         btnDangXuat.setHorizontalAlignment(SwingConstants.LEFT);
-        btnDangXuat.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createEmptyBorder(4, 0, 4, 0),
-                BorderFactory.createEmptyBorder(12, 24, 12, 24)
-        ));
-        btnDangXuat.setMaximumSize(new Dimension(Integer.MAX_VALUE, 48));
+        btnDangXuat.putClientProperty("FlatLaf.style", "margin: 14,24,14,24; arc: 8");
+        btnDangXuat.setMaximumSize(new Dimension(Integer.MAX_VALUE, 64));
         btnDangXuat.setAlignmentX(Component.LEFT_ALIGNMENT);
         btnDangXuat.addMouseListener(new MouseAdapter() {
             @Override public void mouseEntered(MouseEvent e) { 
@@ -164,26 +160,21 @@ public class MainFrame extends JFrame {
 
     private JButton navButton(String label, String card) {
         JButton b = new JButton(label);
-        b.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        b.setFont(new Font("Segoe UI", Font.PLAIN, 18));
         b.setForeground(UITheme.SIDEBAR_TEXT);
         b.setBackground(UITheme.SIDEBAR_BG);
-        b.setOpaque(true);
-        b.setContentAreaFilled(true);
-        b.setBorderPainted(false);
-        b.setFocusPainted(false);
         b.setHorizontalAlignment(SwingConstants.LEFT);
-        b.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createEmptyBorder(4, 0, 4, 0),
-                BorderFactory.createEmptyBorder(12, 24, 12, 24)
-        ));
-        b.setMaximumSize(new Dimension(Integer.MAX_VALUE, 48));
+        b.putClientProperty("JButton.buttonType", "toolBarButton");
+        b.putClientProperty("FlatLaf.style", "margin: 24,24,24,24; arc: 12");
+        b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        b.setMaximumSize(new Dimension(Integer.MAX_VALUE, 84));
         b.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         b.addMouseListener(new MouseAdapter() {
             @Override public void mouseEntered(MouseEvent e) {
                 if (b != activeSidebar) {
-                    b.setBackground(new Color(50, 60, 80));
-                    b.setForeground(new Color(220, 230, 240));
+                    b.setBackground(UITheme.SIDEBAR_HOVER);
+                    b.setForeground(Color.WHITE);
                 }
             }
             @Override public void mouseExited(MouseEvent e) {
@@ -229,11 +220,11 @@ public class MainFrame extends JFrame {
         if (activeSidebar != null) {
             activeSidebar.setBackground(UITheme.SIDEBAR_BG);
             activeSidebar.setForeground(UITheme.SIDEBAR_TEXT);
-            activeSidebar.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+            activeSidebar.setFont(new Font("Segoe UI", Font.PLAIN, 18));
         }
-        source.setBackground(new Color(99, 102, 241));
+        source.setBackground(UITheme.SIDEBAR_ACTIVE);
         source.setForeground(Color.WHITE);
-        source.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        source.setFont(new Font("Segoe UI", Font.BOLD, 20)); // Even larger bold font
         activeSidebar = source;
         cardLayout.show(contentPane, cardName);
     }

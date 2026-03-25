@@ -21,7 +21,7 @@ public class QuanLyTienPhongPanel extends JPanel {
     private final JTable table = new JTable(tableModel);
 
     // Lọc / Tìm kiếm
-    private final JTextField txtTimKiem = new JTextField(15);
+    private final JTextField txtTimKiem = UITheme.textField(20, "Mã HĐ hoặc MSSV...");
     private final JComboBox<String> cboTrangThai = new JComboBox<>(new String[]{"Tất cả", "Chưa thanh toán", "Đã thanh toán"});
     private final JButton btnLoc = UITheme.button("Lọc", UITheme.BLUE);
 
@@ -54,10 +54,12 @@ public class QuanLyTienPhongPanel extends JPanel {
                 BorderFactory.createEmptyBorder(10, 10, 10, 10)));
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(0, 0, 0, 10);
-        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = new Insets(0, 0, 10, 10);
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.NONE;
 
+        // --- Row 1: Filter/Search ---
+        gbc.gridy = 0;
         JLabel lblTim = new JLabel("Tìm kiếm (Mã HD/SV):");
         lblTim.setFont(UITheme.FONT_BOLD);
         gbc.gridx = 0; toolbar.add(lblTim, gbc);
@@ -70,16 +72,18 @@ public class QuanLyTienPhongPanel extends JPanel {
 
         gbc.gridx = 4; toolbar.add(btnLoc, gbc);
 
-        // Khoảng trống
-        gbc.gridx = 5;
-        gbc.weightx = 1.0;
-        toolbar.add(Box.createHorizontalStrut(10), gbc);
-
-        // Nhóm nút chức năng
-        gbc.weightx = 0;
-        gbc.gridx = 6; toolbar.add(btnLapHD, gbc);
-        gbc.gridx = 7; toolbar.add(btnThanhToan, gbc);
-        gbc.gridx = 8; toolbar.add(btnLamMoi, gbc);
+        // --- Row 2: Action Buttons ---
+        gbc.gridy = 1;
+        gbc.insets = new Insets(0, 0, 0, 10);
+        JPanel btnActions = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0));
+        btnActions.setOpaque(false);
+        btnActions.add(btnLapHD);
+        btnActions.add(btnThanhToan);
+        btnActions.add(btnLamMoi);
+        
+        gbc.gridx = 0;
+        gbc.gridwidth = 5;
+        toolbar.add(btnActions, gbc);
 
         card.add(toolbar, BorderLayout.NORTH);
 

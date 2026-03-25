@@ -3,11 +3,9 @@ package com.ktx.view;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 /**
- * Màn hình đăng nhập – thiết kế card hiện đại trên nền gradient tối.
+ * Màn hình đăng nhập – thiết kế card hiện đại trên nền Slate-100 sạch sẽ.
  */
 public class DangNhapFrame extends JFrame {
 
@@ -20,142 +18,102 @@ public class DangNhapFrame extends JFrame {
         super("Đăng nhập – KTX Manager");
         buildUI();
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(600, 600);
+        setSize(700, 750);
         setResizable(false);
         setLocationRelativeTo(null);
     }
 
     private void buildUI() {
-        // Nền gradient
-        JPanel root = new JPanel() {
-            @Override protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2 = (Graphics2D) g;
-                g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-                GradientPaint gp = new GradientPaint(
-                        0, 0, UITheme.SIDEBAR_BG,
-                        0, getHeight(), new Color(30, 41, 90));
-                g2.setPaint(gp);
-                g2.fillRect(0, 0, getWidth(), getHeight());
-            }
-        };
-        root.setLayout(new GridBagLayout());
+        // Main container with clean background
+        JPanel root = new JPanel(new GridBagLayout());
+        root.setBackground(new Color(241, 245, 249)); // slate-100
         setContentPane(root);
 
-        // Card
+        // Modern Card using FlatLaf style
         JPanel card = new JPanel(new GridBagLayout());
         card.setBackground(Color.WHITE);
-        card.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(230, 230, 230), 1),
-            BorderFactory.createEmptyBorder(40, 45, 40, 45)
-        ));
-        card.setPreferredSize(new Dimension(480, 480));
+        card.putClientProperty("FlatLaf.style", "arc: 24; [light]background: #ffffff; [dark]background: #1e293b");
+        card.setBorder(BorderFactory.createEmptyBorder(60, 60, 60, 60));
+        card.setPreferredSize(new Dimension(540, 620));
 
         GridBagConstraints gc = new GridBagConstraints();
         gc.gridx = 0; gc.gridwidth = 2; gc.gridy = 0;
-        gc.insets = new Insets(0, 0, 24, 0);
+        gc.insets = new Insets(0, 0, 32, 0);
         gc.anchor = GridBagConstraints.CENTER;
 
-        // Logo - Load ảnh từ file
-        ImageIcon logoIcon = new ImageIcon("images.png");
-        Image scaledImage = logoIcon.getImage().getScaledInstance(120, 120, Image.SCALE_SMOOTH);
-        JLabel logo = new JLabel(new ImageIcon(scaledImage));
-        logo.setHorizontalAlignment(SwingConstants.CENTER);
-        card.add(logo, gc);
+        // Logo
+        try {
+            ImageIcon logoIcon = new ImageIcon("images.png");
+            Image scaledImage = logoIcon.getImage().getScaledInstance(140, 140, Image.SCALE_SMOOTH);
+            JLabel logo = new JLabel(new ImageIcon(scaledImage));
+            card.add(logo, gc);
+        } catch (Exception e) {}
 
-        gc.gridy = 1; gc.insets = new Insets(16, 0, 8, 0);
+        gc.gridy = 1; gc.insets = new Insets(0, 0, 8, 0);
         JLabel title = new JLabel("KTX Manager");
-        title.setFont(new Font("Segoe UI", Font.BOLD, 28));
-        title.setForeground(Color.BLACK);
-        title.setHorizontalAlignment(SwingConstants.CENTER);
+        title.setFont(new Font("Segoe UI", Font.BOLD, 36));
+        title.setForeground(UITheme.TEXT_PRIMARY);
         card.add(title, gc);
 
-        gc.gridy = 2; gc.insets = new Insets(0, 0, 28, 0);
+        gc.gridy = 2; gc.insets = new Insets(0, 0, 48, 0);
         JLabel sub = new JLabel("Hệ thống Quản lý Ký túc xá");
-        sub.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        sub.setForeground(new Color(102, 102, 102));
-        sub.setHorizontalAlignment(SwingConstants.CENTER);
+        sub.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        sub.setForeground(UITheme.TEXT_SECONDARY);
         card.add(sub, gc);
 
-        // Fields
-        gc.gridwidth = 1; gc.anchor = GridBagConstraints.WEST; gc.gridx = 0;
-        gc.gridy = 3; gc.insets = new Insets(20, 0, 6, 10);
-        card.add(label("Tài khoản"), gc);
-        gc.gridx = 1; gc.fill = GridBagConstraints.HORIZONTAL;
-        gc.weightx = 1; gc.insets = new Insets(20, 0, 6, 0);
+        // Input Fields
+        gc.gridwidth = 2; gc.fill = GridBagConstraints.HORIZONTAL; gc.weightx = 1;
+
+        // Username
+        gc.gridy = 3; gc.insets = new Insets(0, 0, 12, 0);
+        JLabel lblUser = new JLabel("Tài khoản");
+        lblUser.setFont(UITheme.FONT_BOLD);
+        card.add(lblUser, gc);
+        
+        gc.gridy = 4; gc.insets = new Insets(0, 0, 24, 0);
         styleField(txtTaiKhoan);
+        txtTaiKhoan.setPreferredSize(new Dimension(0, 52));
         card.add(txtTaiKhoan, gc);
 
-        gc.gridx = 0; gc.gridy = 4; gc.weightx = 0; gc.fill = GridBagConstraints.NONE;
-        gc.insets = new Insets(8, 0, 6, 10);
-        card.add(label("Mật khẩu"), gc);
-        gc.gridx = 1; gc.fill = GridBagConstraints.HORIZONTAL;
-        gc.weightx = 1; gc.insets = new Insets(8, 0, 6, 0);
+        // Password
+        gc.gridy = 5; gc.insets = new Insets(0, 0, 12, 0);
+        JLabel lblPass = new JLabel("Mật khẩu");
+        lblPass.setFont(UITheme.FONT_BOLD);
+        card.add(lblPass, gc);
+        
+        gc.gridy = 6; gc.insets = new Insets(0, 0, 16, 0);
         styleField(txtMatKhau);
+        txtMatKhau.setPreferredSize(new Dimension(0, 52));
         card.add(txtMatKhau, gc);
 
-        // Error label
-        gc.gridx = 0; gc.gridy = 5; gc.gridwidth = 2; gc.weightx = 0;
-        gc.fill = GridBagConstraints.NONE; gc.insets = new Insets(8, 0, 0, 0);
+        // Error message
+        gc.gridy = 7; gc.insets = new Insets(0, 0, 24, 0);
         lblThongBao.setForeground(UITheme.RED);
-        lblThongBao.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        lblThongBao.setFont(UITheme.FONT_BODY);
+        lblThongBao.setHorizontalAlignment(SwingConstants.CENTER);
         card.add(lblThongBao, gc);
 
-        // Button
-        gc.gridy = 6; gc.insets = new Insets(30, 0, 0, 0);
-        gc.fill = GridBagConstraints.HORIZONTAL;
-        btnDangNhap.setFont(new Font("Segoe UI", Font.BOLD, 15));
-        btnDangNhap.setBackground(new Color(79, 70, 229));
+        // Login Button
+        gc.gridy = 8; gc.insets = new Insets(10, 0, 0, 0);
+        btnDangNhap.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        btnDangNhap.setBackground(UITheme.INDIGO);
         btnDangNhap.setForeground(Color.WHITE);
-        btnDangNhap.setFocusPainted(false);
-        btnDangNhap.setBorderPainted(false);
-        btnDangNhap.setOpaque(true);
         btnDangNhap.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btnDangNhap.setBorder(BorderFactory.createEmptyBorder(14, 20, 14, 20));
-        btnDangNhap.addMouseListener(new MouseAdapter() {
-            @Override public void mouseEntered(MouseEvent e) { 
-                btnDangNhap.setBackground(new Color(99, 102, 241));
-            }
-            @Override public void mouseExited (MouseEvent e) { 
-                btnDangNhap.setBackground(new Color(79, 70, 229));
-            }
-        });
+        btnDangNhap.setPreferredSize(new Dimension(0, 56));
+        btnDangNhap.putClientProperty("JButton.buttonType", "roundRect");
         card.add(btnDangNhap, gc);
 
         root.add(card);
         getRootPane().setDefaultButton(btnDangNhap);
     }
 
-    private JLabel label(String text) {
-        JLabel l = new JLabel(text);
-        l.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        l.setForeground(UITheme.TEXT_PRIMARY);
-        return l;
-    }
-
     private void styleField(JTextField tf) {
-        tf.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        tf.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(200, 200, 200), 1),
-                BorderFactory.createEmptyBorder(12, 14, 12, 14)));
-        tf.setBackground(new Color(250, 250, 250));
-        tf.setOpaque(true);
-        
-        // Add hover effect
-        tf.addMouseListener(new MouseAdapter() {
-            @Override public void mouseEntered(MouseEvent e) {
-                tf.setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createLineBorder(new Color(79, 70, 229), 1),
-                    BorderFactory.createEmptyBorder(12, 14, 12, 14)));
-                tf.setBackground(Color.WHITE);
-            }
-            @Override public void mouseExited(MouseEvent e) {
-                tf.setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createLineBorder(new Color(200, 200, 200), 1),
-                    BorderFactory.createEmptyBorder(12, 14, 12, 14)));
-                tf.setBackground(new Color(250, 250, 250));
-            }
-        });
+        tf.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        tf.putClientProperty("JTextField.showClearButton", true);
+        tf.putClientProperty("FlatLaf.style", "margin: 8,16,8,16; arc: 16");
+        if (tf instanceof JPasswordField) {
+            tf.putClientProperty("JTextField.showRevealButton", true);
+        }
     }
 
     // ---- Public API ----

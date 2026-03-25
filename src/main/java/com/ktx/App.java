@@ -9,7 +9,7 @@ import com.ktx.service.*;
 import com.ktx.service.impl.*;
 import com.ktx.view.*;
 import com.ktx.view.thietbi.TrangThietBiPanel;
-import com.formdev.flatlaf.FlatLightLaf;
+import com.formdev.flatlaf.themes.FlatMacLightLaf;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,12 +29,25 @@ public class App {
 
     public static void main(String[] args) {
         // ---- FlatLaf Modern L&F ----
-        FlatLightLaf.setup();
-        UIManager.put("Button.arc", 8);
-        UIManager.put("Component.arc", 8);
-        UIManager.put("TextComponent.arc", 6);
-        UIManager.put("ScrollBar.width", 8);
-        UIManager.put("defaultFont", new Font("Segoe UI", Font.PLAIN, 13));
+        FlatMacLightLaf.setup();
+        
+        // Global UI refinement
+        UIManager.put("Button.arc", 12);
+        UIManager.put("Component.arc", 12);
+        UIManager.put("TextComponent.arc", 12);
+        UIManager.put("CheckBox.arc", 4);
+        UIManager.put("ProgressBar.arc", 12);
+        
+        UIManager.put("ScrollBar.width", 10);
+        UIManager.put("ScrollBar.trackArc", 10);
+        UIManager.put("ScrollBar.thumbArc", 10);
+        UIManager.put("ScrollBar.trackInsets", new Insets(2, 2, 2, 2));
+        
+        UIManager.put("Component.focusWidth", 1);
+        UIManager.put("Component.innerFocusWidth", 1);
+        UIManager.put("Button.innerFocusWidth", 1);
+        
+        UIManager.put("defaultFont", new Font("Segoe UI", Font.PLAIN, 16));
 
         // Đóng JPA khi JVM tắt
         Runtime.getRuntime().addShutdownHook(new Thread(JpaUtil::shutdown));

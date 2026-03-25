@@ -20,7 +20,7 @@ public class QuanLyNhanVienPanel extends JPanel {
     private final JTable table = new JTable(tableModel);
 
     // Lọc / Tìm kiếm
-    private final JTextField txtTimKiem = new JTextField(15);
+    private final JTextField txtTimKiem = UITheme.textField(20, "Tên hoặc Mã NV...");
     private final JComboBox<String> cboVaiTro = new JComboBox<>(new String[]{"Tất cả", "Staff", "Manager"});
     private final JButton btnLoc = UITheme.button("Lọc", UITheme.BLUE);
 
@@ -55,10 +55,12 @@ public class QuanLyNhanVienPanel extends JPanel {
                 BorderFactory.createEmptyBorder(10, 10, 10, 10)));
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(0, 0, 0, 10);
-        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = new Insets(0, 0, 10, 10);
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.NONE;
 
+        // --- Row 1: Filter/Search ---
+        gbc.gridy = 0;
         JLabel lblTim = new JLabel("Tìm kiếm (Tên/Mã):");
         lblTim.setFont(UITheme.FONT_BOLD);
         gbc.gridx = 0; toolbar.add(lblTim, gbc);
@@ -71,18 +73,20 @@ public class QuanLyNhanVienPanel extends JPanel {
 
         gbc.gridx = 4; toolbar.add(btnLoc, gbc);
 
-        // Khoảng trống
-        gbc.gridx = 5;
-        gbc.weightx = 1.0;
-        toolbar.add(Box.createHorizontalStrut(10), gbc);
-
-        // Nhóm nút chức năng
-        gbc.weightx = 0;
-        gbc.gridx = 6; toolbar.add(btnThem, gbc);
-        gbc.gridx = 7; toolbar.add(btnSua, gbc);
-        gbc.gridx = 8; toolbar.add(btnXoa, gbc);
-        gbc.gridx = 9; toolbar.add(btnResetPass, gbc);
-        gbc.gridx = 10; toolbar.add(btnLamMoi, gbc);
+        // --- Row 2: Action Buttons ---
+        gbc.gridy = 1;
+        gbc.insets = new Insets(0, 0, 0, 10);
+        JPanel btnActions = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0));
+        btnActions.setOpaque(false);
+        btnActions.add(btnThem);
+        btnActions.add(btnSua);
+        btnActions.add(btnXoa);
+        btnActions.add(btnResetPass);
+        btnActions.add(btnLamMoi);
+        
+        gbc.gridx = 0;
+        gbc.gridwidth = 5;
+        toolbar.add(btnActions, gbc);
 
         card.add(toolbar, BorderLayout.NORTH);
 

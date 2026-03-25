@@ -22,10 +22,10 @@ public class QuanLySinhVienPanel extends JPanel {
         @Override public boolean isCellEditable(int r, int c) { return false; }
     };
     private final JTable  table     = new JTable(tableModel);
-    private final JTextField txtSearch = new JTextField(20);
+    private final JTextField txtSearch = UITheme.textField(20);
 
     private final JButton btnTim    = UITheme.button("Tìm kiếm", UITheme.BLUE);
-    private final JButton btnThem   = UITheme.button("Thêm", UITheme.GREEN);
+    private final JButton btnThem   = UITheme.button("Thêm SV", UITheme.INDIGO);
     private final JButton btnSua    = UITheme.button("Sửa"    , UITheme.AMBER);
     private final JButton btnXoa    = UITheme.button("Xóa"    , UITheme.RED);
     private final JButton btnLamMoi = UITheme.button("Làm mới", UITheme.SLATE);
@@ -61,6 +61,7 @@ public class QuanLySinhVienPanel extends JPanel {
         // ---- Card chứa toolbar + table ----
         JPanel card = new JPanel(new BorderLayout(0, 0));
         card.setBackground(Color.WHITE);
+        card.putClientProperty("FlatLaf.style", "arc: 16");
         card.setBorder(BorderFactory.createLineBorder(UITheme.BORDER_COLOR));
 
         JPanel toolbar = new JPanel(new GridBagLayout());
@@ -69,32 +70,37 @@ public class QuanLySinhVienPanel extends JPanel {
                 BorderFactory.createMatteBorder(0, 0, 1, 0, UITheme.BORDER_COLOR),
                 BorderFactory.createEmptyBorder(10, 10, 10, 10)));
 
-        JLabel searchLabel = new JLabel("Tìm kiếm (MSSV/Tên): ");
+        JLabel searchLabel = new JLabel("Tìm kiếm sinh viên: ");
         searchLabel.setFont(UITheme.FONT_BOLD);
         searchLabel.setForeground(UITheme.TEXT_SECONDARY);
-        txtSearch.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(UITheme.BORDER_COLOR),
-                BorderFactory.createEmptyBorder(6, 10, 6, 10)));
-        txtSearch.setFont(UITheme.FONT_BODY);
-        txtSearch.setPreferredSize(new Dimension(220, 36));
-        txtSearch.setMinimumSize(new Dimension(200, 36));
+        
+        txtSearch.putClientProperty("JTextField.placeholderText", "Nhập MSSV hoặc Tên...");
+        txtSearch.setPreferredSize(new Dimension(300, 42));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.NONE;
-        gbc.insets = new Insets(0, 0, 0, 10);
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new Insets(0, 0, 10, 10);
 
+        // --- Row 1: Search ---
+        gbc.gridy = 0;
         gbc.gridx = 0; toolbar.add(searchLabel, gbc);
         gbc.gridx = 1; toolbar.add(txtSearch, gbc);
         gbc.gridx = 2; toolbar.add(btnTim, gbc);
 
-        // Khoảng trống đẩy các nút về bên phải
-        gbc.gridx = 3; gbc.weightx = 1.0; toolbar.add(Box.createHorizontalGlue(), gbc);
-
-        gbc.weightx = 0;
-        gbc.gridx = 4; toolbar.add(btnThem, gbc);
-        gbc.gridx = 5; toolbar.add(btnSua, gbc);
-        gbc.gridx = 6; toolbar.add(btnXoa, gbc);
-        gbc.gridx = 7; gbc.insets = new Insets(0, 0, 0, 0); toolbar.add(btnLamMoi, gbc);
+        // --- Row 2: Actions ---
+        gbc.gridy = 1;
+        gbc.insets = new Insets(0, 0, 0, 10);
+        JPanel btnActions = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0));
+        btnActions.setOpaque(false);
+        btnActions.add(btnThem);
+        btnActions.add(btnSua);
+        btnActions.add(btnXoa);
+        btnActions.add(btnLamMoi);
+        
+        gbc.gridx = 0;
+        gbc.gridwidth = 3;
+        toolbar.add(btnActions, gbc);
 
         card.add(toolbar, BorderLayout.NORTH);
 
