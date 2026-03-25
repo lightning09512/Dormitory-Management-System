@@ -110,4 +110,24 @@ public class SinhVienServiceImpl implements SinhVienService {
     public List<SinhVien> timTheoKeyword(String keyword) {
         return attachPhongHienTaiList(sinhVienRepo.findByKeyword(keyword));
     }
+
+    @Override
+    public List<SinhVien> layDanhSachPhanTrang(int page, int size) {
+        return attachPhongHienTaiList(sinhVienRepo.findAll(page, size));
+    }
+
+    @Override
+    public long demTongSo() {
+        return sinhVienRepo.count();
+    }
+
+    @Override
+    public List<SinhVien> timTheoKeywordPhanTrang(String keyword, int page, int size) {
+        return attachPhongHienTaiList(sinhVienRepo.findByKeyword(keyword, page, size));
+    }
+
+    @Override
+    public long demTheoKeyword(String keyword) {
+        return sinhVienRepo.countByKeyword(keyword);
+    }
 }

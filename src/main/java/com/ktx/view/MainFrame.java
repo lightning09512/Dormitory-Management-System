@@ -20,6 +20,9 @@ public class MainFrame extends JFrame {
     public static final String CARD_PHONG      = "phong";
     public static final String CARD_HOP_DONG   = "hopdong";
     public static final String CARD_HOA_DON    = "hoadon";
+    public static final String CARD_THIET_BI   = "thietbi";
+    public static final String CARD_TIEN_PHONG = "tienphong";
+    public static final String CARD_NHAN_VIEN  = "nhanvien";
 
     private final CardLayout  cardLayout  = new CardLayout();
     private final JPanel      contentPane = new JPanel(cardLayout);
@@ -74,6 +77,16 @@ public class MainFrame extends JFrame {
         logoPanel.setLayout(new BoxLayout(logoPanel, BoxLayout.Y_AXIS));
         logoPanel.setBorder(BorderFactory.createEmptyBorder(16, 24, 16, 24));
         
+        // --- Thêm Logo Ảnh ---
+        try {
+            ImageIcon scIcon = new ImageIcon("d:/hoc/OOSE/KTX/images.png");
+            Image scaled = scIcon.getImage().getScaledInstance(45, 45, Image.SCALE_SMOOTH);
+            JLabel lblImage = new JLabel(new ImageIcon(scaled));
+            lblImage.setAlignmentX(Component.LEFT_ALIGNMENT);
+            logoPanel.add(lblImage);
+            logoPanel.add(Box.createVerticalStrut(12)); // Cách chữ một khoảng
+        } catch (Exception e) {}
+
         JLabel logo = new JLabel("KTX Manager");
         logo.setFont(new Font("Segoe UI", Font.BOLD, 20));
         logo.setForeground(Color.WHITE);
@@ -97,11 +110,14 @@ public class MainFrame extends JFrame {
         boolean isManager = "Manager".equalsIgnoreCase(user.getVaiTro());
         if (isManager) {
             sidebar.add(navButton("Dashboard / Thống kê", CARD_DASHBOARD));
+            sidebar.add(navButton("Quản lý Nhân viên",    CARD_NHAN_VIEN));
         }
         sidebar.add(navButton("Quản lý Sinh viên", CARD_SINH_VIEN));
         sidebar.add(navButton("Quản lý Phòng",     CARD_PHONG));
         sidebar.add(navButton("Lập Hợp Đồng",      CARD_HOP_DONG));
         sidebar.add(navButton("Quản lý Hóa đơn",   CARD_HOA_DON));
+        sidebar.add(navButton("Trang Thiết Bị",    CARD_THIET_BI));
+        sidebar.add(navButton("Tiền Phòng",       CARD_TIEN_PHONG));
 
         sidebar.add(Box.createVerticalGlue());
         sidebar.add(createSidebarSep());

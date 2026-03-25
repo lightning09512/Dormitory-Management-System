@@ -6,24 +6,27 @@ package com.ktx.model.dto;
  */
 public class DashboardStatsDto {
 
-    private long tongSinhVien;         // COUNT(SinhVien)
-    private long tongPhongTrong;       // COUNT(Phong WHERE trangThai = 'Còn trống')
-    private long tongHopDongHieuLuc;   // COUNT(HopDong WHERE trangThai = 'Đang hiệu lực')
+    private long tongSinhVien;
+    private long tongPhongTrong;
+    private long tongHopDongHieuLuc;
+    private java.util.Map<String, java.math.BigDecimal> doanhThuTheoThang;
+    private java.math.BigDecimal doanhThuDienNuoc;
+    private java.math.BigDecimal doanhThuTienPhong;
 
-    // ----------------------------------------------------------------
-    // Constructor mặc định
-    // ----------------------------------------------------------------
     public DashboardStatsDto() {}
 
-    // ----------------------------------------------------------------
-    // Constructor đầy đủ tham số
-    // ----------------------------------------------------------------
     public DashboardStatsDto(long tongSinhVien,
                              long tongPhongTrong,
-                             long tongHopDongHieuLuc) {
+                             long tongHopDongHieuLuc,
+                             java.util.Map<String, java.math.BigDecimal> doanhThuTheoThang,
+                             java.math.BigDecimal doanhThuDienNuoc,
+                             java.math.BigDecimal doanhThuTienPhong) {
         this.tongSinhVien       = tongSinhVien;
         this.tongPhongTrong     = tongPhongTrong;
         this.tongHopDongHieuLuc = tongHopDongHieuLuc;
+        this.doanhThuTheoThang  = doanhThuTheoThang;
+        this.doanhThuDienNuoc   = doanhThuDienNuoc;
+        this.doanhThuTienPhong  = doanhThuTienPhong;
     }
 
     // ----------------------------------------------------------------
@@ -37,6 +40,15 @@ public class DashboardStatsDto {
 
     public long getTongHopDongHieuLuc()                          { return tongHopDongHieuLuc; }
     public void setTongHopDongHieuLuc(long tongHopDongHieuLuc)   { this.tongHopDongHieuLuc = tongHopDongHieuLuc; }
+
+    public java.util.Map<String, java.math.BigDecimal> getDoanhThuTheoThang() { return doanhThuTheoThang; }
+    public void setDoanhThuTheoThang(java.util.Map<String, java.math.BigDecimal> doanhThuTheoThang) { this.doanhThuTheoThang = doanhThuTheoThang; }
+
+    public java.math.BigDecimal getDoanhThuDienNuoc() { return doanhThuDienNuoc; }
+    public void setDoanhThuDienNuoc(java.math.BigDecimal doanhThuDienNuoc) { this.doanhThuDienNuoc = doanhThuDienNuoc; }
+
+    public java.math.BigDecimal getDoanhThuTienPhong() { return doanhThuTienPhong; }
+    public void setDoanhThuTienPhong(java.math.BigDecimal doanhThuTienPhong) { this.doanhThuTienPhong = doanhThuTienPhong; }
 
     // ----------------------------------------------------------------
     // toString

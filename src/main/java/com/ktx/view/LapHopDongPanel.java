@@ -33,7 +33,8 @@ public class LapHopDongPanel extends JPanel {
     private final JComboBox<Phong>    cbPhong     = new JComboBox<>();
 
     private final DatePicker dpNgayBD  = createDatePicker();
-    private final DatePicker dpNgayKT  = createDatePicker();
+    private final JComboBox<Integer> cboGoi = new JComboBox<>(new Integer[]{6, 9, 12});
+    private final JTextField txtNgayKT = new JTextField(); // Read-only view
 
     private final JButton btnLap    = UITheme.button("Lập hợp đồng", UITheme.INDIGO);
     private final JButton btnChamDut = UITheme.button("Chấm dứt HĐ", UITheme.RED);
@@ -84,11 +85,21 @@ public class LapHopDongPanel extends JPanel {
         lc.gridy = fc.gridy = lc2.gridy = fc2.gridy = 1;
         formCard.add(boldLabel("Ngày bắt đầu:"), lc);
         formCard.add(dpNgayBD, fc);
-        formCard.add(boldLabel("Ngày kết thúc:"), lc2);
-        formCard.add(dpNgayKT, fc2);
+        formCard.add(boldLabel("Gói (Tháng):"), lc2);
+        formCard.add(cboGoi, fc2);
 
-        // Row 2: Buttons
-        lc.gridy = 2; lc.gridwidth = 4; lc.insets = new Insets(14, 0, 0, 0);
+        // Row 2: Ngày kết thúc (Read-only)
+        lc.gridy = fc.gridy = 2;
+        formCard.add(boldLabel("Ngày kết thúc:"), lc);
+        txtNgayKT.setEditable(false);
+        txtNgayKT.setBackground(new Color(245, 247, 250));
+        formCard.add(txtNgayKT, fc);
+
+        // Auto update NgayKetThuc
+        setupAutoUpdateNgayKT();
+
+        // Row 3: Buttons
+        lc.gridy = 3; lc.gridwidth = 4; lc.insets = new Insets(14, 0, 0, 0);
         JPanel btns = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         btns.setOpaque(false);
         btns.add(btnLap); btns.add(btnChamDut); btns.add(btnLamMoi);
@@ -143,6 +154,23 @@ public class LapHopDongPanel extends JPanel {
         return dp;
     }
 
+    private void setupAutoUpdateNgayKT() {
+        updateNgayKT();
+        dpNgayBD.addDateChangeListener(e -> updateNgayKT());
+        cboGoi.addActionListener(e -> updateNgayKT());
+    }
+
+    private void updateNgayKT() {
+        LocalDate bd = dpNgayBD.getDate();
+        if (bd != null) {
+            int goi = (Integer) cboGoi.getSelectedItem();
+            LocalDate kt = bd.plusMonths(goi);
+            txtNgayKT.setText(kt.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+        } else {
+            txtNgayKT.setText("");
+        }
+    }
+
     // ---- Public API ----
     public void setSinhVienList(List<SinhVien> list) {
         cbSinhVien.removeAllItems();
@@ -188,7 +216,11 @@ public class LapHopDongPanel extends JPanel {
     public SinhVien getSelectedSinhVien() { return (SinhVien) cbSinhVien.getSelectedItem(); }
     public Phong    getSelectedPhong()    { return (Phong)    cbPhong.getSelectedItem(); }
     public LocalDate getNgayBatDau()  { return dpNgayBD.getDate(); }
-    public LocalDate getNgayKetThuc() { return dpNgayKT.getDate(); }
+    public int getGoiThanhToan() { return (Integer) cboGoi.getSelectedItem(); }
+    public LocalDate getNgayKetThuc() {
+        LocalDate bd = dpNgayBD.getDate();
+        return bd != null ? bd.plusMonths(getGoiThanhToan()) : null;
+    }
 
     public String getSelectedMaHopDong() {
         int row = table.getSelectedRow();

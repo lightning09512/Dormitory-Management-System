@@ -16,6 +16,9 @@ public class SinhVienController {
 
     private final QuanLySinhVienPanel view;
     private final SinhVienService     service;
+    
+    private int currentPage = 1;
+    private final int pageSize = 20;
 
     public SinhVienController(QuanLySinhVienPanel view, SinhVienService service) {
         this.view    = view;
@@ -37,22 +40,26 @@ public class SinhVienController {
         view.addThemListener   (e -> handleThem());
         view.addSuaListener    (e -> handleSua());
         view.addXoaListener    (e -> handleXoa());
-        view.addLamMoiListener (e -> loadAll());
+        view.addLamMoiListener (e -> { currentPage = 1; loadAll(); });
+        
+        view.addPrevPageListener(e -> {
+            if (currentPage > 1) {
+                currentPage--;
+                loadAll();
+            }
+        });
+        view.addNextPageListener(e -> {
+            currentPage++;
+            loadAll();
+        });
     }
 
     // ----------------------------------------------------------------
     // Handlers
     // ----------------------------------------------------------------
     private void handleTimKiem() {
-        String kw = view.getKeyword();
-        try {
-            List<SinhVien> result = kw.isEmpty()
-                    ? service.layTatCa()
-                    : service.timTheoKeyword(kw);
-            view.setSinhVienList(result);
-        } catch (Exception ex) {
-            showError("Lỗi tìm kiếm: " + ex.getMessage());
-        }
+        currentPage = 1; // Reset về trang 1 khi tìm kiếm mới
+        loadAll();
     }
 
     private void handleThem() {
@@ -103,8 +110,25 @@ public class SinhVienController {
     }
 
     private void loadAll() {
-        try { view.setSinhVienList(service.layTatCa()); }
-        catch (Exception ex) { showError("Lỗi tải dữ liệu:\n" + ex.getMessage()); }
+        try {
+            String kw = view.getKeyword();
+            long totalCount;
+            List<SinhVien> list;
+
+            if (kw.isEmpty()) {
+                totalCount = service.demTongSo();
+                list = service.layDanhSachPhanTrang(currentPage, pageSize);
+            } else {
+                totalCount = service.demTheoKeyword(kw);
+                list = service.timTheoKeywordPhanTrang(kw, currentPage, pageSize);
+            }
+
+            int totalPages = (int) Math.ceil((double) totalCount / pageSize);
+            view.setSinhVienList(list);
+            view.setPaginationInfo(currentPage, totalPages, totalCount);
+        } catch (Exception ex) {
+            showError("Lỗi tải dữ liệu:\n" + ex.getMessage());
+        }
     }
 
     private void showInfo(String msg)  { JOptionPane.showMessageDialog(view, msg, "Thành công", JOptionPane.INFORMATION_MESSAGE); }

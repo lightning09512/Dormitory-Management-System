@@ -23,6 +23,8 @@
         <class>com.ktx.model.HopDong</class>
         <class>com.ktx.model.CauHinhGia</class>
         <class>com.ktx.model.HoaDon</class>
+        <class>com.ktx.model.HoaDonTienPhong</class>
+        <class>com.ktx.model.entity.TrangThietBi</class>
 
         <!-- Không quét tự động các class Entity ngoài danh sách trên -->
         <exclude-unlisted-classes>true</exclude-unlisted-classes>

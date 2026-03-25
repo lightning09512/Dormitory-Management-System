@@ -125,6 +125,15 @@
             <artifactId>LGoodDatePicker</artifactId>
             <version>11.2.1</version>
         </dependency>
+
+        <!-- =====================================================
+             JFreeChart – Biểu đồ
+             ===================================================== -->
+        <dependency>
+            <groupId>org.jfree</groupId>
+            <artifactId>jfreechart</artifactId>
+            <version>1.5.4</version>
+        </dependency>
     </dependencies>
 
     <build>

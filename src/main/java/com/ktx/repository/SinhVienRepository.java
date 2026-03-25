@@ -25,6 +25,12 @@ public interface SinhVienRepository {
     /** Lấy toàn bộ danh sách sinh viên. */
     List<SinhVien> findAll();
 
+    /** Lấy danh sách sinh viên phân trang. */
+    List<SinhVien> findAll(int page, int size);
+
+    /** Đếm tổng số sinh viên. */
+    long count();
+
     /**
      * Tìm sinh viên theo tên (tìm kiếm tương đối, không phân biệt hoa thường).
      *
@@ -40,4 +46,10 @@ public interface SinhVienRepository {
      * @return danh sách {@link SinhVien} khớp
      */
     List<SinhVien> findByKeyword(String keyword);
+
+    /** Tìm sinh viên phân trang theo từ khóa. */
+    List<SinhVien> findByKeyword(String keyword, int page, int size);
+
+    /** Đếm số sinh viên theo từ khóa. */
+    long countByKeyword(String keyword);
 }

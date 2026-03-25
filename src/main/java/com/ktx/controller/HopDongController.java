@@ -115,6 +115,10 @@ public class HopDongController {
         }
 
         LocalDate batDau   = view.getNgayBatDau();
+        if (batDau == null) {
+            showError("Vui lòng chọn ngày bắt đầu.");
+            return;
+        }
         LocalDate ketThuc  = view.getNgayKetThuc();
 
         if (!ketThuc.isAfter(batDau)) {

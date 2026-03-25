@@ -148,4 +148,81 @@ public class SinhVienRepositoryImpl implements SinhVienRepository {
             em.close();
         }
     }
+
+    // ----------------------------------------------------------------
+    // findAll (phân trang)
+    // ----------------------------------------------------------------
+    @Override
+    public List<SinhVien> findAll(int page, int size) {
+        EntityManager em = JpaUtil.getEmf().createEntityManager();
+        try {
+            TypedQuery<SinhVien> query = em.createQuery(
+                    "SELECT s FROM SinhVien s ORDER BY s.hoTen", SinhVien.class);
+            query.setFirstResult((page - 1) * size);
+            query.setMaxResults(size);
+            return query.getResultList();
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi lấy danh sách SinhVien phân trang: " + e.getMessage(), e);
+        } finally {
+            em.close();
+        }
+    }
+
+    // ----------------------------------------------------------------
+    // count (đếm tổng số)
+    // ----------------------------------------------------------------
+    @Override
+    public long count() {
+        EntityManager em = JpaUtil.getEmf().createEntityManager();
+        try {
+            return (long) em.createQuery("SELECT COUNT(s) FROM SinhVien s").getSingleResult();
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi đếm tổng số SinhVien: " + e.getMessage(), e);
+        } finally {
+            em.close();
+        }
+    }
+
+    // ----------------------------------------------------------------
+    // findByKeyword (phân trang)
+    // ----------------------------------------------------------------
+    @Override
+    public List<SinhVien> findByKeyword(String keyword, int page, int size) {
+        EntityManager em = JpaUtil.getEmf().createEntityManager();
+        try {
+            TypedQuery<SinhVien> query = em.createQuery(
+                    "SELECT s FROM SinhVien s WHERE " +
+                    "LOWER(s.maSV) LIKE LOWER(:kw) OR " +
+                    "LOWER(s.hoTen) LIKE LOWER(:kw) " +
+                    "ORDER BY s.maSV, s.hoTen", SinhVien.class);
+            query.setParameter("kw", "%" + keyword + "%");
+            query.setFirstResult((page - 1) * size);
+            query.setMaxResults(size);
+            return query.getResultList();
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi tìm SinhVien phân trang theo từ khóa: " + e.getMessage(), e);
+        } finally {
+            em.close();
+        }
+    }
+
+    // ----------------------------------------------------------------
+    // countByKeyword (đếm số mẩu tin tìm kiếm)
+    // ----------------------------------------------------------------
+    @Override
+    public long countByKeyword(String keyword) {
+        EntityManager em = JpaUtil.getEmf().createEntityManager();
+        try {
+            return (long) em.createQuery(
+                    "SELECT COUNT(s) FROM SinhVien s WHERE " +
+                    "LOWER(s.maSV) LIKE LOWER(:kw) OR " +
+                    "LOWER(s.hoTen) LIKE LOWER(:kw)")
+                    .setParameter("kw", "%" + keyword + "%")
+                    .getSingleResult();
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi đếm số SinhVien theo từ khóa: " + e.getMessage(), e);
+        } finally {
+            em.close();
+        }
+    }
 }

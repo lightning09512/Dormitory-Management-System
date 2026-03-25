@@ -30,4 +30,16 @@ public interface SinhVienService {
     
     /** Tìm kiếm sinh viên theo MSSV hoặc tên (tương đối). */
     List<SinhVien> timTheoKeyword(String keyword);
+
+    /** Lấy danh sách sinh viên phân trang. */
+    List<SinhVien> layDanhSachPhanTrang(int page, int size);
+
+    /** Đếm tổng số sinh viên. */
+    long demTongSo();
+
+    /** Tìm kiếm sinh viên phân trang theo từ khóa. */
+    List<SinhVien> timTheoKeywordPhanTrang(String keyword, int page, int size);
+
+    /** Đếm số sinh viên theo từ khóa. */
+    long demTheoKeyword(String keyword);
 }

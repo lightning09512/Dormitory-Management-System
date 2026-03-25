@@ -30,6 +30,12 @@ public class QuanLySinhVienPanel extends JPanel {
     private final JButton btnXoa    = UITheme.button("Xóa"    , UITheme.RED);
     private final JButton btnLamMoi = UITheme.button("Làm mới", UITheme.SLATE);
 
+    // Pagination components
+    private final JButton btnPrev    = UITheme.button("<", UITheme.SLATE);
+    private final JButton btnNext    = UITheme.button(">", UITheme.SLATE);
+    private final JLabel  lblPageInfo = new JLabel("Trang 1 / 1");
+    private final JLabel  lblTotalCount = new JLabel("Tổng cộng: 0");
+
     public QuanLySinhVienPanel() {
         super(new BorderLayout(0, 0));
         setBackground(UITheme.CONTENT_BG);
@@ -106,6 +112,22 @@ public class QuanLySinhVienPanel extends JPanel {
         JScrollPane scroll = UITheme.cleanScrollPane(table);
         card.add(scroll, BorderLayout.CENTER);
 
+        // ---- Footer: Pagination Controls ----
+        JPanel footer = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10));
+        footer.setBackground(Color.WHITE);
+        footer.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, UITheme.BORDER_COLOR));
+
+        lblTotalCount.setFont(UITheme.FONT_BODY);
+        lblTotalCount.setForeground(UITheme.TEXT_SECONDARY);
+        lblPageInfo.setFont(UITheme.FONT_BOLD);
+
+        footer.add(lblTotalCount);
+        footer.add(btnPrev);
+        footer.add(lblPageInfo);
+        footer.add(btnNext);
+
+        card.add(footer, BorderLayout.SOUTH);
+
         add(card, BorderLayout.CENTER);
     }
 
@@ -135,4 +157,14 @@ public class QuanLySinhVienPanel extends JPanel {
     public void addSuaListener    (ActionListener l) { btnSua.addActionListener(l); }
     public void addXoaListener    (ActionListener l) { btnXoa.addActionListener(l); }
     public void addLamMoiListener (ActionListener l) { btnLamMoi.addActionListener(l); }
+
+    public void setPaginationInfo(int currentPage, int totalPages, long totalCount) {
+        lblPageInfo.setText("Trang " + currentPage + " / " + Math.max(1, totalPages));
+        lblTotalCount.setText("Tổng cộng: " + totalCount);
+        btnPrev.setEnabled(currentPage > 1);
+        btnNext.setEnabled(currentPage < totalPages);
+    }
+
+    public void addPrevPageListener(ActionListener l) { btnPrev.addActionListener(l); }
+    public void addNextPageListener(ActionListener l) { btnNext.addActionListener(l); }
 }
