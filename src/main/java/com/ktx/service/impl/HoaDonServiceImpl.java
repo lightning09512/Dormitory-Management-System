@@ -16,11 +16,13 @@ public class HoaDonServiceImpl implements HoaDonService {
     private final HoaDonRepository hoaDonRepo;
     private final PhongRepository phongRepo;
     private final com.ktx.service.CauHinhGiaService giaSvc;
+    private final com.ktx.service.AuditLogService auditLogService;
 
-    public HoaDonServiceImpl(com.ktx.service.CauHinhGiaService giaSvc) {
+    public HoaDonServiceImpl(com.ktx.service.CauHinhGiaService giaSvc, com.ktx.service.AuditLogService auditLogService) {
         this.hoaDonRepo = new com.ktx.repository.impl.HoaDonRepositoryImpl();
         this.phongRepo = new com.ktx.repository.impl.PhongRepositoryImpl();
         this.giaSvc = giaSvc;
+        this.auditLogService = auditLogService;
     }
 
     @Override
@@ -85,6 +87,10 @@ public class HoaDonServiceImpl implements HoaDonService {
         );
 
         hoaDonRepo.save(hd);
+
+        if (auditLogService != null) {
+            auditLogService.log(maNV, "LẬP_HÓA_ĐƠN", "Lập hóa đơn [" + maHDon + "] cho phòng [" + maPhong + "]");
+        }
     }
 
     @Override
@@ -98,6 +104,10 @@ public class HoaDonServiceImpl implements HoaDonService {
         
         hd.setTrangThaiThanhToan("Đã thanh toán");
         hoaDonRepo.update(hd);
+
+        if (auditLogService != null) {
+            auditLogService.log("SYSTEM", "THANH_TOÁN_HÓA_ĐƠN", "Thanh toán hóa đơn mã: " + maHDon);
+        }
     }
 
     @Override
@@ -111,6 +121,10 @@ public class HoaDonServiceImpl implements HoaDonService {
         }
         
         hoaDonRepo.delete(maHDon);
+
+        if (auditLogService != null) {
+            auditLogService.log("SYSTEM", "XÓA_HÓA_ĐƠN", "Xóa hóa đơn mã: " + maHDon + " bởi " + vaiTroNguoiXoa);
+        }
     }
     @Override
     public HoaDon layHoaDonGanNhatTheoPhong(String maPhong) {

@@ -1,0 +1,20 @@
+@startuml activity_registration
+start
+:Nhân viên đăng nhập;
+:Sinh viên đến quầy yêu cầu đăng ký;
+:Nhân viên tra cứu danh sách phòng còn trống;
+:Nhân viên nhập thông tin sinh viên;
+:Nhân viên chọn phòng theo yêu cầu;
+:Hệ thống kiểm tra điều kiện (sức chứa, giới tính dãy);
+if (Hợp lệ?) then (có)
+  :Tạo Đơn đăng ký & Hợp đồng;
+  :In hợp đồng cho sinh viên ký;
+  :Thu tiền đặt cọc;
+  :Cập nhật sĩ số phòng;
+  :Hoàn tất đăng ký;
+else (không)
+  :Thông báo lỗi (Phòng đầy / Sai giới tính);
+  :Chọn phòng khác hoặc từ chối;
+endif
+stop
+@enduml

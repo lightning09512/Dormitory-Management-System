@@ -24,6 +24,7 @@ public class MainFrame extends JFrame {
     public static final String CARD_TIEN_PHONG = "tienphong";
     public static final String CARD_NHAN_VIEN  = "nhanvien";
     public static final String CARD_GIA        = "gia";
+    public static final String CARD_AUDIT_LOG  = "auditlog";
 
     private final CardLayout  cardLayout  = new CardLayout();
     private final JPanel      contentPane = new JPanel(cardLayout);
@@ -121,6 +122,8 @@ public class MainFrame extends JFrame {
             sidebar.add(navButton("Quản lý Nhân viên", CARD_NHAN_VIEN));
             sidebar.add(Box.createVerticalStrut(4));
             sidebar.add(navButton("Cấu hình Giá",      CARD_GIA));
+            sidebar.add(Box.createVerticalStrut(4));
+            sidebar.add(navButton("Nhật ký hệ thống",  CARD_AUDIT_LOG));
         }
 
         sidebar.add(Box.createVerticalGlue());

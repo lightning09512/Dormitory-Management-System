@@ -1,0 +1,22 @@
+@startuml activity_checkout
+start
+:Nhân viên đăng nhập;
+:Chọn hợp đồng cần thanh lý từ danh sách;
+:Nhấn nút "Thanh lý / Chấm dứt";
+:Hệ thống hiển thị hộp thoại xác nhận;
+if (Admin xác nhận?) then (có)
+  :Hệ thống gọi nghiệp vụ Thanh lý;
+  partition "Nghiệp vụ hệ thống" {
+    :Kiểm tra trạng thái hợp đồng;
+    :Giảm sĩ số hiện tại của phòng;
+    :Cập nhật trạng thái phòng (nếu cần);
+    :Đổi trạng thái hợp đồng thành 'Đã thanh lý';
+    :Lưu thay đổi vào Database;
+  }
+  :Hiển thị thông báo thành công;
+  :Cập nhật lại danh sách hiển thị;
+else (không)
+  :Hủy bỏ thao tác;
+endif
+stop
+@enduml

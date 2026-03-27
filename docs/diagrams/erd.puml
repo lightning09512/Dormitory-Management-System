@@ -1,0 +1,130 @@
+@startuml erd
+!theme plain
+skinparam Linetype ortho
+
+entity "SinhVien" as SV {
+  * maSV : VARCHAR(10) <<PK>>
+  --
+  * hoTen : VARCHAR(100)
+  * ngaySinh : DATE
+  * gioiTinh : VARCHAR(10)
+  lop : VARCHAR(20)
+  khoa : VARCHAR(100)
+  soDT : VARCHAR(15)
+  queQuan : VARCHAR(200)
+  * email : VARCHAR(100) <<Unique>>
+  * taiKhoan : VARCHAR(50) <<Unique>>
+  * matKhau : VARCHAR(255)
+}
+
+entity "NhanVien" as NV {
+  * maNV : VARCHAR(10) <<PK>>
+  --
+  * hoTen : VARCHAR(100)
+  * vaiTro : VARCHAR(50)
+  * soDT : VARCHAR(15)
+  * email : VARCHAR(100) <<Unique>>
+  * taiKhoan : VARCHAR(50) <<Unique>>
+  * matKhau : VARCHAR(255)
+}
+
+entity "DayNha" as DN {
+  * maDay : VARCHAR(10) <<PK>>
+  --
+  * tenDay : VARCHAR(50)
+  * loaiDay : VARCHAR(50)
+  soTang : INT
+}
+
+entity "Phong" as P {
+  * maPhong : VARCHAR(10) <<PK>>
+  --
+  * tenPhong : VARCHAR(20)
+  * loaiPhong : VARCHAR(50)
+  * sucChua : INT
+  * soNguoiHienTai : INT
+  * giaPhong : DECIMAL(12,2)
+  * trangThai : VARCHAR(20)
+  * maDay : VARCHAR(10) <<FK>>
+}
+
+entity "HopDong" as HD {
+  * maHD : VARCHAR(15) <<PK>>
+  --
+  * ngayLap : DATE
+  * ngayBatDau : DATE
+  * ngayKetThuc : DATE
+  * tienCoc : DECIMAL(12,2)
+  * trangThai : VARCHAR(20)
+  * maSV : VARCHAR(10) <<FK>>
+  * maPhong : VARCHAR(10) <<FK>>
+  * maNV : VARCHAR(10) <<FK>>
+}
+
+entity "DonDangKy" as DDK {
+  * maDon : VARCHAR(15) <<PK>>
+  --
+  * ngayGui : DATE
+  * hocKy : INT
+  * namHoc : VARCHAR(9)
+  * trangThai : VARCHAR(20)
+  * maSV : VARCHAR(10) <<FK>>
+  * maPhong : VARCHAR(10) <<FK>>
+}
+
+entity "HoaDon" as HDon {
+  * maHDon : VARCHAR(15) <<PK>>
+  --
+  * thang : INT
+  * nam : INT
+  * chiSoDienCu : DECIMAL(10,2)
+  * chiSoDienMoi : DECIMAL(10,2)
+  * chiSoNuocCu : DECIMAL(10,2)
+  * chiSoNuocMoi : DECIMAL(10,2)
+  * phuPhi : DECIMAL(12,2)
+  * tongTien : DECIMAL(14,2)
+  * trangThaiThanhToan : VARCHAR(20)
+  * maPhong : VARCHAR(10) <<FK>>
+  * maNV : VARCHAR(10) <<FK>>
+}
+
+entity "HoaDonTienPhong" as HDTP {
+  * maHDTP : VARCHAR(15) <<PK>>
+  --
+  * thang : INT
+  * nam : INT
+  * soTien : DECIMAL(12,2)
+  * hanThanhToan : DATE
+  * trangThai : VARCHAR(20)
+  * maHopDong : VARCHAR(15) <<FK>>
+}
+
+entity "CauHinhGia" as CHG {
+  * id : INT <<PK>>
+  --
+  * loai : VARCHAR(50)
+  * gia : DECIMAL(12,2)
+  * ngayApDung : DATE
+}
+
+entity "AuditLog" as AL {
+  * id : INT <<PK>>
+  --
+  * maNV : VARCHAR(10) <<FK>>
+  * hanhDong : VARCHAR(100)
+  * thoiGian : DATETIME
+  * chiTiet : TEXT
+}
+
+DN ||--o{ P : "chứa"
+SV ||--o{ HD : "ký"
+P ||--o{ HD : "được thuê"
+NV ||--o{ HD : "lập"
+SV ||--o{ DDK : "gửi"
+P ||--o{ DDK : "được đăng ký"
+P ||--o{ HDon : "sử dụng điện nước"
+NV ||--o{ HDon : "lập"
+HD ||--o{ HDTP : "có hóa đơn định kỳ"
+NV ||--o{ AL : "thực hiện hành động"
+
+@enduml

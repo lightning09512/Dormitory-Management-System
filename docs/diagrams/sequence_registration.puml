@@ -1,0 +1,25 @@
+@startuml sequence_registration
+actor "Nhân viên" as NV
+boundary "LapHopDongPanel" as UI
+control "HopDongController" as Ctrl
+entity "HopDongService" as Svc
+entity "AuditLogService" as AL
+database "Database" as DB
+
+NV -> UI : Chọn Sinh viên, Phòng & bấm "Lập hợp đồng"
+UI -> Ctrl : handleLapHopDong()
+Ctrl -> Svc : taoHopDongLuuTru(maSV, maPhong, batDau, ketThuc, staff)
+
+Svc -> DB : checkCapacity(maPhong)
+Svc -> DB : save(newHopDong)
+Svc -> DB : incrementCurrentOccupancy(maPhong)
+DB --> Svc : success
+
+Svc -> AL : log(staffId, "LẬP_HỢP_ĐỒNG", "Lập HĐ cho SV " + maSV)
+AL -> DB : save(auditLog)
+
+Svc --> Ctrl : hopDongObj
+Ctrl -> UI : showInfo("Thành công: " + maHD)
+Ctrl -> Ctrl : refreshView()
+UI --> NV : Giao diện cập nhật
+@enduml

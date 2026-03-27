@@ -20,11 +20,13 @@ public class SinhVienServiceImpl implements SinhVienService {
 
     private final SinhVienRepository sinhVienRepo;
     private final HopDongRepository hopDongRepo;
+    private final com.ktx.service.AuditLogService auditLogService;
     private static final Logger LOGGER = LoggerUtil.getLogger(SinhVienServiceImpl.class);
 
-    public SinhVienServiceImpl(SinhVienRepository sinhVienRepo, HopDongRepository hopDongRepo) {
+    public SinhVienServiceImpl(SinhVienRepository sinhVienRepo, HopDongRepository hopDongRepo, com.ktx.service.AuditLogService auditLogService) {
         this.sinhVienRepo = sinhVienRepo;
         this.hopDongRepo = hopDongRepo;
+        this.auditLogService = auditLogService;
     }
 
     private SinhVien attachPhongHienTai(SinhVien sv) {
@@ -69,6 +71,9 @@ public class SinhVienServiceImpl implements SinhVienService {
         
         try {
             sinhVienRepo.save(sinhVien);
+            if (auditLogService != null) {
+                auditLogService.log("SYSTEM", "THÊM_SINH_VIÊN", "Thêm mới sinh viên: " + sinhVien.getMaSV() + " - " + sinhVien.getHoTen());
+            }
             LoggerUtil.logExit(LOGGER, "themSinhVien", "Success");
         } catch (Exception e) {
             LoggerUtil.logError(LOGGER, "themSinhVien", e);
@@ -80,12 +85,18 @@ public class SinhVienServiceImpl implements SinhVienService {
     public void capNhatSinhVien(SinhVien sinhVien) {
         timTheoMa(sinhVien.getMaSV()); // ném exception nếu không tồn tại
         sinhVienRepo.update(sinhVien);
+        if (auditLogService != null) {
+            auditLogService.log("SYSTEM", "CẬP_NHẬT_SINH_VIÊN", "Cập nhật thông tin sinh viên mã: " + sinhVien.getMaSV());
+        }
     }
 
     @Override
     public void xoaSinhVien(String maSV) {
         timTheoMa(maSV);
         sinhVienRepo.delete(maSV);
+        if (auditLogService != null) {
+            auditLogService.log("SYSTEM", "XÓA_SINH_VIÊN", "Xóa sinh viên mã: " + maSV);
+        }
     }
 
     @Override

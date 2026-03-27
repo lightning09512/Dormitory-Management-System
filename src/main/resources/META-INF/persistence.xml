@@ -24,6 +24,7 @@
         <class>com.ktx.model.CauHinhGia</class>
         <class>com.ktx.model.HoaDon</class>
         <class>com.ktx.model.HoaDonTienPhong</class>
+        <class>com.ktx.model.AuditLog</class>
         <class>com.ktx.model.entity.TrangThietBi</class>
 
         <!-- Không quét tự động các class Entity ngoài danh sách trên -->
@@ -50,8 +51,8 @@
             <property name="hibernate.show_sql"   value="true"/>
             <property name="hibernate.format_sql" value="true"/>
 
-            <!-- none: bỏ qua validation schema – dùng khi DB có cột ENUM -->
-            <property name="hibernate.hbm2ddl.auto" value="none"/>
+            <!-- update: tự động tạo/cập nhật bảng nếu thiếu -->
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
 
             <!-- Connection Pool tối thiểu cho ứng dụng desktop -->
             <property name="hibernate.connection.pool_size" value="5"/>

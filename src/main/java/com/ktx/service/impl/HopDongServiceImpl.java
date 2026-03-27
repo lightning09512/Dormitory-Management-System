@@ -27,6 +27,7 @@ public class HopDongServiceImpl implements HopDongService {
     private final HopDongRepository  hopDongRepo;
     private final SinhVienRepository sinhVienRepo;
     private final PhongRepository    phongRepo;
+    private final com.ktx.service.AuditLogService auditLogService;
 
     /**
      * Constructor Injection.
@@ -37,10 +38,12 @@ public class HopDongServiceImpl implements HopDongService {
      */
     public HopDongServiceImpl(HopDongRepository hopDongRepo,
                               SinhVienRepository sinhVienRepo,
-                              PhongRepository phongRepo) {
+                              PhongRepository phongRepo,
+                              com.ktx.service.AuditLogService auditLogService) {
         this.hopDongRepo  = hopDongRepo;
         this.sinhVienRepo = sinhVienRepo;
         this.phongRepo    = phongRepo;
+        this.auditLogService = auditLogService;
     }
 
     // ================================================================
@@ -123,6 +126,11 @@ public class HopDongServiceImpl implements HopDongService {
         hopDongRepo.save(hopDong);
         phongRepo.update(phong);
 
+        if (auditLogService != null) {
+            auditLogService.log(staff.getMaNV(), "LẬP_HỢP_ĐỒNG", 
+                "Lập hợp đồng mới [" + maHD + "] cho SV [" + maSV + "] tại phòng [" + maPhong + "]");
+        }
+
         return hopDong;
     }
 
@@ -175,6 +183,11 @@ public class HopDongServiceImpl implements HopDongService {
         // ---- Lưu xuống DB ----------------------------------------
         hopDongRepo.update(hopDong);
         phongRepo.update(phong);
+
+        if (auditLogService != null) {
+            auditLogService.log("SYSTEM", "THANH_LÝ_HỢP_ĐỒNG", 
+                "Thanh lý hợp đồng [" + maHD + "] của SV [" + hopDong.getMaSV() + "]");
+        }
     }
 
     // ================================================================
