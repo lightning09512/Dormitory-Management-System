@@ -83,10 +83,26 @@ public class SinhVienServiceImpl implements SinhVienService {
 
     @Override
     public void capNhatSinhVien(SinhVien sinhVien) {
+        LoggerUtil.logEntry(LOGGER, "capNhatSinhVien", sinhVien);
+        
+        // Validate input
+        String validationError = ValidationUtil.validate(sinhVien);
+        if (validationError != null) {
+            LoggerUtil.logValidationError(LOGGER, "capNhatSinhVien", validationError);
+            throw new IllegalArgumentException("Dữ liệu cập nhật không hợp lệ:\n" + validationError);
+        }
+
         timTheoMa(sinhVien.getMaSV()); // ném exception nếu không tồn tại
-        sinhVienRepo.update(sinhVien);
-        if (auditLogService != null) {
-            auditLogService.log("SYSTEM", "CẬP_NHẬT_SINH_VIÊN", "Cập nhật thông tin sinh viên mã: " + sinhVien.getMaSV());
+        
+        try {
+            sinhVienRepo.update(sinhVien);
+            if (auditLogService != null) {
+                auditLogService.log("SYSTEM", "CẬP_NHẬT_SINH_VIÊN", "Cập nhật thông tin sinh viên mã: " + sinhVien.getMaSV());
+            }
+            LoggerUtil.logExit(LOGGER, "capNhatSinhVien", "Success");
+        } catch (Exception e) {
+            LoggerUtil.logError(LOGGER, "capNhatSinhVien", e);
+            throw e;
         }
     }
 
