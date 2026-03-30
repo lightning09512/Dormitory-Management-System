@@ -1,0 +1,281 @@
+@startuml CD06_HoaDon_CauHinhGia
+
+title CD06 – Hóa đơn Điện nước & Cấu hình Giá
+
+skinparam backgroundColor #F8FAFC
+skinparam defaultFontName Segoe UI
+skinparam defaultFontSize 12
+skinparam classAttributeIconSize 0
+
+skinparam class {
+    BackgroundColor #FFFFFF
+    BorderColor     #94A3B8
+    HeaderBackgroundColor #E2E8F0
+    HeaderFontColor #0F172A
+    FontColor       #1E293B
+    ArrowColor      #64748B
+}
+
+skinparam package {
+    BackgroundColor #F1F5F9
+    BorderColor     #CBD5E1
+    FontStyle       bold
+}
+
+' ============================================================
+' MODEL
+' ============================================================
+package "com.ktx.model" #FEE2E2 {
+
+    class HoaDon {
+        - maHDon : String             <<PK, VARCHAR(15)>>
+        - thang : int                 <<TINYINT, CHECK 1-12>>
+        - nam : int                   <<YEAR>>
+        - chiSoDienCu : BigDecimal    <<DECIMAL(10,2), DEFAULT 0>>
+        - chiSoDienMoi : BigDecimal   <<DECIMAL(10,2), DEFAULT 0>>
+        - chiSoNuocCu : BigDecimal    <<DECIMAL(10,2), DEFAULT 0>>
+        - chiSoNuocMoi : BigDecimal   <<DECIMAL(10,2), DEFAULT 0>>
+        - phuPhi : BigDecimal         <<DECIMAL(12,2), DEFAULT 0>>
+        - tongTien : BigDecimal       <<DECIMAL(14,2), DEFAULT 0>>
+        - trangThaiThanhToan : String <<ENUM: Chưa TT/Đã TT/Quá hạn>>
+        - maPhong : String            <<FK → Phong.MaPhong>>
+        - maNV : String               <<FK → NhanVien.MaNV>>
+        --
+        ' UNIQUE(MaPhong, Thang, Nam) — 1 phòng 1 HĐ/tháng
+        --
+        + HoaDon()
+        + HoaDon(maHDon, thang, nam, chiSoDienCu,\n  chiSoDienMoi, chiSoNuocCu, chiSoNuocMoi,\n  phuPhi, tongTien, trangThaiThanhToan,\n  maPhong, maNV)
+        + getMaHDon() : String
+        + setMaHDon(v : String) : void
+        + getThang() / setThang() : int
+        + getNam() / setNam() : int
+        + getChiSoDienCu() / setChiSoDienCu() : BigDecimal
+        + getChiSoDienMoi() / setChiSoDienMoi() : BigDecimal
+        + getChiSoNuocCu() / setChiSoNuocCu() : BigDecimal
+        + getChiSoNuocMoi() / setChiSoNuocMoi() : BigDecimal
+        + getPhuPhi() / setPhuPhi() : BigDecimal
+        + getTongTien() / setTongTien() : BigDecimal
+        + getTrangThaiThanhToan() : String
+        + setTrangThaiThanhToan(v : String) : void
+        + getMaPhong() / setMaPhong() : String
+        + getMaNV() / setMaNV() : String
+    }
+
+    class CauHinhGia {
+        - maGia : int           <<PK, AUTO_INCREMENT>>
+        - loaiDichVu : String   <<ENUM: Điện/Nước/Internet/Dịch vụ khác>>
+        - donGia : BigDecimal   <<DECIMAL(12,2), NOT NULL>>
+        - ngayApDung : LocalDate<<DATE, NOT NULL>>
+        --
+        + CauHinhGia()
+        + CauHinhGia(maGia, loaiDichVu, donGia, ngayApDung)
+        + getMaGia() : int
+        + setMaGia(v : int) : void
+        + getLoaiDichVu() : String
+        + setLoaiDichVu(v : String) : void
+        + getDonGia() : BigDecimal
+        + setDonGia(v : BigDecimal) : void
+        + getNgayApDung() : LocalDate
+        + setNgayApDung(v : LocalDate) : void
+    }
+}
+
+class Phong <<external>>
+class NhanVien <<external>>
+
+HoaDon "many" --> "1" Phong    : maPhong FK
+HoaDon "many" --> "1" NhanVien : maNV FK
+
+' ============================================================
+' REPOSITORY
+' ============================================================
+package "com.ktx.repository" #E0F2FE {
+
+    interface HoaDonRepository {
+        + save(hd : HoaDon) : void
+        + update(hd : HoaDon) : void
+        + delete(maHDon : String) : void
+        + findAll() : List<HoaDon>
+        + findTheoThangNam(thang : int, nam : int) : List<HoaDon>
+        + findById(maHDon : String) : Optional<HoaDon>
+        + existsByPhongAndThangNam(maPhong : String, thang : int, nam : int) : boolean
+        + findLatestByPhong(maPhong : String) : Optional<HoaDon>
+    }
+
+    interface CauHinhGiaRepository {
+        + findAll() : List<CauHinhGia>
+        + update(gia : CauHinhGia) : void
+        + findByLoai(loaiDichVu : String) : Optional<CauHinhGia>
+    }
+}
+
+package "com.ktx.repository.impl" #DBEAFE {
+
+    class HoaDonRepositoryImpl {
+        + save(hd : HoaDon) : void
+        + update(hd : HoaDon) : void
+        + delete(maHDon : String) : void
+        + findAll() : List<HoaDon>
+        + findTheoThangNam(thang : int, nam : int) : List<HoaDon>
+        + findById(maHDon : String) : Optional<HoaDon>
+        + existsByPhongAndThangNam(maPhong, thang, nam) : boolean
+        + findLatestByPhong(maPhong : String) : Optional<HoaDon>
+    }
+
+    class CauHinhGiaRepositoryImpl {
+        + findAll() : List<CauHinhGia>
+        + update(gia : CauHinhGia) : void
+        + findByLoai(loaiDichVu : String) : Optional<CauHinhGia>
+    }
+}
+
+HoaDonRepositoryImpl ..|> HoaDonRepository
+CauHinhGiaRepositoryImpl ..|> CauHinhGiaRepository
+
+' ============================================================
+' SERVICE
+' ============================================================
+package "com.ktx.service" #D1FAE5 {
+
+    interface HoaDonService {
+        + layTatCaHoaDon() : List<HoaDon>
+        + locHoaDonTheoThangNam(thang : int, nam : int) : List<HoaDon>
+        + taoHoaDon(thang, nam, maPhong, maNV,\n  dCu, dMoi, nCu, nMoi) : void
+        + thanhToanHoaDon(maHDon : String) : void
+        + xoaHoaDon(maHDon : String, vaiTro : String) : void
+        + layHoaDonGanNhatTheoPhong(maPhong : String) : HoaDon
+    }
+
+    interface CauHinhGiaService {
+        + getAll() : List<CauHinhGia>
+        + updateGia(gia : CauHinhGia) : void
+        + getDonGia(loaiDichVu : String) : BigDecimal
+    }
+}
+
+package "com.ktx.service.impl" #DCFCE7 {
+
+    class HoaDonServiceImpl {
+        - hoaDonRepo : HoaDonRepository
+        - phongRepo : PhongRepository
+        - giaSvc : CauHinhGiaService
+        --
+        + HoaDonServiceImpl(giaSvc : CauHinhGiaService)
+        + layTatCaHoaDon() : List<HoaDon>
+        + locHoaDonTheoThangNam(thang, nam) : List<HoaDon>
+        + taoHoaDon(thang, nam, maPhong, maNV,\n  dCu, dMoi, nCu, nMoi) : void
+        + thanhToanHoaDon(maHDon : String) : void
+        + xoaHoaDon(maHDon : String, vaiTro : String) : void
+        + layHoaDonGanNhatTheoPhong(maPhong : String) : HoaDon
+    }
+
+    class CauHinhGiaServiceImpl {
+        - repo : CauHinhGiaRepository
+        --
+        + CauHinhGiaServiceImpl(repo)
+        + getAll() : List<CauHinhGia>
+        + updateGia(gia : CauHinhGia) : void
+        + getDonGia(loaiDichVu : String) : BigDecimal
+        - getDefault(loai : String) : BigDecimal
+    }
+}
+
+HoaDonServiceImpl ..|> HoaDonService
+CauHinhGiaServiceImpl ..|> CauHinhGiaService
+HoaDonServiceImpl --> HoaDonRepository : uses
+HoaDonServiceImpl --> CauHinhGiaService : <<include>>\nlấy đơn giá
+CauHinhGiaServiceImpl --> CauHinhGiaRepository : uses
+
+' ============================================================
+' VIEW
+' ============================================================
+package "com.ktx.view" #FEF9C3 {
+
+    class QuanLyHoaDonPanel {
+        - table : JTable
+        - tableModel : DefaultTableModel
+        - cboThang : JComboBox<Integer>
+        - spinNam : JSpinner
+        - btnLoc / btnLapHD / btnThanhToan : JButton
+        - btnXoa / btnLamMoi : JButton
+        --
+        + setTableModel(list : List<HoaDon>) : void
+        + getSelectedMaHDon() : String
+        + getSelectedThang() : int
+        + getSelectedNam() : int
+        + addLocListener / addLapHDListener()
+        + addThanhToanListener / addXoaListener()
+        + addLamMoiListener(l : ActionListener) : void
+    }
+
+    class QuanLyGiaPanel {
+        - table : JTable
+        - tableModel : DefaultTableModel
+        - btnCapNhat / btnLamMoi : JButton
+        --
+        + setTableModel(list : List<CauHinhGia>) : void
+        + getSelectedLoaiDichVu() : String
+        + addCapNhatListener(l : ActionListener) : void
+        + addLamMoiListener(l : ActionListener) : void
+    }
+}
+
+' ============================================================
+' CONTROLLER
+' ============================================================
+package "com.ktx.controller" #EDE9FE {
+
+    class HoaDonController {
+        - view : QuanLyHoaDonPanel
+        - service : HoaDonService
+        - maNVDangNhap : String
+        - vaiTroNguoiDung : String
+        --
+        + HoaDonController(view, service, maNV, vaiTro)
+        - bindListeners() : void
+        - loadAll() : void
+        - loc() : void
+        - thanhToan() : void
+        - xoa() : void
+        - lapMoi() : void
+    }
+
+    class CauHinhGiaController {
+        - view : QuanLyGiaPanel
+        - service : CauHinhGiaService
+        - list : List<CauHinhGia>
+        --
+        + CauHinhGiaController(view, service)
+        + loadAll() : void
+        - setupListeners() : void
+        - handleCapNhat() : void
+    }
+}
+
+HoaDonController --> QuanLyHoaDonPanel : controls
+HoaDonController --> HoaDonService : calls
+CauHinhGiaController --> QuanLyGiaPanel : controls
+CauHinhGiaController --> CauHinhGiaService : calls
+
+note right of HoaDonServiceImpl
+  taoHoaDon() — Công thức tính tiền:
+  tienDien = (dienMoi - dienCu) * giaDien
+  tienNuoc = (nuocMoi - nuocCu) * giaNuoc
+  tongTien = tienDien + tienNuoc + phuPhi
+  
+  Mã HĐ sinh tự động:
+  "HD" + MM + YY + MaPhong
+  
+  xoaHoaDon():
+  - Staff: chỉ xóa "Chưa thanh toán"
+  - Manager: xóa được cả "Đã thanh toán"
+end note
+
+note bottom of CauHinhGiaServiceImpl
+  getDonGia() fallback mặc định:
+  Điện → 3,500 VNĐ/kWh
+  Nước → 20,000 VNĐ/m³
+  nếu chưa có bản ghi trong DB.
+end note
+
+@enduml

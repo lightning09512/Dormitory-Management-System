@@ -1,0 +1,74 @@
+@startuml AD10_QuanLyCauHinhGia
+title AD10 - Activity Diagram: Quản Lý Cấu Hình Giá
+
+skinparam ActivityBackgroundColor LightYellow
+skinparam ActivityBorderColor DarkOrange
+skinparam ArrowColor DarkOrange
+skinparam ActivityStartColor DarkGreen
+skinparam ActivityEndColor DarkRed
+skinparam ActivityDiamondBackgroundColor LightBlue
+skinparam ActivityDiamondBorderColor Navy
+
+|Quản Lý (Manager)|
+start
+:Chọn menu "Cấu hình Giá"\n(Chỉ hiển thị với Manager);
+
+|Hệ Thống|
+:Tải danh sách CauHinhGia\n(findAll);
+:Hiển thị bảng gồm các cột:\nLoại dịch vụ, Đơn giá (VNĐ),\nNgày áp dụng;
+
+|Quản Lý (Manager)|
+:Chọn thao tác;
+
+switch (Thao tác?)
+case (Cập nhật đơn giá)
+    :Chọn 1 dòng trong bảng\n(chọn loại dịch vụ cần cập nhật);
+    :Nhấn "Cập nhật Giá";
+    |Hệ Thống|
+    :Kiểm tra đã chọn dòng chưa;
+    if (Chưa chọn?) then (Có)
+        :Thông báo "Vui lòng chọn\nloại dịch vụ";
+    else (Đã chọn)
+        :Tìm CauHinhGia theo LoaiDichVu\ntrong danh sách đã tải;
+        :Mở InputDialog hiển thị\nđơn giá hiện tại;
+        |Quản Lý (Manager)|
+        :Nhập đơn giá mới (số tiền VNĐ);
+        :Nhấn "OK";
+        |Hệ Thống|
+        if (Nhấn Cancel?) then (Có)
+            :Hủy thao tác;
+        else (OK)
+            :Validate: đơn giá là số hợp lệ\n(new BigDecimal(input));
+            if (Không phải số?) then (Có)
+                :Thông báo "Đơn giá không hợp lệ.\nVui lòng nhập số";
+            else (Hợp lệ)
+                :Cập nhật DonGia mới;
+                :Cập nhật NgayApDung\n= LocalDate.now();
+                :Lưu CauHinhGia vào DB\n(em.merge);
+                :Thông báo "Cập nhật thành công";
+                :Tải lại bảng danh sách giá;
+            endif
+        endif
+    endif
+    note right
+      Giá mới chỉ áp dụng cho
+      các hóa đơn được tạo SAU
+      thời điểm cập nhật.
+      Hóa đơn cũ không bị ảnh hưởng.
+    end note
+
+case (Làm mới)
+    :Nhấn "Làm mới";
+    |Hệ Thống|
+    :Tải lại bảng danh sách giá;
+
+endswitch
+
+|Hệ Thống|
+:Khi HoaDonServiceImpl.taoHoaDon\nđược gọi (UC07):;
+:Lấy đơn giá hiện hành:\ngiaDien = getDonGia("Điện")\ngiaNuoc = getDonGia("Nước")\n(findByLoai → ORDER BY NgayApDung DESC);
+:Dùng giá này tính TongTien\ntrên hóa đơn mới;
+
+stop
+
+@enduml

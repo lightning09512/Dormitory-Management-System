@@ -1,0 +1,241 @@
+@startuml CD03_SinhVien
+
+title CD03 – Quản lý Sinh viên
+
+skinparam backgroundColor #F8FAFC
+skinparam defaultFontName Segoe UI
+skinparam defaultFontSize 12
+skinparam classAttributeIconSize 0
+
+skinparam class {
+    BackgroundColor #FFFFFF
+    BorderColor     #94A3B8
+    HeaderBackgroundColor #E2E8F0
+    HeaderFontColor #0F172A
+    FontColor       #1E293B
+    ArrowColor      #64748B
+}
+
+skinparam package {
+    BackgroundColor #F1F5F9
+    BorderColor     #CBD5E1
+    FontStyle       bold
+}
+
+' ============================================================
+' MODEL
+' ============================================================
+package "com.ktx.model" #FEE2E2 {
+
+    class SinhVien {
+        - maSV : String        <<PK, VARCHAR(10), NOT NULL>>
+        - hoTen : String       <<NVARCHAR(100), NOT NULL>>
+        - ngaySinh : LocalDate <<DATE>>
+        - gioiTinh : String    <<ENUM('Nam','Nữ','Khác')>>
+        - lop : String         <<VARCHAR(20)>>
+        - khoa : String        <<NVARCHAR(100)>>
+        - soDT : String        <<VARCHAR(15)>>
+        - queQuan : String     <<NVARCHAR(200)>>
+        - email : String       <<VARCHAR(100), UNIQUE>>
+        - taiKhoan : String    <<VARCHAR(50), UNIQUE, NOT NULL>>
+        - matKhau : String     <<VARCHAR(255), NOT NULL, BCrypt>>
+        - phongHienTai : String <<Transient, default="Chưa xếp phòng">>
+        --
+        + SinhVien()
+        + SinhVien(maSV, hoTen, ngaySinh, gioiTinh,\n  lop, khoa, soDT, queQuan,\n  email, taiKhoan, matKhau)
+        + getMaSV() : String
+        + setMaSV(v : String) : void
+        + getHoTen() : String
+        + setHoTen(v : String) : void
+        + getNgaySinh() : LocalDate
+        + setNgaySinh(v : LocalDate) : void
+        + getGioiTinh() : String
+        + setGioiTinh(v : String) : void
+        + getLop() : String
+        + setLop(v : String) : void
+        + getKhoa() : String
+        + setKhoa(v : String) : void
+        + getSoDT() : String
+        + setSoDT(v : String) : void
+        + getQueQuan() : String
+        + setQueQuan(v : String) : void
+        + getEmail() : String
+        + setEmail(v : String) : void
+        + getTaiKhoan() : String
+        + setTaiKhoan(v : String) : void
+        + getMatKhau() : String
+        + setMatKhau(v : String) : void
+        + getPhongHienTai() : String
+        + setPhongHienTai(v : String) : void
+    }
+}
+
+' ============================================================
+' REPOSITORY
+' ============================================================
+package "com.ktx.repository" #E0F2FE {
+
+    interface SinhVienRepository {
+        + save(sv : SinhVien) : void
+        + update(sv : SinhVien) : void
+        + delete(maSV : String) : void
+        + findById(maSV : String) : Optional<SinhVien>
+        + findAll() : List<SinhVien>
+        + findAll(page : int, size : int) : List<SinhVien>
+        + count() : long
+        + findByHoTen(keyword : String) : List<SinhVien>
+        + findByKeyword(keyword : String) : List<SinhVien>
+        + findByKeyword(keyword : String, page : int, size : int) : List<SinhVien>
+        + countByKeyword(keyword : String) : long
+    }
+}
+
+package "com.ktx.repository.impl" #DBEAFE {
+
+    class SinhVienRepositoryImpl {
+        + save(sv : SinhVien) : void
+        + update(sv : SinhVien) : void
+        + delete(maSV : String) : void
+        + findById(maSV : String) : Optional<SinhVien>
+        + findAll() : List<SinhVien>
+        + findAll(page : int, size : int) : List<SinhVien>
+        + count() : long
+        + findByHoTen(keyword : String) : List<SinhVien>
+        + findByKeyword(keyword : String) : List<SinhVien>
+        + findByKeyword(keyword : String, page : int, size : int) : List<SinhVien>
+        + countByKeyword(keyword : String) : long
+    }
+}
+
+SinhVienRepositoryImpl ..|> SinhVienRepository
+
+' ============================================================
+' SERVICE
+' ============================================================
+package "com.ktx.service" #D1FAE5 {
+
+    interface SinhVienService {
+        + themSinhVien(sv : SinhVien) : void
+        + capNhatSinhVien(sv : SinhVien) : void
+        + xoaSinhVien(maSV : String) : void
+        + timTheoMa(maSV : String) : SinhVien
+        + layTatCa() : List<SinhVien>
+        + timTheoTen(keyword : String) : List<SinhVien>
+        + timTheoKeyword(keyword : String) : List<SinhVien>
+        + layDanhSachPhanTrang(page : int, size : int) : List<SinhVien>
+        + demTongSo() : long
+        + timTheoKeywordPhanTrang(keyword : String, page : int, size : int) : List<SinhVien>
+        + demTheoKeyword(keyword : String) : long
+    }
+}
+
+package "com.ktx.service.impl" #DCFCE7 {
+
+    class SinhVienServiceImpl {
+        - sinhVienRepo : SinhVienRepository
+        - hopDongRepo : HopDongRepository
+        - LOGGER : Logger
+        --
+        + SinhVienServiceImpl(sinhVienRepo, hopDongRepo)
+        - attachPhongHienTai(sv : SinhVien) : SinhVien
+        - attachPhongHienTaiList(list : List<SinhVien>) : List<SinhVien>
+        + themSinhVien(sv : SinhVien) : void
+        + capNhatSinhVien(sv : SinhVien) : void
+        + xoaSinhVien(maSV : String) : void
+        + timTheoMa(maSV : String) : SinhVien
+        + layTatCa() : List<SinhVien>
+        + timTheoTen(keyword : String) : List<SinhVien>
+        + timTheoKeyword(keyword : String) : List<SinhVien>
+        + layDanhSachPhanTrang(page : int, size : int) : List<SinhVien>
+        + demTongSo() : long
+        + timTheoKeywordPhanTrang(keyword : String, page : int, size : int) : List<SinhVien>
+        + demTheoKeyword(keyword : String) : long
+    }
+}
+
+SinhVienServiceImpl ..|> SinhVienService
+SinhVienServiceImpl --> SinhVienRepository : uses
+SinhVienServiceImpl ..> "HopDongRepository" : uses\n(lấy phòng hiện tại)
+
+' ============================================================
+' VIEW
+' ============================================================
+package "com.ktx.view" #FEF9C3 {
+
+    class QuanLySinhVienPanel {
+        - table : JTable
+        - tableModel : DefaultTableModel
+        - txtSearch : JTextField
+        - btnTim / btnThem / btnSua : JButton
+        - btnXoa / btnLamMoi : JButton
+        - btnPrev / btnNext : JButton
+        - lblPageInfo : JLabel
+        - lblTotalCount : JLabel
+        --
+        + setSinhVienList(list : List<SinhVien>) : void
+        + getKeyword() : String
+        + getSelectedMaSV() : String
+        + setPaginationInfo(page : int, totalPages : int, total : long) : void
+        + addTimKiemListener(l : ActionListener) : void
+        + addThemListener(l : ActionListener) : void
+        + addSuaListener(l : ActionListener) : void
+        + addXoaListener(l : ActionListener) : void
+        + addLamMoiListener(l : ActionListener) : void
+        + addPrevPageListener(l : ActionListener) : void
+        + addNextPageListener(l : ActionListener) : void
+    }
+}
+
+' ============================================================
+' CONTROLLER
+' ============================================================
+package "com.ktx.controller" #EDE9FE {
+
+    class SinhVienController {
+        - view : QuanLySinhVienPanel
+        - service : SinhVienService
+        - currentPage : int = 1
+        - pageSize : int = 20
+        --
+        + SinhVienController(view, service)
+        - bindListeners() : void
+        - handleTimKiem() : void
+        - handleThem() : void
+        - handleSua() : void
+        - handleXoa() : void
+        - loadAll() : void
+    }
+
+    class SinhVienFormDialog <<inner class>> {
+        - confirmed : boolean
+        - txtMaSV / txtHoTen / txtNgaySinh : JTextField
+        - cbGioiTinh : JComboBox
+        - txtLop / txtKhoa / txtSoDT : JTextField
+        - txtEmail / txtTaiKhoan : JTextField
+        - txtMK : JPasswordField
+        + isConfirmed() : boolean
+        + getSinhVien() : SinhVien
+    }
+}
+
+SinhVienController --> QuanLySinhVienPanel : controls
+SinhVienController --> SinhVienService : calls
+SinhVienController +-- SinhVienFormDialog
+SinhVienRepositoryImpl --> SinhVien : manages
+
+note right of SinhVien
+  @Transient phongHienTai:
+  Được gán động bằng cách
+  tra cứu HopDong đang
+  hiệu lực của SinhVien.
+  Không lưu vào DB.
+end note
+
+note bottom of SinhVienServiceImpl
+  Phân trang mặc định 20 bản/trang.
+  Validate qua ValidationUtil
+  (Jakarta Bean Validation)
+  trước khi gọi repository.
+end note
+
+@enduml

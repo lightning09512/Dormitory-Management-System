@@ -1,0 +1,58 @@
+@startuml UC08_QuanLyTienPhong
+title UC08 - Quản Lý Tiền Phòng
+
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+skinparam usecase {
+    BackgroundColor LightYellow
+    BorderColor DarkOrange
+    ArrowColor DarkOrange
+}
+skinparam actor {
+    BackgroundColor LightBlue
+    BorderColor Navy
+}
+
+actor "Nhân Viên" as Staff
+actor "Quản Lý" as Manager
+
+Manager --|> Staff
+
+rectangle "Hệ Thống Quản Lý KTX" {
+    usecase "UC08.1\nXem danh sách hóa đơn\ntiền phòng" as UC08_1
+    usecase "UC08.2\nTạo hóa đơn tiền phòng\ntheo gói (6/9/12 tháng)" as UC08_2
+    usecase "UC08.3\nGhi nhận thanh toán\n(Xác nhận đã đóng tiền)" as UC08_3
+    usecase "UC08.4\nTìm kiếm hóa đơn\ntheo Mã HĐ / Mã SV" as UC08_4
+    usecase "UC08.5\nTính tiền phòng từ\nhợp đồng" as UC08_5
+    usecase "UC08.6\nLọc hóa đơn theo\ntrạng thái" as UC08_6
+}
+
+Staff --> UC08_1
+Staff --> UC08_2
+Staff --> UC08_3
+Staff --> UC08_4
+Staff --> UC08_6
+
+UC08_2 ..> UC08_5 : <<include>>
+
+note right of UC08_5
+  Số tiền = GiaPhong x GoiThanhToan
+  Giá thuê lấy từ bảng Phong
+  theo hợp đồng hiệu lực
+end note
+
+note right of UC08_4
+  Tìm kiếm theo Mã hợp đồng
+  hoặc Mã sinh viên
+  (so khớp chuỗi con)
+end note
+
+note right of UC08_6
+  Lọc theo trạng thái:
+  - Tất cả
+  - Chưa thanh toán
+  - Đã thanh toán
+end note
+
+@enduml

@@ -1,0 +1,65 @@
+@startuml AD03c_SinhVien_Sua
+title AD03c - Cập Nhật Thông Tin Sinh Viên
+
+skinparam ActivityBackgroundColor LightYellow
+skinparam ActivityBorderColor DarkOrange
+skinparam ArrowColor DarkOrange
+skinparam ActivityStartColor DarkGreen
+skinparam ActivityEndColor DarkRed
+skinparam ActivityDiamondBackgroundColor LightBlue
+skinparam ActivityDiamondBorderColor Navy
+
+|Nhân Viên|
+start
+:Chọn 1 dòng trong bảng\ndanh sách sinh viên;
+:Nhấn nút "Sửa";
+
+|Hệ Thống|
+:Lấy MaSV từ dòng được chọn;
+
+if (Chưa chọn dòng nào?) then (Có)
+    :Thông báo "Vui lòng chọn\nsinh viên cần sửa";
+    stop
+else (Đã chọn)
+endif
+
+:Gọi service.timTheoMa(maSV)\n→ tìm SinhVien trong DB;
+
+if (Không tìm thấy?) then (Có)
+    :Thông báo lỗi "Không tìm thấy\nsinh viên";
+    stop
+else (Tìm thấy)
+endif
+
+:Mở SinhVienFormDialog\n(tiêu đề: "Sửa thông tin sinh viên");
+:Điền sẵn dữ liệu hiện tại vào form;
+:Trường MaSV: hiển thị nhưng\nKHÔNG cho chỉnh sửa (setEditable=false);
+:Trường MatKhau: để trống\n(không hiển thị mật khẩu cũ);
+
+|Nhân Viên|
+:Chỉnh sửa các trường:\nHoTen, NgaySinh, GioiTinh,\nLop, Khoa, SoDT, Email, TaiKhoan;
+:Nhấn "Lưu";
+
+|Hệ Thống|
+:Thu thập dữ liệu từ form;
+:Tạo đối tượng SinhVien mới\nvới MaSV cũ;
+
+if (MatKhau mới có nhập?) then (Có)
+    :Dùng MatKhau mới;
+else (Không nhập)
+    :Giữ nguyên MatKhau cũ\ntrong DB (null → không ghi đè);
+endif
+
+:Gọi service.capNhatSinhVien(sinhVien)\n→ sinhVienRepo.update;
+:Đóng dialog;
+:Thông báo "Cập nhật thành công!";
+
+|Nhân Viên|
+:Xác nhận thông báo;
+
+|Hệ Thống|
+:Tải lại danh sách sinh viên\n(giữ nguyên trang hiện tại);
+
+stop
+
+@enduml

@@ -1,0 +1,61 @@
+@startuml UC07_QuanLyHoaDonDichVu
+title UC07 - Quản Lý Hóa Đơn Dịch Vụ
+
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+skinparam usecase {
+    BackgroundColor LightYellow
+    BorderColor DarkOrange
+    ArrowColor DarkOrange
+}
+skinparam actor {
+    BackgroundColor LightBlue
+    BorderColor Navy
+}
+
+actor "Nhân Viên" as Staff
+actor "Quản Lý" as Manager
+
+Manager --|> Staff
+
+rectangle "Hệ Thống Quản Lý KTX" {
+    usecase "UC07.1\nXem danh sách hóa đơn\ndịch vụ" as UC07_1
+    usecase "UC07.2\nTạo hóa đơn dịch vụ mới\n(Điện, Nước)" as UC07_2
+    usecase "UC07.3\nXóa hóa đơn dịch vụ" as UC07_3
+    usecase "UC07.4\nLọc hóa đơn theo\nTháng / Năm" as UC07_4
+    usecase "UC07.5\nTính tiền dịch vụ tự động" as UC07_5
+    usecase "UC07.6\nCập nhật trạng thái\nthanh toán" as UC07_6
+    usecase "UC07.7\nTự động điền chỉ số cũ\ntừ kỳ trước" as UC07_7
+}
+
+Staff --> UC07_1
+Staff --> UC07_2
+Staff --> UC07_4
+Staff --> UC07_6
+Manager --> UC07_3
+
+UC07_2 ..> UC07_5 : <<include>>
+UC07_2 ..> UC07_7 : <<include>>
+
+note right of UC07_5
+  Đơn giá lấy từ
+  bảng Cấu hình giá
+  (CauHinhGia)
+end note
+
+note right of UC07_7
+  Khi chọn phòng, hệ thống
+  tự động lấy chiSoDienMoi
+  và chiSoNuocMoi từ hóa đơn
+  gần nhất của phòng đó
+end note
+
+note right of UC07_3
+  - Staff: chỉ xóa được hóa đơn
+    "Chưa thanh toán"
+  - Manager: xóa được cả hóa đơn
+    "Đã thanh toán"
+end note
+
+@enduml

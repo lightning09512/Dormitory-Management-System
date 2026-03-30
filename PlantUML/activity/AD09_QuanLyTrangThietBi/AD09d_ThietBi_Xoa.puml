@@ -1,0 +1,65 @@
+@startuml AD09d_ThietBi_Xoa
+title AD09d - Xóa Trang Thiết Bị
+
+skinparam ActivityBackgroundColor LightYellow
+skinparam ActivityBorderColor DarkOrange
+skinparam ArrowColor DarkOrange
+skinparam ActivityStartColor DarkGreen
+skinparam ActivityEndColor DarkRed
+skinparam ActivityDiamondBackgroundColor LightBlue
+skinparam ActivityDiamondBorderColor Navy
+
+|Nhân Viên|
+start
+:Chọn 1 dòng trong bảng\n(thông tin tự điền vào form)\nHOẶC nhập MaTB trực tiếp vào form;
+:Nhấn nút "Xóa";
+
+|Hệ Thống|
+:Lấy MaTB từ ô txtMaTB trên form;
+
+if (MaTB rỗng?) then (Có)
+    :Thông báo "Vui lòng chọn thiết bị\nhoặc nhập mã thiết bị\nđể xóa!"\n(WARNING_MESSAGE);
+    stop
+else (Không rỗng)
+endif
+
+:Hiển thị hộp thoại xác nhận:\n"Bạn có chắc chắn muốn\nxóa thiết bị này?"\n(YES / NO);
+
+|Nhân Viên|
+if (Xác nhận?) then (NO)
+    :Hủy thao tác;
+    stop
+else (YES)
+endif
+
+|Hệ Thống|
+:Gọi service.xoaThietBi(maTB);
+
+if (MaTB rỗng trong service?) then (Có)
+    :Ném Exception\n"Mã thiết bị không được để trống";
+    :Thông báo lỗi;
+    stop
+else (Không rỗng)
+endif
+
+:Gọi trangThietBiRepository.delete(maTB)\n→ em.find(TrangThietBi.class, maTB)\n→ nếu tìm thấy thì em.remove;
+
+if (Có lỗi xảy ra?) then (Có)
+    :Bắt Exception;
+    :Thông báo "Lỗi: [message]";
+    stop
+else (Thành công)
+endif
+
+:Thông báo "Xóa thiết bị thành công!";
+
+|Nhân Viên|
+:Xác nhận thông báo;
+
+|Hệ Thống|
+:Xóa trắng form (clearForm);
+:Tải lại toàn bộ bảng thiết bị;
+
+stop
+
+@enduml

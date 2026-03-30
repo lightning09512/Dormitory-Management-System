@@ -1,0 +1,177 @@
+@startuml SD07_LapHoaDonTienPhong
+title SD07 - Sequence Diagram: Lập Hóa Đơn Tiền Phòng
+
+skinparam sequenceArrowThickness 2
+skinparam sequenceParticipantBackgroundColor LightYellow
+skinparam sequenceParticipantBorderColor DarkOrange
+skinparam sequenceLifeLineBorderColor DarkOrange
+skinparam sequenceGroupBackgroundColor LightBlue
+skinparam noteBorderColor Navy
+skinparam noteBackgroundColor LightCyan
+
+actor "Nhân Viên" as User
+participant "QuanLyTienPhongPanel\n(View)" as View
+participant "HoaDonTienPhongController\n(Controller)" as Controller
+participant "HoaDonTienPhongServiceImpl\n(Service)" as Service
+participant "HopDongRepositoryImpl" as HDRepo
+participant "PhongRepositoryImpl" as PhongRepo
+participant "HoaDonTienPhongRepositoryImpl" as HDTPRepo
+database "Database\n(MySQL)" as DB
+
+== Mở dialog lập hóa đơn ==
+User -> View : Nhấn "Lập hóa đơn"
+activate View
+View -> Controller : actionPerformed(e)\n→ lapMoi()
+activate Controller
+
+== Tải danh sách HĐ hiệu lực ==
+Controller -> HDRepo : findHopDongHieuLuc()
+activate HDRepo
+HDRepo -> DB : SELECT * FROM HopDong\nWHERE TrangThai = 'Đang hiệu lực'
+activate DB
+DB --> HDRepo : List<HopDong>
+deactivate DB
+HDRepo --> Controller : List<HopDong>
+deactivate HDRepo
+
+alt Danh sách HĐ rỗng
+    Controller --> View : showInfo("Không có Hợp đồng\nnào đang hiệu lực\nđể lập hóa đơn.")
+    View --> User : Thông báo + thoát
+    deactivate Controller
+    deactivate View
+else Có HĐ hiệu lực
+end
+
+Controller -> Controller : Tạo dialog:\n- txtSearch (tìm kiếm HĐ)\n- cboHopDong (ComboBox)\n- txtGoi (readonly)\n- lblMaNV
+
+Controller -> Controller : Khởi tạo ComboBox:\nmodel.addElement("MaHD (SV: MaSV)")\ncho mỗi HopDong
+
+Controller -> Controller : Gắn DocumentListener\n→ lọc ComboBox\ntheo keyword thời gian thực
+
+Controller -> Controller : Gắn ActionListener cboHopDong:\n→ tính Gói = MONTHS.between\n(NgayBatDau, NgayKetThuc)
+
+Controller --> View : Hiển thị dialog
+View --> User : Dialog mở
+
+== Tìm kiếm và chọn HĐ ==
+User -> View : (Tùy chọn) Nhập từ khóa\ntìm kiếm Mã HĐ / Mã SV
+View -> Controller : DocumentListener.insertUpdate()\n→ updateCombo.run()
+Controller -> Controller : Filter ComboBox:\nitemText.toLowerCase()\n.contains(keyword)
+View --> User : ComboBox lọc thời gian thực
+
+User -> View : Chọn Hợp đồng từ ComboBox
+View -> Controller : ActionListener:\ncboHopDong.getSelectedItem()
+Controller -> Controller : Tính Gói:\nChrono.MONTHS.between\n(ngayBD, ngayKT) tháng
+Controller -> View : txtGoi.setText(goi + " Tháng")
+View --> User : Gói đóng tự động hiển thị
+
+User -> View : Nhấn "OK"
+
+== Validate và gọi Service ==
+View -> Controller : result = OK_OPTION
+Controller -> Controller : selectedItem = cboHopDong.getSelectedItem()
+
+alt selectedItem null
+    Controller --> View : showError("Chưa chọn hợp đồng.")
+    View --> User : Hiển thị lỗi
+    deactivate Controller
+    deactivate View
+else Đã chọn
+end
+
+Controller -> Controller : maHD = selectedItem.split(" ")[0]\ngoiText = txtGoi.getText()\n.replace(" Tháng", "")\ngoi = Integer.parseInt(goiText)
+
+alt Parse thất bại
+    Controller --> View : showError("Gói thanh toán không hợp lệ.")
+    View --> User : Hiển thị lỗi
+    deactivate Controller
+    deactivate View
+else Hợp lệ
+end
+
+Controller -> Service : lapHoaDonTienPhong\n(maHD, goi, maNV)
+activate Service
+
+== Kiểm tra HĐ và Phòng ==
+Service -> HDRepo : findById(maHD)
+activate HDRepo
+HDRepo -> DB : SELECT * FROM HopDong WHERE MaHD = ?
+activate DB
+DB --> HDRepo : Optional<HopDong>
+deactivate DB
+HDRepo --> Service : HopDong
+deactivate HDRepo
+
+alt HĐ không tồn tại
+    Service --> Controller : throw IllegalArgumentException\n("Không tìm thấy hợp đồng: " + maHD)
+    Controller --> View : showError(message)
+    View --> User : Hiển thị lỗi
+    deactivate Service
+else Tồn tại
+end
+
+Service -> PhongRepo : findById(hopDong.getMaPhong())
+activate PhongRepo
+PhongRepo -> DB : SELECT * FROM Phong WHERE MaPhong = ?
+activate DB
+DB --> PhongRepo : Optional<Phong>
+deactivate DB
+PhongRepo --> Service : Phong
+deactivate PhongRepo
+
+alt Phòng không tồn tại
+    Service --> Controller : throw IllegalArgumentException\n("Không tìm thấy phòng: " + maPhong)
+    Controller --> View : showError(message)
+    View --> User : Hiển thị lỗi
+    deactivate Service
+else Tồn tại
+end
+
+== Tính tiền và lưu ==
+Service -> Service : giaPhong = phong.getGiaPhong()\ntongTien = giaPhong × goi
+note right of Service
+  Ví dụ: GiaPhong = 500,000 VNĐ
+  Gói = 6 tháng
+  TongTien = 3,000,000 VNĐ
+end note
+
+Service -> Service : maHDTP = "TP" +\n(System.currentTimeMillis()\n% 100_000_000L)
+
+Service -> Service : new HoaDonTienPhong(\nmaHDTP, maHD, goi,\nLocalDate.now(), tongTien,\n"Chưa thanh toán", maNV)
+
+Service -> HDTPRepo : save(hdtp)
+activate HDTPRepo
+HDTPRepo -> DB : BEGIN TRANSACTION
+activate DB
+HDTPRepo -> DB : INSERT INTO HoaDonTienPhong\nVALUES (...)
+DB --> HDTPRepo : OK
+HDTPRepo -> DB : COMMIT
+deactivate DB
+HDTPRepo --> Service : void
+deactivate HDTPRepo
+
+Service --> Controller : HoaDonTienPhong (vừa tạo)
+deactivate Service
+
+== Thông báo và làm mới ==
+Controller --> View : showInfo("Lập hóa đơn thành công!")
+View --> User : Thông báo thành công
+User -> View : Nhấn OK
+
+Controller -> Controller : loadAll()
+Controller -> Service : layTatCa()
+activate Service
+Service -> HDTPRepo : findAll()
+activate HDTPRepo
+HDTPRepo -> DB : SELECT * FROM HoaDonTienPhong\nORDER BY NgayLap DESC
+DB --> HDTPRepo : List<HoaDonTienPhong>
+HDTPRepo --> Service : List<HoaDonTienPhong>
+deactivate HDTPRepo
+Service --> Controller : List<HoaDonTienPhong>
+deactivate Service
+Controller -> View : setTableModel(list)
+View --> User : Bảng hóa đơn tiền phòng cập nhật
+deactivate View
+deactivate Controller
+
+@enduml

@@ -1,0 +1,72 @@
+@startuml AD03b_SinhVien_Them
+title AD03b - Thêm Sinh Viên Mới
+
+skinparam ActivityBackgroundColor LightYellow
+skinparam ActivityBorderColor DarkOrange
+skinparam ArrowColor DarkOrange
+skinparam ActivityStartColor DarkGreen
+skinparam ActivityEndColor DarkRed
+skinparam ActivityDiamondBackgroundColor LightBlue
+skinparam ActivityDiamondBorderColor Navy
+
+|Nhân Viên|
+start
+:Nhấn nút "Thêm SV"\ntrên màn hình Quản lý Sinh viên;
+
+|Hệ Thống|
+:Mở SinhVienFormDialog\n(tiêu đề: "Thêm sinh viên mới");
+:Hiển thị form trống với các trường:\nMaSV, HoTen, NgaySinh (yyyy-MM-dd),\nGioiTinh, Lop, Khoa,\nSoDT, Email, TaiKhoan, MatKhau;
+
+|Nhân Viên|
+:Nhập thông tin sinh viên;
+:Nhấn "Lưu";
+
+|Hệ Thống|
+:Thu thập dữ liệu từ form;
+:Tạo đối tượng SinhVien;
+:Chạy Bean Validation\n(ValidationUtil.validate);
+
+if (Có lỗi validate?) then (Có)
+    note right
+      Các ràng buộc:
+      - MaSV: 5-10 ký tự, chữ hoa + số
+      - HoTen: không rỗng, ≤100 ký tự
+      - NgaySinh: phải là ngày quá khứ
+      - GioiTinh: Nam / Nữ / Khác
+      - SoDT: 10-15 chữ số
+      - Email: định dạng hợp lệ, unique
+      - TaiKhoan: 3-50 ký tự, chữ+số+_
+      - MatKhau: ≥ 8 ký tự
+    end note
+    :Hiển thị thông báo lỗi chi tiết\n(tên trường: mô tả lỗi);
+    |Nhân Viên|
+    :Sửa lại thông tin;
+    |Hệ Thống|
+    note right: Quay lại bước nhập dữ liệu
+else (Không có lỗi)
+endif
+
+:Kiểm tra MaSV đã tồn tại chưa\n(sinhVienRepo.findById);
+
+if (MaSV đã tồn tại?) then (Có)
+    :Thông báo "Mã sinh viên đã tồn tại: [MaSV]";
+    |Nhân Viên|
+    :Sửa lại MaSV;
+    |Hệ Thống|
+else (Chưa tồn tại)
+endif
+
+:Gọi sinhVienRepo.save(sinhVien);
+:Log hành động thành công\n(LoggerUtil.logExit);
+:Đóng dialog;
+:Thông báo "Thêm sinh viên thành công!";
+
+|Nhân Viên|
+:Xác nhận thông báo;
+
+|Hệ Thống|
+:Tải lại danh sách sinh viên\n(reset trang 1);
+
+stop
+
+@enduml

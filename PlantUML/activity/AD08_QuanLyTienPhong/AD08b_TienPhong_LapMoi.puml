@@ -1,0 +1,88 @@
+@startuml AD08b_TienPhong_LapMoi
+title AD08b - Lập Hóa Đơn Tiền Phòng Mới
+
+skinparam ActivityBackgroundColor LightYellow
+skinparam ActivityBorderColor DarkOrange
+skinparam ArrowColor DarkOrange
+skinparam ActivityStartColor DarkGreen
+skinparam ActivityEndColor DarkRed
+skinparam ActivityDiamondBackgroundColor LightBlue
+skinparam ActivityDiamondBorderColor Navy
+
+|Nhân Viên|
+start
+:Nhấn "Lập hóa đơn"\ntrên màn hình Tiền Phòng;
+
+|Hệ Thống|
+:Gọi hopDongRepo.findHopDongHieuLuc()\n→ lấy danh sách HĐ đang hiệu lực;
+
+if (Danh sách HĐ rỗng?) then (Có)
+    :Thông báo "Không có Hợp đồng\nnào đang hiệu lực\nđể lập hóa đơn";
+    stop
+else (Có HĐ hiệu lực)
+endif
+
+:Mở dialog lập hóa đơn;
+:Khởi tạo ComboBox danh sách HĐ\n(dạng: "MaHD (SV: MaSV)");
+:Chọn phần tử đầu tiên mặc định;
+:Tính và hiển thị Gói đóng\n= ChronoUnit.MONTHS.between\n(NgayBatDau, NgayKetThuc) tháng;
+:Hiển thị MaNV đang đăng nhập\n(readonly);
+
+|Nhân Viên|
+:Nhập từ khóa tìm kiếm HĐ\n(tùy chọn – lọc thời gian thực);
+
+|Hệ Thống|
+:DocumentListener lắng nghe ô tìm kiếm;
+:Lọc ComboBox theo keyword:\nmaHD.toLowerCase().contains(keyword)\nOR maSV.toLowerCase().contains(keyword);
+
+|Nhân Viên|
+:Chọn Hợp đồng từ ComboBox;
+
+|Hệ Thống|
+:ActionListener cập nhật Gói đóng\ntheo HĐ vừa chọn;
+:Hiển thị Gói = số tháng\n(readonly);
+
+|Nhân Viên|
+:Xác nhận thông tin và nhấn "OK";
+
+|Hệ Thống|
+if (Nhấn Cancel?) then (Có)
+    :Hủy thao tác;
+    stop
+else (OK)
+endif
+
+if (Chưa chọn HĐ?) then (Có)
+    :Thông báo "Chưa chọn hợp đồng";
+    stop
+else (Đã chọn)
+endif
+
+:Parse Gói từ txtGoi\n→ loại bỏ " Tháng" → parseInt;
+
+if (Gói không hợp lệ?) then (Có)
+    :Thông báo "Gói thanh toán\nkhông hợp lệ";
+    stop
+else (Hợp lệ)
+endif
+
+:Gọi service.lapHoaDonTienPhong\n(maHD, goiThanhToan, maNV);
+:Kiểm tra HopDong tồn tại\n(hopDongRepo.findById);
+:Lấy MaPhong từ HopDong;
+:Kiểm tra Phong tồn tại\n(phongRepo.findById);
+:Lấy GiaPhong từ bảng Phong;
+:Tính TongTien:\n= GiaPhong × GoiThanhToan;
+:Sinh MaHDTP:\n"TP" + (System.currentTimeMillis()\n% 100_000_000L);
+:Tạo HoaDonTienPhong:\n(TrangThai = "Chưa thanh toán"\nNgayLap = LocalDate.now());
+:Gọi hoadonRepo.save(hdtp);
+:Thông báo "Lập hóa đơn thành công!";
+
+|Nhân Viên|
+:Xác nhận thông báo;
+
+|Hệ Thống|
+:Tải lại danh sách hóa đơn tiền phòng;
+
+stop
+
+@enduml

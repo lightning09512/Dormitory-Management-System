@@ -1,0 +1,194 @@
+@startuml OD02_SinhVien_PhongHienTai
+title OD02 – Object Diagram: Sinh Viên & Phòng Hiện Tại (@Transient)
+
+skinparam backgroundColor #F8FAFC
+skinparam defaultFontName Segoe UI
+skinparam defaultFontSize 12
+skinparam objectAttributeIconSize 0
+
+skinparam object {
+    BackgroundColor #FFFFFF
+    BorderColor     #94A3B8
+    HeaderBackgroundColor #E2E8F0
+    HeaderFontColor #0F172A
+    FontColor       #1E293B
+    ArrowColor      #64748B
+}
+
+skinparam note {
+    BackgroundColor #FEF9C3
+    BorderColor     #CA8A04
+    FontColor       #1E293B
+}
+
+' ============================================================
+' Kịch bản: Tải danh sách SV trang 1 — 3 sinh viên điển hình
+' Thời điểm: Sau SinhVienServiceImpl.attachPhongHienTai()
+' ============================================================
+
+package "Dữ liệu lưu trong Database (Persistent)" #FEE2E2 {
+
+    object "sv1 : SinhVien" as SV1 {
+        maSV        = "SV20210001"
+        hoTen       = "Lê Văn Cường"
+        ngaySinh    = 2003-05-12
+        gioiTinh    = "Nam"
+        lop         = "CNTT01"
+        khoa        = "Công nghệ Thông tin"
+        soDT        = "0933111222"
+        email       = "cuonglv@student.edu.vn"
+        taiKhoan    = "cuonglv2021"
+        matKhau     = "$2a$10$abc...hash"
+        ' ── @Transient ──
+        phongHienTai = "P101"
+    }
+
+    object "sv2 : SinhVien" as SV2 {
+        maSV        = "SV20210045"
+        hoTen       = "Nguyễn Thị Dung"
+        ngaySinh    = 2003-09-20
+        gioiTinh    = "Nữ"
+        lop         = "KT02"
+        khoa        = "Kinh tế"
+        soDT        = "0944222333"
+        email       = "dungnt@student.edu.vn"
+        taiKhoan    = "dungnt2021"
+        matKhau     = "$2a$10$def...hash"
+        ' ── @Transient ──
+        phongHienTai = "P205"
+    }
+
+    object "sv3 : SinhVien" as SV3 {
+        maSV        = "SV20220078"
+        hoTen       = "Phạm Quốc Hùng"
+        ngaySinh    = 2004-01-08
+        gioiTinh    = "Nam"
+        lop         = "XD03"
+        khoa        = "Xây dựng"
+        soDT        = "0955333444"
+        email       = "hungpq@student.edu.vn"
+        taiKhoan    = "hungpq2022"
+        matKhau     = "$2a$10$ghi...hash"
+        ' ── @Transient ──
+        phongHienTai = "Chưa xếp phòng"
+    }
+}
+
+package "HopDong tra cứu để gán @Transient" #E0F2FE {
+
+    object "hd1 : HopDong" as HD1 {
+        maHD      = "HD-250101-12345"
+        trangThai = "Đang hiệu lực"
+        maSV      = "SV20210001"
+        maPhong   = "P101"
+        ngayBatDau  = 2025-01-01
+        ngayKetThuc = 2025-07-01
+    }
+
+    object "hd2 : HopDong" as HD2 {
+        maHD      = "HD-250201-67890"
+        trangThai = "Đang hiệu lực"
+        maSV      = "SV20210045"
+        maPhong   = "P205"
+        ngayBatDau  = 2025-02-01
+        ngayKetThuc = 2025-08-01
+    }
+
+    object "hd3_old : HopDong" as HD3 {
+        maHD      = "HD-240901-11111"
+        trangThai = "Đã thanh lý"
+        maSV      = "SV20220078"
+        maPhong   = "P310"
+        ngayBatDau  = 2024-09-01
+        ngayKetThuc = 2025-03-01
+    }
+}
+
+package "Phòng tương ứng" #D1FAE5 {
+
+    object "p101 : Phong" as P101 {
+        maPhong         = "P101"
+        tenPhong        = "Phòng 101"
+        loaiPhong       = "Tập thể"
+        sucChua         = 4
+        soNguoiHienTai  = 3
+        giaPhong        = 500_000
+        trangThai       = "Đang sử dụng"
+        maDay           = "DA"
+    }
+
+    object "p205 : Phong" as P205 {
+        maPhong         = "P205"
+        tenPhong        = "Phòng 205"
+        loaiPhong       = "Đôi"
+        sucChua         = 2
+        soNguoiHienTai  = 2
+        giaPhong        = 700_000
+        trangThai       = "Đang sử dụng"
+        maDay           = "DB"
+    }
+}
+
+package "SinhVienServiceImpl — attachPhongHienTai()" #DCFCE7 {
+
+    object "sinhVienSvc : SinhVienServiceImpl" as SVSvc {
+        sinhVienRepo = sinhVienRepoImpl
+        hopDongRepo  = hopDongRepoImpl
+    }
+}
+
+' ============================================================
+' Relationships — luồng gán phongHienTai
+' ============================================================
+SVSvc --> HD1 : findBySinhVien("SV20210001")\n→ tìm HĐ trangThai = "Đang hiệu lực"
+SVSvc --> HD2 : findBySinhVien("SV20210045")\n→ tìm HĐ trangThai = "Đang hiệu lực"
+SVSvc --> HD3 : findBySinhVien("SV20220078")\n→ không có HĐ hiệu lực
+
+HD1 ..> SV1 : sv.setPhongHienTai("P101")
+HD2 ..> SV2 : sv.setPhongHienTai("P205")
+HD3 ..> SV3 : giữ nguyên "Chưa xếp phòng"
+
+SV1 ..> P101 : phongHienTai = maPhong
+SV2 ..> P205 : phongHienTai = maPhong
+
+note top of SV1
+  phongHienTai = "P101"
+  → @Transient: KHÔNG lưu DB
+  → Được gán động mỗi lần load
+  → Hiển thị ở cột "Phòng" trên bảng
+end note
+
+note top of SV2
+  phongHienTai = "P205"
+  → @Transient: KHÔNG lưu DB
+  → Được gán động mỗi lần load
+end note
+
+note top of SV3
+  phongHienTai = "Chưa xếp phòng"
+  (default value)
+  → Không có HĐ đang hiệu lực
+  → Hiển thị trong ComboBox "Lập HĐ"
+    để xếp phòng mới
+end note
+
+note bottom of SVSvc
+  attachPhongHienTai(sv):
+    sv.setPhongHienTai("Chưa xếp phòng")  // default
+    hopDongRepo.findBySinhVien(sv.getMaSV())
+    → filter "Đang hiệu lực"
+    → sv.setPhongHienTai(hd.getMaPhong())
+  ─────────────────────────────────────
+  Trong LapHopDongPanel, chỉ SV3
+  (phongHienTai = "Chưa xếp phòng")
+  mới xuất hiện trong ComboBox
+  chọn sinh viên để lập HĐ.
+end note
+
+note right of HD3
+  HĐ "Đã thanh lý" → bị bỏ qua
+  SV20220078 được coi là
+  "Chưa xếp phòng" dù từng ở P310
+end note
+
+@enduml

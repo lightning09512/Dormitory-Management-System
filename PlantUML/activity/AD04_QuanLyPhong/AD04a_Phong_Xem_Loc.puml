@@ -1,0 +1,45 @@
+@startuml AD04a_Phong_Xem_Loc
+title AD04a - Xem Danh Sách / Lọc Phòng
+
+skinparam ActivityBackgroundColor LightYellow
+skinparam ActivityBorderColor DarkOrange
+skinparam ArrowColor DarkOrange
+skinparam ActivityStartColor DarkGreen
+skinparam ActivityEndColor DarkRed
+skinparam ActivityDiamondBackgroundColor LightBlue
+skinparam ActivityDiamondBorderColor Navy
+
+|Nhân Viên|
+start
+:Chọn menu "Quản lý Phòng";
+
+|Hệ Thống|
+:componentShown kích hoạt → loadAll();
+:Gọi service.layTatCa()\n(findAll ORDER BY MaPhong);
+:Hiển thị bảng danh sách phòng\nvới các cột:\nMã phòng, Tên phòng, Loại,\nSức chứa, Hiện tại, Giá phòng,\nTrạng thái, Dãy nhà;
+
+|Nhân Viên|
+switch (Thao tác?)
+case (Lọc theo trạng thái)
+    :Chọn trạng thái từ ComboBox\n(Tất cả / Còn trống /\nĐang sử dụng / Bảo trì);
+    :Nhấn "Lọc";
+    |Hệ Thống|
+    if (Chọn "Tất cả"?) then (Có)
+        :Gọi service.layTatCa();
+    else (Chọn trạng thái cụ thể)
+        :Gọi service.layTatCa()\nrồi filter theo TrangThai;
+    endif
+    :Cập nhật bảng với kết quả lọc;
+
+case (Làm mới)
+    :Nhấn "Làm mới";
+    |Hệ Thống|
+    :Gọi service.layTatCa();
+    :Tải lại toàn bộ danh sách phòng;
+    :Cập nhật bảng;
+
+endswitch
+
+stop
+
+@enduml

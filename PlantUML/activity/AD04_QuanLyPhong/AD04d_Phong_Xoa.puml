@@ -1,0 +1,60 @@
+@startuml AD04d_Phong_Xoa
+title AD04d - Xóa Phòng
+
+skinparam ActivityBackgroundColor LightYellow
+skinparam ActivityBorderColor DarkOrange
+skinparam ArrowColor DarkOrange
+skinparam ActivityStartColor DarkGreen
+skinparam ActivityEndColor DarkRed
+skinparam ActivityDiamondBackgroundColor LightBlue
+skinparam ActivityDiamondBorderColor Navy
+
+|Nhân Viên|
+start
+:Chọn 1 dòng trong bảng phòng;
+:Nhấn nút "Xóa";
+
+|Hệ Thống|
+:Lấy MaPhong từ dòng được chọn;
+
+if (Chưa chọn dòng nào?) then (Có)
+    :Thông báo "Vui lòng chọn\nphòng cần xóa";
+    stop
+else (Đã chọn)
+endif
+
+:Hiển thị hộp thoại xác nhận:\n"Xác nhận xóa phòng [MaPhong]?\nThao tác này không thể hoàn tác."\n(YES / NO);
+
+|Nhân Viên|
+if (Xác nhận?) then (NO)
+    :Hủy thao tác;
+    stop
+else (YES)
+endif
+
+|Hệ Thống|
+:Gọi service.xoaPhong(maPhong)\n→ service.timTheoMa (kiểm tra tồn tại)\n→ phongRepo.delete;
+
+if (Vi phạm FK Constraint?\n(phòng có HĐ / TTB liên kết)) then (Có)
+    :Bắt RuntimeException;
+    :Phân tích message lỗi\n(getRootCause);
+    if (Chứa "foreign key" / "constraint"?) then (Có)
+        :Thông báo "Không thể xóa phòng\nnày vì đang liên kết với\nhợp đồng hoặc sinh viên!";
+    else (Lỗi khác)
+        :Thông báo lỗi gốc\n(getRootCause message);
+    endif
+    stop
+else (Xóa thành công)
+endif
+
+:Thông báo "Xóa phòng thành công!";
+
+|Nhân Viên|
+:Xác nhận thông báo;
+
+|Hệ Thống|
+:Tải lại danh sách phòng;
+
+stop
+
+@enduml

@@ -1,0 +1,53 @@
+@startuml AD08a_TienPhong_Xem_TimKiem_Loc
+title AD08a - Xem Danh Sách / Tìm Kiếm / Lọc Hóa Đơn Tiền Phòng
+
+skinparam ActivityBackgroundColor LightYellow
+skinparam ActivityBorderColor DarkOrange
+skinparam ArrowColor DarkOrange
+skinparam ActivityStartColor DarkGreen
+skinparam ActivityEndColor DarkRed
+skinparam ActivityDiamondBackgroundColor LightBlue
+skinparam ActivityDiamondBorderColor Navy
+
+|Nhân Viên|
+start
+:Chọn menu "Tiền Phòng";
+
+|Hệ Thống|
+:Gọi service.layTatCa()\n(findAll ORDER BY NgayLap DESC);
+:Hiển thị bảng danh sách\nvới các cột:\nMã HĐTP, Mã Hợp Đồng,\nGói đóng (Tháng), Tổng tiền (VNĐ),\nNgày lập, Trạng thái, Nhân viên;
+
+|Nhân Viên|
+switch (Thao tác?)
+case (Tìm kiếm)
+    :Nhập từ khóa vào ô tìm kiếm\n(Mã HĐ hoặc Mã SV);
+    :Nhấn "Lọc";
+    |Hệ Thống|
+    :Lấy keyword.toLowerCase();
+    :Lấy trangThai từ ComboBox;
+    :Gọi service.layTatCa()\nrồi stream().filter():;
+    :Điều kiện filter keyword:\nmaHDTP.contains(keyword)\nOR maHD.contains(keyword);
+    :Điều kiện filter trạng thái:\nnếu không phải "Tất cả"\nthì trangThai phải khớp;
+    :Hiển thị danh sách đã lọc;
+
+case (Lọc theo trạng thái)
+    :Chọn trạng thái từ ComboBox\n(Tất cả / Chưa thanh toán /\nĐã thanh toán);
+    :Nhấn "Lọc";
+    |Hệ Thống|
+    :Lấy keyword hiện tại (nếu có);
+    :Filter danh sách theo cả\nkeyword VÀ trangThai;
+    :Hiển thị danh sách đã lọc;
+
+case (Làm mới)
+    :Nhấn "Làm mới";
+    |Hệ Thống|
+    :Gọi service.layTatCa();
+    :Tải lại toàn bộ danh sách;
+    :Xóa bộ lọc;
+    :Cập nhật bảng;
+
+endswitch
+
+stop
+
+@enduml

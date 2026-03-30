@@ -1,0 +1,49 @@
+@startuml UC04_QuanLyPhong
+title UC04 - Quản Lý Phòng
+
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+skinparam usecase {
+    BackgroundColor LightYellow
+    BorderColor DarkOrange
+    ArrowColor DarkOrange
+}
+skinparam actor {
+    BackgroundColor LightBlue
+    BorderColor Navy
+}
+
+actor "Nhân Viên" as Staff
+actor "Quản Lý" as Manager
+
+Manager --|> Staff
+
+rectangle "Hệ Thống Quản Lý KTX" {
+    usecase "UC04.1\nXem danh sách phòng" as UC04_1
+    usecase "UC04.2\nThêm phòng mới" as UC04_2
+    usecase "UC04.3\nCập nhật thông tin phòng\n(bao gồm sức chứa)" as UC04_3
+    usecase "UC04.4\nXóa phòng" as UC04_4
+    usecase "UC04.5\nLọc phòng theo trạng thái\n(Còn trống / Đang sử dụng / Bảo trì)" as UC04_5
+}
+
+Staff --> UC04_1
+Staff --> UC04_2
+Staff --> UC04_3
+Staff --> UC04_4
+Staff --> UC04_5
+
+note right of UC04_3
+  Cập nhật tất cả thông tin phòng
+  bao gồm: tên, loại, sức chứa,
+  giá phòng, trạng thái, dãy nhà
+end note
+
+note right of UC04_4
+  Không thể xóa phòng
+  đang có hợp đồng
+  còn hiệu lực
+  (ràng buộc FK Database)
+end note
+
+@enduml

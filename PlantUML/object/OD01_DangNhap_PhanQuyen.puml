@@ -1,0 +1,145 @@
+@startuml OD01_DangNhap_PhanQuyen
+title OD01 – Object Diagram: Đăng Nhập & Phân Quyền
+
+skinparam backgroundColor #F8FAFC
+skinparam defaultFontName Segoe UI
+skinparam defaultFontSize 12
+skinparam objectAttributeIconSize 0
+
+skinparam object {
+    BackgroundColor #FFFFFF
+    BorderColor     #94A3B8
+    HeaderBackgroundColor #E2E8F0
+    HeaderFontColor #0F172A
+    FontColor       #1E293B
+    ArrowColor      #64748B
+}
+
+skinparam note {
+    BackgroundColor #FEF9C3
+    BorderColor     #CA8A04
+    FontColor       #1E293B
+}
+
+' ============================================================
+' Kịch bản: Hai nhân viên đang đăng nhập hệ thống
+' Thời điểm: Ngay sau khi AuthServiceImpl.dangNhap() trả về
+' ============================================================
+
+package "Đối tượng NhanVien đang hoạt động" #EDE9FE {
+
+    object "nvManager : NhanVien" as Manager {
+        maNV       = "NV001"
+        hoTen      = "Nguyễn Văn An"
+        vaiTro     = "Manager"
+        soDT       = "0901234567"
+        taiKhoan   = "admin"
+        matKhau    = "$2a$10$X9eRk2Lm...hash_bcrypt_60ky_tu"
+    }
+
+    object "nvStaff : NhanVien" as Staff {
+        maNV       = "NV002"
+        hoTen      = "Trần Thị Bình"
+        vaiTro     = "Staff"
+        soDT       = "0912345678"
+        taiKhoan   = "staff01"
+        matKhau    = "$2a$10$Y8dQp3Kn...hash_bcrypt_60ky_tu"
+    }
+}
+
+package "AuthController xử lý đăng nhập" #DBEAFE {
+
+    object "authCtrl : AuthController" as AuthCtrl {
+        view     = dangNhapFrame
+        callback = App::startMain
+    }
+
+    object "authSvc : AuthServiceImpl" as AuthSvc {
+        nhanVienRepo = nhanVienRepoImpl
+    }
+}
+
+package "Kết quả phân quyền sau đăng nhập" #D1FAE5 {
+
+    object "mainFrameManager : MainFrame" as MFManager {
+        title        = "KTX Manager – Nguyễn Văn An [Manager]"
+        ' Menu hiển thị đầy đủ:
+        visibleMenus = "Dashboard, SV, Phòng, HĐ,\n             Tiền phòng, HD dịch vụ, TTB,\n             Nhân viên, Cấu hình giá"
+    }
+
+    object "mainFrameStaff : MainFrame" as MFStaff {
+        title        = "KTX Manager – Trần Thị Bình [Staff]"
+        ' Menu bị ẩn: Nhân viên, Cấu hình giá
+        visibleMenus = "Dashboard, SV, Phòng, HĐ,\n             Tiền phòng, HD dịch vụ, TTB"
+        hiddenMenus  = "Nhân viên, Cấu hình giá"
+    }
+}
+
+' ============================================================
+' Luồng xác thực BCrypt
+' ============================================================
+package "Quá trình xác thực BCrypt" #FEE2E2 {
+
+    object "loginRequest_1 : LoginRequest" as Req1 {
+        taiKhoan = "admin"
+        matKhau  = "admin123"
+        ' plaintext nhập vào
+    }
+
+    object "loginRequest_2 : LoginRequest" as Req2 {
+        taiKhoan = "staff01"
+        matKhau  = "123456"
+        ' plaintext nhập vào
+    }
+}
+
+' ============================================================
+' Relationships
+' ============================================================
+AuthCtrl --> AuthSvc         : gọi dangNhap()
+AuthSvc  --> Manager         : trả về (sau BCrypt.checkpw ✓)
+AuthSvc  --> Staff           : trả về (sau BCrypt.checkpw ✓)
+
+Req1     ..> Manager         : xác thực thành công →
+Req2     ..> Staff           : xác thực thành công →
+
+Manager  ..> MFManager       : callback.onLoginSuccess()\n→ startMain(nvManager)
+Staff    ..> MFStaff         : callback.onLoginSuccess()\n→ startMain(nvStaff)
+
+note top of Manager
+  VaiTro = "Manager"
+  → isManager = true
+  → Hiển thị đầy đủ 9 menu
+  trong MainFrame sidebar
+end note
+
+note top of Staff
+  VaiTro = "Staff"
+  → isManager = false
+  → Ẩn 2 menu:
+  "Nhân viên" & "Cấu hình giá"
+end note
+
+note bottom of AuthSvc
+  BCrypt.checkpw("admin123",
+    "$2a$10$X9eRk2Lm...") = TRUE
+  ────────────────────────────
+  Nếu tài khoản không tồn tại:
+    throw IllegalArgumentException
+  Nếu mật khẩu sai:
+    throw SecurityException
+end note
+
+note right of MFManager
+  Manager thấy toàn bộ chức năng:
+  có thể quản lý nhân viên,
+  cấu hình giá, xóa HĐ đã TT
+end note
+
+note right of MFStaff
+  Staff chỉ thực hiện
+  nghiệp vụ hàng ngày:
+  SV, Phòng, HĐ, Hóa đơn, TTB
+end note
+
+@enduml

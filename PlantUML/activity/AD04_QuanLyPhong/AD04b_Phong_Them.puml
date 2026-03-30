@@ -1,0 +1,61 @@
+@startuml AD04b_Phong_Them
+title AD04b - Thêm Phòng Mới
+
+skinparam ActivityBackgroundColor LightYellow
+skinparam ActivityBorderColor DarkOrange
+skinparam ArrowColor DarkOrange
+skinparam ActivityStartColor DarkGreen
+skinparam ActivityEndColor DarkRed
+skinparam ActivityDiamondBackgroundColor LightBlue
+skinparam ActivityDiamondBorderColor Navy
+
+|Nhân Viên|
+start
+:Nhấn nút "Thêm phòng"\ntrên màn hình Quản lý Phòng;
+
+|Hệ Thống|
+:Tải danh sách DayNha\ntừ dayNhaRepository.findAll();
+:Mở PhongFormDialog\n(tiêu đề: "Thêm phòng mới");
+:Hiển thị form với ComboBox DayNha;
+
+|Nhân Viên|
+:Nhập thông tin phòng:\nMaPhong, TenPhong, LoaiPhong,\nSucChua, GiaPhong (VNĐ);
+:Chọn TrangThai:\n(Còn trống / Đang sử dụng / Bảo trì);
+:Chọn Dãy nhà từ ComboBox\n(hiển thị MaDay – TenDay);
+:Nhấn "✅ Lưu";
+
+|Hệ Thống|
+:Đọc dữ liệu từ form\n→ tạo đối tượng Phong\n(soNguoiHienTai = 0 mặc định);
+
+if (GiaPhong không phải số hợp lệ?) then (Có)
+    :Gán GiaPhong = 0 (mặc định);
+else (Hợp lệ)
+endif
+
+if (SucChua không phải số hợp lệ?) then (Có)
+    :Gán SucChua = 1 (mặc định);
+else (Hợp lệ)
+endif
+
+:Gọi service.themPhong(phong)\n→ kiểm tra MaPhong đã tồn tại chưa;
+
+if (MaPhong đã tồn tại?) then (Có)
+    :Thông báo "Mã phòng đã tồn tại: [MaPhong]";
+    |Nhân Viên|
+    :Sửa lại MaPhong;
+    |Hệ Thống|
+else (Chưa tồn tại)
+endif
+
+:Gọi phongRepo.save(phong);
+:Thông báo "Thêm phòng thành công!";
+
+|Nhân Viên|
+:Xác nhận thông báo;
+
+|Hệ Thống|
+:Tải lại danh sách phòng;
+
+stop
+
+@enduml

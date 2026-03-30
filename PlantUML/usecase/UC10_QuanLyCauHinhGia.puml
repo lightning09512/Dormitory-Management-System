@@ -1,0 +1,52 @@
+@startuml UC10_QuanLyCauHinhGia
+title UC10 - Quản Lý Cấu Hình Giá
+
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+skinparam usecase {
+    BackgroundColor LightYellow
+    BorderColor DarkOrange
+    ArrowColor DarkOrange
+}
+skinparam actor {
+    BackgroundColor LightBlue
+    BorderColor Navy
+}
+
+actor "Quản Lý" as Manager
+
+rectangle "Hệ Thống Quản Lý KTX" {
+    usecase "UC10.1\nXem bảng cấu hình giá" as UC10_1
+    usecase "UC10.2\nCập nhật đơn giá\n(Điện / Nước / Internet...)" as UC10_2
+    usecase "UC10.3\nÁp dụng giá vào\nhóa đơn dịch vụ" as UC10_3
+    usecase "UC10.4\nThêm loại giá mới\n(Planned)" as UC10_4
+}
+
+Manager --> UC10_1
+Manager --> UC10_2
+Manager --> UC10_4
+
+UC10_2 ..> UC10_3 : <<extend>>
+
+note top of Manager
+  Chỉ Quản lý mới có
+  quyền quản lý
+  bảng giá hệ thống
+end note
+
+note right of UC10_3
+  Giá mới sẽ áp dụng
+  cho các hóa đơn
+  được tạo sau thời điểm
+  cập nhật
+end note
+
+note right of UC10_4
+  Planned – chưa implement.
+  Hiện tại DB hỗ trợ 4 loại:
+  Điện, Nước, Internet,
+  Dịch vụ khác
+end note
+
+@enduml

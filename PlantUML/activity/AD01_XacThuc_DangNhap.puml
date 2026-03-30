@@ -1,0 +1,89 @@
+@startuml AD01_XacThuc_DangNhap
+title AD01 - Activity Diagram: Xác Thực / Đăng Nhập
+
+skinparam ActivityBackgroundColor LightYellow
+skinparam ActivityBorderColor DarkOrange
+skinparam ArrowColor DarkOrange
+skinparam ActivityStartColor DarkGreen
+skinparam ActivityEndColor DarkRed
+skinparam ActivityDiamondBackgroundColor LightBlue
+skinparam ActivityDiamondBorderColor Navy
+
+|Người Dùng|
+start
+:Mở ứng dụng KTX Manager;
+:Nhập Tài khoản và Mật khẩu;
+:Nhấn nút "Đăng nhập";
+
+|Hệ Thống|
+:Kiểm tra tài khoản và mật khẩu\nkhông được rỗng;
+
+if (Tài khoản hoặc MK rỗng?) then (Có)
+    :Hiển thị thông báo\n"Vui lòng nhập đầy đủ";
+    |Người Dùng|
+    :Nhập lại thông tin;
+    |Hệ Thống|
+else (Không)
+endif
+
+:Tìm NhanVien theo TaiKhoan\ntrong Database;
+
+if (Tài khoản tồn tại?) then (Không)
+    :Hiển thị thông báo\n"Tài khoản không tồn tại";
+    |Người Dùng|
+    :Nhập lại thông tin;
+    |Hệ Thống|
+else (Có)
+endif
+
+:So sánh mật khẩu nhập vào\nvới BCrypt hash trong DB\n(BCrypt.checkpw);
+
+if (Mật khẩu đúng?) then (Không)
+    :Hiển thị thông báo\n"Mật khẩu không đúng";
+    |Người Dùng|
+    :Nhập lại thông tin;
+    |Hệ Thống|
+else (Đúng)
+endif
+
+:Lấy thông tin NhanVien\n(MaNV, HoTen, VaiTro);
+:Kiểm tra VaiTro\n(Staff / Manager);
+
+if (VaiTro là Manager?) then (Có)
+    :Hiển thị đầy đủ menu:\nDashboard, SV, Phòng, HĐ,\nTiền phòng, HD dịch vụ, TTB,\nNhân viên, Cấu hình giá;
+else (Staff)
+    :Hiển thị menu giới hạn:\nDashboard, SV, Phòng, HĐ,\nTiền phòng, HD dịch vụ, TTB\n(Ẩn: Nhân viên, Cấu hình giá);
+endif
+
+:Khởi tạo MainFrame\nvới thông tin người dùng;
+:Hiển thị màn hình Dashboard;
+
+|Người Dùng|
+:Sử dụng hệ thống;
+
+fork
+    :Hoạt động bình thường;
+fork again
+    |Hệ Thống|
+    :Phát hiện phiên không\nhoạt động > 30 phút\n(Session Timeout);
+    :Tự động đăng xuất;
+    |Người Dùng|
+    :Màn hình đăng nhập\nhiển thị lại;
+end fork
+
+|Người Dùng|
+:Nhấn "Đăng xuất";
+
+|Hệ Thống|
+:Xác nhận đăng xuất\n(Hỏi YES/NO);
+
+if (Xác nhận?) then (YES)
+    :Đóng MainFrame;
+    :Mở lại DangNhapFrame;
+    stop
+else (NO)
+    :Tiếp tục sử dụng hệ thống;
+    stop
+endif
+
+@enduml

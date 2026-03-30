@@ -1,0 +1,83 @@
+@startuml AD06b_HopDong_ChamDut
+title AD06b - Chấm Dứt (Thanh Lý) Hợp Đồng
+
+skinparam ActivityBackgroundColor LightYellow
+skinparam ActivityBorderColor DarkOrange
+skinparam ArrowColor DarkOrange
+skinparam ActivityStartColor DarkGreen
+skinparam ActivityEndColor DarkRed
+skinparam ActivityDiamondBackgroundColor LightBlue
+skinparam ActivityDiamondBorderColor Navy
+
+|Nhân Viên|
+start
+:Xem bảng danh sách\nhợp đồng đang hiệu lực;
+:Chọn 1 dòng HĐ trong bảng;
+:Nhấn nút "Chấm dứt HĐ";
+
+|Hệ Thống|
+:Lấy MaHD từ dòng được chọn;
+
+if (Chưa chọn dòng nào?) then (Có)
+    :Thông báo "Vui lòng chọn\nhợp đồng cần thanh lý\ntrong bảng";
+    stop
+else (Đã chọn)
+endif
+
+:Hiển thị hộp thoại xác nhận:\n"Xác nhận thanh lý hợp đồng [MaHD]?\nThao tác này không thể hoàn tác."\n(YES / NO);
+
+|Nhân Viên|
+if (Xác nhận?) then (NO)
+    :Hủy thao tác;
+    stop
+else (YES)
+endif
+
+|Hệ Thống|
+:Gọi hopDongService.thanhLyHopDong(maHD);
+:Kiểm tra HopDong tồn tại\n(hopDongRepo.findById);
+
+if (HĐ không tồn tại?) then (Có)
+    :Ném IllegalArgumentException;
+    :Thông báo "Không tìm thấy\nhợp đồng: [MaHD]";
+    stop
+else (Tồn tại)
+endif
+
+:Kiểm tra TrangThai = "Đang hiệu lực";
+
+if (Không phải "Đang hiệu lực"?) then (Có)
+    :Ném IllegalStateException;
+    :Thông báo "HĐ không ở trạng thái\n'Đang hiệu lực'.\nTrạng thái hiện tại: [X]";
+    stop
+else (Đang hiệu lực)
+endif
+
+:Đổi TrangThai HopDong\n= "Đã thanh lý";
+:Lấy Phong liên kết\n(phongRepo.findById(hopDong.getMaPhong));
+:Tính soNguoiMoi\n= max(0, soNguoiHienTai - 1);
+:Cập nhật soNguoiHienTai = soNguoiMoi;
+
+if (soNguoiMoi < sucChua?) then (Có)
+    :Đổi TrangThai Phong\n= "Còn trống";
+else (Không)
+    :Giữ nguyên TrangThai Phong\n= "Đang sử dụng";
+endif
+
+fork
+    :hopDongRepo.update(hopDong);
+fork again
+    :phongRepo.update(phong);
+end fork
+
+:Thông báo "Thanh lý hợp đồng\n[MaHD] thành công";
+
+|Nhân Viên|
+:Xác nhận thông báo;
+
+|Hệ Thống|
+:Làm mới View (refreshView)\n→ tải lại ComboBox + bảng;
+
+stop
+
+@enduml

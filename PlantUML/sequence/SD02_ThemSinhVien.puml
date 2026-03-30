@@ -1,0 +1,154 @@
+@startuml SD02_ThemSinhVien
+title SD02 - Sequence Diagram: Thêm Sinh Viên Mới
+
+skinparam sequenceArrowThickness 2
+skinparam sequenceParticipantBackgroundColor LightYellow
+skinparam sequenceParticipantBorderColor DarkOrange
+skinparam sequenceLifeLineBorderColor DarkOrange
+skinparam sequenceGroupBackgroundColor LightBlue
+skinparam noteBorderColor Navy
+skinparam noteBackgroundColor LightCyan
+
+actor "Nhân Viên" as User
+participant "QuanLySinhVienPanel\n(View)" as View
+participant "SinhVienController\n(Controller)" as Controller
+participant "SinhVienServiceImpl\n(Service)" as Service
+participant "ValidationUtil\n(Util)" as Validator
+participant "SinhVienRepositoryImpl\n(Repository)" as Repo
+participant "HopDongRepositoryImpl\n(Repository)" as HopDongRepo
+database "Database\n(MySQL)" as DB
+
+== Mở form thêm sinh viên ==
+User -> View : Nhấn nút "Thêm SV"
+activate View
+View -> Controller : actionPerformed(e)\n→ handleThem()
+activate Controller
+
+Controller -> Controller : new SinhVienFormDialog\n(null, "Thêm sinh viên mới", null)
+Controller --> View : Hiển thị dialog form trống
+View --> User : Dialog nhập thông tin mở ra
+
+== Nhập và xác nhận dữ liệu ==
+User -> View : Nhập: MaSV, HoTen, NgaySinh,\nGioiTinh, Lop, Khoa,\nSoDT, Email, TaiKhoan, MatKhau
+User -> View : Nhấn "✅ Lưu"
+
+View -> Controller : dialog.isConfirmed() = true\n→ dialog.getSinhVien()
+Controller -> Controller : Tạo đối tượng SinhVien\ntừ dữ liệu form
+
+== Gọi Service thêm SV ==
+Controller -> Service : themSinhVien(sinhVien)
+activate Service
+
+Service -> Service : LoggerUtil.logEntry\n(logger, "themSinhVien", sinhVien)
+
+== Validate Bean Validation ==
+Service -> Validator : validate(sinhVien)
+activate Validator
+note right of Validator
+  Kiểm tra các annotation:
+  @NotBlank, @Size, @Pattern
+  @Email, @Past trên entity SinhVien
+end note
+Validator -> Validator : validator.validate(object)\n→ Set<ConstraintViolation>
+
+alt Có lỗi validation
+    Validator --> Service : String errorMessages\n(join bằng \\n)
+    Service -> Service : LoggerUtil.logValidationError(...)
+    Service --> Controller : throw IllegalArgumentException\n("Dữ liệu không hợp lệ:\\n" + errors)
+    deactivate Validator
+    Controller --> View : showError(message)
+    View --> User : Hiển thị dialog lỗi chi tiết
+else Không có lỗi
+    Validator --> Service : null (hợp lệ)
+    deactivate Validator
+end
+
+== Kiểm tra trùng MaSV ==
+Service -> Repo : findById(maSV)
+activate Repo
+Repo -> DB : SELECT * FROM SinhVien\nWHERE MaSV = ?
+activate DB
+DB --> Repo : ResultSet
+deactivate DB
+Repo --> Service : Optional<SinhVien>
+deactivate Repo
+
+alt MaSV đã tồn tại
+    Service -> Service : LoggerUtil.logError(...)
+    Service --> Controller : throw IllegalArgumentException\n("Mã sinh viên đã tồn tại: " + maSV)
+    Controller --> View : showError(message)
+    View --> User : Hiển thị lỗi "Mã SV đã tồn tại"
+else MaSV chưa tồn tại
+end
+
+== Lưu vào Database ==
+Service -> Repo : save(sinhVien)
+activate Repo
+Repo -> DB : BEGIN TRANSACTION
+activate DB
+Repo -> DB : em.persist(sinhVien)\n→ INSERT INTO SinhVien VALUES (...)
+DB --> Repo : Success
+Repo -> DB : COMMIT
+DB --> Repo : OK
+deactivate DB
+Repo --> Service : void
+deactivate Repo
+
+Service -> Service : LoggerUtil.logExit\n(logger, "themSinhVien", "Success")
+Service --> Controller : void (thành công)
+deactivate Service
+
+== Cập nhật View ==
+Controller --> View : showInfo\n("Thêm sinh viên thành công!")
+View --> User : Hiển thị thông báo thành công
+User -> View : Nhấn OK
+
+Controller -> Controller : loadAll()\n→ currentPage = 1
+
+== Tải lại danh sách ==
+Controller -> Service : demTongSo()
+activate Service
+Service -> Repo : count()
+activate Repo
+Repo -> DB : SELECT COUNT(*) FROM SinhVien
+activate DB
+DB --> Repo : totalCount
+deactivate DB
+Repo --> Service : long
+deactivate Repo
+Service --> Controller : totalCount
+deactivate Service
+
+Controller -> Service : layDanhSachPhanTrang(1, 20)
+activate Service
+Service -> Repo : findAll(1, 20)
+activate Repo
+Repo -> DB : SELECT * FROM SinhVien\nORDER BY HoTen\nLIMIT 20 OFFSET 0
+activate DB
+DB --> Repo : List<SinhVien>
+deactivate DB
+Repo --> Service : List<SinhVien>
+deactivate Repo
+
+loop Với mỗi SinhVien trong list
+    Service -> HopDongRepo : findBySinhVien(maSV)
+    activate HopDongRepo
+    HopDongRepo -> DB : SELECT * FROM HopDong\nWHERE MaSV = ?
+    activate DB
+    DB --> HopDongRepo : List<HopDong>
+    deactivate DB
+    HopDongRepo --> Service : List<HopDong>
+    deactivate HopDongRepo
+    Service -> Service : Gán phongHienTai\n(tìm HĐ "Đang hiệu lực")
+end
+
+Service --> Controller : List<SinhVien> (có phongHienTai)
+deactivate Service
+
+Controller -> View : setSinhVienList(list)
+Controller -> View : setPaginationInfo(1, totalPages, totalCount)
+View --> User : Bảng danh sách cập nhật
+deactivate View
+deactivate Controller
+
+@enduml

@@ -1,0 +1,55 @@
+@startuml UC03_QuanLySinhVien
+title UC03 - Quản Lý Sinh Viên
+
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+skinparam usecase {
+    BackgroundColor LightYellow
+    BorderColor DarkOrange
+    ArrowColor DarkOrange
+}
+skinparam actor {
+    BackgroundColor LightBlue
+    BorderColor Navy
+}
+
+actor "Nhân Viên" as Staff
+actor "Quản Lý" as Manager
+
+Manager --|> Staff
+
+rectangle "Hệ Thống Quản Lý KTX" {
+    usecase "UC03.1\nXem danh sách sinh viên" as UC03_1
+    usecase "UC03.2\nThêm sinh viên mới" as UC03_2
+    usecase "UC03.3\nCập nhật thông tin sinh viên" as UC03_3
+    usecase "UC03.4\nXóa sinh viên" as UC03_4
+    usecase "UC03.5\nTìm kiếm sinh viên\n(Theo MSSV hoặc Tên)" as UC03_5
+    usecase "UC03.6\nValidate thông tin đầu vào" as UC03_6
+    usecase "UC03.7\nPhân trang danh sách\n(Page size: 20)" as UC03_7
+}
+
+Staff --> UC03_1
+Staff --> UC03_5
+Staff --> UC03_2
+Staff --> UC03_3
+Staff --> UC03_4
+
+UC03_2 ..> UC03_6 : <<include>>
+UC03_3 ..> UC03_6 : <<include>>
+UC03_1 ..> UC03_7 : <<include>>
+UC03_5 ..> UC03_7 : <<include>>
+
+note bottom of UC03_5
+  Hỗ trợ tìm kiếm thông minh
+  theo MSSV và Họ tên,
+  kết quả cũng được phân trang
+end note
+
+note right of UC03_7
+  Hiển thị 20 bản ghi/trang,
+  hỗ trợ điều hướng
+  Prev / Next
+end note
+
+@enduml

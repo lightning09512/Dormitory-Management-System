@@ -1,0 +1,64 @@
+@startuml AD05c_NhanVien_Sua_Xoa
+title AD05c - Cập Nhật / Xóa Nhân Viên
+
+skinparam ActivityBackgroundColor LightYellow
+skinparam ActivityBorderColor DarkOrange
+skinparam ArrowColor DarkOrange
+skinparam ActivityStartColor DarkGreen
+skinparam ActivityEndColor DarkRed
+skinparam ActivityDiamondBackgroundColor LightBlue
+skinparam ActivityDiamondBorderColor Navy
+
+|Quản Lý (Manager)|
+start
+:Chọn 1 dòng trong bảng nhân viên;
+
+|Hệ Thống|
+if (Chưa chọn dòng nào?) then (Có)
+    :Thông báo "Vui lòng chọn\nnhân viên";
+    stop
+else (Đã chọn)
+endif
+
+|Quản Lý (Manager)|
+switch (Thao tác?)
+case (Sửa)
+    :Nhấn nút "Sửa";
+    |Hệ Thống|
+    :Tìm NhanVien trong fullList\ntheo MaNV;
+    :Mở dialog "Sửa Nhân Viên"\nvới dữ liệu hiện tại;
+    :TaiKhoan: hiển thị nhưng\nKHÔNG cho sửa (setEditable=false);
+    |Quản Lý (Manager)|
+    :Chỉnh sửa: HoTen, SoDT, VaiTro;
+    :Nhấn "Lưu";
+    |Hệ Thống|
+    :Validate HoTen không rỗng;
+    if (HoTen rỗng?) then (Có)
+        :Thông báo lỗi;
+    else (Hợp lệ)
+        :Cập nhật HoTen, SoDT, VaiTro\nvào đối tượng NhanVien hiện có;
+        :Gọi nhanVienRepo.update(nv);
+        :Thông báo "Cập nhật thành công!";
+        :Tải lại danh sách;
+    endif
+
+case (Xóa)
+    :Nhấn nút "Xóa";
+    |Hệ Thống|
+    :Hiển thị hộp thoại xác nhận:\n"Bạn có chắc muốn xóa\nnhân viên [MaNV]?"\n(YES / NO);
+    |Quản Lý (Manager)|
+    if (Xác nhận?) then (NO)
+        :Hủy thao tác;
+        stop
+    else (YES)
+    endif
+    |Hệ Thống|
+    :Gọi nhanVienRepo.delete(maNV);
+    :Thông báo "Xóa thành công!";
+    :Tải lại danh sách;
+
+endswitch
+
+stop
+
+@enduml

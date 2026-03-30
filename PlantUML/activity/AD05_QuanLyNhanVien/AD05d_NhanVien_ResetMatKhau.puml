@@ -1,0 +1,57 @@
+@startuml AD05d_NhanVien_ResetMatKhau
+title AD05d - Đặt Lại Mật Khẩu Nhân Viên
+
+skinparam ActivityBackgroundColor LightYellow
+skinparam ActivityBorderColor DarkOrange
+skinparam ArrowColor DarkOrange
+skinparam ActivityStartColor DarkGreen
+skinparam ActivityEndColor DarkRed
+skinparam ActivityDiamondBackgroundColor LightBlue
+skinparam ActivityDiamondBorderColor Navy
+
+|Quản Lý (Manager)|
+start
+:Chọn 1 dòng trong bảng nhân viên;
+:Nhấn nút "Reset Mật khẩu";
+
+|Hệ Thống|
+:Lấy MaNV từ dòng được chọn;
+
+if (Chưa chọn dòng nào?) then (Có)
+    :Thông báo "Vui lòng chọn\nnhân viên muốn reset mật khẩu";
+    stop
+else (Đã chọn)
+endif
+
+:Hiển thị hộp thoại xác nhận:\n"Reset mật khẩu của nhân viên\n[MaNV] về 123456?"\n(YES / NO);
+
+|Quản Lý (Manager)|
+if (Xác nhận?) then (NO)
+    :Hủy thao tác;
+    stop
+else (YES)
+endif
+
+|Hệ Thống|
+:Gọi service.resetPassword(maNV);
+:Tìm NhanVien theo MaNV\n(repo.findById);
+
+if (Không tìm thấy NV?) then (Có)
+    :Ném IllegalArgumentException\n"Nhân viên không tồn tại";
+    :Thông báo lỗi;
+    stop
+else (Tìm thấy)
+endif
+
+:Tạo BCrypt hash cho chuỗi "123456":\nBCrypt.hashpw("123456", BCrypt.gensalt());
+:Gán MatKhau mới (đã hash)\nvào đối tượng NhanVien;
+:Gọi nhanVienRepo.update(nv)\n→ lưu hash mới vào DB;
+:Thông báo "Đặt lại mật khẩu thành công!\nMật khẩu mới: 123456";
+
+|Quản Lý (Manager)|
+:Xác nhận thông báo;
+:Thông báo cho nhân viên\nbiết mật khẩu mới (ngoài hệ thống);
+
+stop
+
+@enduml

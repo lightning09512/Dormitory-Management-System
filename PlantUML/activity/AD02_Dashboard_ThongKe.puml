@@ -1,0 +1,62 @@
+@startuml AD02_Dashboard_ThongKe
+title AD02 - Activity Diagram: Dashboard / Thống Kê
+
+skinparam ActivityBackgroundColor LightYellow
+skinparam ActivityBorderColor DarkOrange
+skinparam ArrowColor DarkOrange
+skinparam ActivityStartColor DarkGreen
+skinparam ActivityEndColor DarkRed
+skinparam ActivityDiamondBackgroundColor LightBlue
+skinparam ActivityDiamondBorderColor Navy
+
+|Người Dùng|
+start
+:Đăng nhập thành công;
+:Chuyển đến tab Dashboard\nhoặc tab Dashboard tự load;
+
+|Hệ Thống|
+:Nhận sự kiện componentShown\n(DashboardController);
+:Gọi ThongKeService\n.layThongKeDashboard();
+
+fork
+    :Truy vấn JPQL:\nCOUNT(SinhVien);
+    :Trả về tongSinhVien;
+fork again
+    :Truy vấn JPQL:\nCOUNT(Phong)\nWHERE TrangThai = "Còn trống";
+    :Trả về tongPhongTrong;
+fork again
+    :Truy vấn JPQL:\nCOUNT(HopDong)\nWHERE TrangThai = "Đang hiệu lực";
+    :Trả về tongHopDongHieuLuc;
+fork again
+    :Truy vấn doanh thu điện nước\nSUM(HoaDon.TongTien)\nWHERE TrangThai = "Đã thanh toán";
+    :Trả về doanhThuDienNuoc;
+fork again
+    :Truy vấn doanh thu tiền phòng\nSUM(HoaDonTienPhong.TongTien)\nWHERE TrangThai = "Đã thanh toán";
+    :Trả về doanhThuTienPhong;
+fork again
+    :Truy vấn doanh thu theo tháng\n(năm hiện tại, GROUP BY tháng);
+    :Trả về doanhThuTheoThang\n(Map 12 tháng);
+end fork
+
+:Tổng hợp DashboardStatsDto;
+:Tính tổng doanh thu:\ndoanhThuDienNuoc + doanhThuTienPhong;
+
+if (Có lỗi truy vấn?) then (Có)
+    :Ghi log lỗi\n(DashboardController);
+    :Hiển thị giá trị 0\nthay vì crash;
+else (Không)
+endif
+
+:Cập nhật 6 thẻ số liệu\ntrên DashboardPanel:\n- Tổng sinh viên\n- Phòng còn trống\n- Hợp đồng hiệu lực\n- Doanh thu điện nước\n- Doanh thu tiền phòng\n- Tổng doanh thu;
+
+|Người Dùng|
+:Xem số liệu tổng quan;
+
+:Chuyển sang tab khác;
+
+|Hệ Thống|
+:Khi quay lại Dashboard,\ncomponentShown kích hoạt lại\n→ Tải dữ liệu mới nhất;
+
+stop
+
+@enduml

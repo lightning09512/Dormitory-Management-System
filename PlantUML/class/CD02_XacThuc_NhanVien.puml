@@ -1,0 +1,233 @@
+@startuml CD02_XacThuc_NhanVien
+
+title CD02 – Xác thực & Quản lý Nhân viên
+
+skinparam backgroundColor #F8FAFC
+skinparam defaultFontName Segoe UI
+skinparam defaultFontSize 12
+skinparam classAttributeIconSize 0
+
+skinparam class {
+    BackgroundColor #FFFFFF
+    BorderColor     #94A3B8
+    HeaderBackgroundColor #E2E8F0
+    HeaderFontColor #0F172A
+    FontColor       #1E293B
+    ArrowColor      #64748B
+}
+
+skinparam package {
+    BackgroundColor #F1F5F9
+    BorderColor     #CBD5E1
+    FontStyle       bold
+}
+
+' ============================================================
+' MODEL
+' ============================================================
+package "com.ktx.model" #FEE2E2 {
+
+    class NhanVien {
+        - maNV : String        <<PK, VARCHAR(10)>>
+        - hoTen : String       <<NVARCHAR(100), NOT NULL>>
+        - vaiTro : String      <<ENUM('Staff','Manager'), NOT NULL>>
+        - soDT : String        <<VARCHAR(15)>>
+        - taiKhoan : String    <<VARCHAR(50), UNIQUE, NOT NULL>>
+        - matKhau : String     <<VARCHAR(255), NOT NULL, BCrypt>>
+        --
+        + NhanVien()
+        + NhanVien(maNV, hoTen, vaiTro, soDT, taiKhoan, matKhau)
+        + getMaNV() : String
+        + setMaNV(v : String) : void
+        + getHoTen() : String
+        + setHoTen(v : String) : void
+        + getVaiTro() : String
+        + setVaiTro(v : String) : void
+        + getSoDT() : String
+        + setSoDT(v : String) : void
+        + getTaiKhoan() : String
+        + setTaiKhoan(v : String) : void
+        + getMatKhau() : String
+        + setMatKhau(v : String) : void
+    }
+}
+
+' ============================================================
+' REPOSITORY
+' ============================================================
+package "com.ktx.repository" #E0F2FE {
+
+    interface NhanVienRepository {
+        + save(nv : NhanVien) : void
+        + update(nv : NhanVien) : void
+        + delete(maNV : String) : void
+        + findById(maNV : String) : Optional<NhanVien>
+        + findByTaiKhoan(taiKhoan : String) : Optional<NhanVien>
+        + findAll() : List<NhanVien>
+    }
+}
+
+package "com.ktx.repository.impl" #DBEAFE {
+
+    class NhanVienRepositoryImpl {
+        + save(nv : NhanVien) : void
+        + update(nv : NhanVien) : void
+        + delete(maNV : String) : void
+        + findById(maNV : String) : Optional<NhanVien>
+        + findByTaiKhoan(taiKhoan : String) : Optional<NhanVien>
+        + findAll() : List<NhanVien>
+    }
+}
+
+NhanVienRepositoryImpl ..|> NhanVienRepository
+
+' ============================================================
+' SERVICE
+' ============================================================
+package "com.ktx.service" #D1FAE5 {
+
+    interface AuthService {
+        + dangNhap(taiKhoan : String, matKhau : String) : NhanVien
+    }
+
+    interface NhanVienService {
+        + getAll() : List<NhanVien>
+        + addNhanVien(nv : NhanVien) : void
+        + updateNhanVien(nv : NhanVien) : void
+        + deleteNhanVien(maNV : String) : void
+        + resetPassword(maNV : String) : void
+    }
+}
+
+package "com.ktx.service.impl" #DCFCE7 {
+
+    class AuthServiceImpl {
+        - nhanVienRepo : NhanVienRepository
+        --
+        + AuthServiceImpl(nhanVienRepo : NhanVienRepository)
+        + dangNhap(taiKhoan : String, matKhau : String) : NhanVien
+    }
+
+    class NhanVienServiceImpl {
+        - repo : NhanVienRepository
+        --
+        + NhanVienServiceImpl(repo : NhanVienRepository)
+        + getAll() : List<NhanVien>
+        + addNhanVien(nv : NhanVien) : void
+        + updateNhanVien(nv : NhanVien) : void
+        + deleteNhanVien(maNV : String) : void
+        + resetPassword(maNV : String) : void
+    }
+}
+
+AuthServiceImpl ..|> AuthService
+NhanVienServiceImpl ..|> NhanVienService
+AuthServiceImpl --> NhanVienRepository : uses
+NhanVienServiceImpl --> NhanVienRepository : uses
+
+' ============================================================
+' VIEW
+' ============================================================
+package "com.ktx.view" #FEF9C3 {
+
+    class DangNhapFrame {
+        - txtTaiKhoan : JTextField
+        - txtMatKhau : JPasswordField
+        - btnDangNhap : JButton
+        - lblThongBao : JLabel
+        --
+        + DangNhapFrame()
+        + getTaiKhoan() : String
+        + getMatKhau() : String
+        + setThongBao(msg : String) : void
+        + clearThongBao() : void
+        + addDangNhapListener(l : ActionListener) : void
+    }
+
+    class QuanLyNhanVienPanel {
+        - table : JTable
+        - tableModel : DefaultTableModel
+        - txtTimKiem : JTextField
+        - cboVaiTro : JComboBox
+        - btnThem / btnSua / btnXoa : JButton
+        - btnResetPass / btnLamMoi : JButton
+        --
+        + setTableModel(list : List<NhanVien>) : void
+        + getSelectedMaNV() : String
+        + getSearchKeyword() : String
+        + getSelectedVaiTro() : String
+        + addThemListener(l : ActionListener) : void
+        + addSuaListener(l : ActionListener) : void
+        + addXoaListener(l : ActionListener) : void
+        + addResetPassListener(l : ActionListener) : void
+        + addLocListener(l : ActionListener) : void
+        + addLamMoiListener(l : ActionListener) : void
+    }
+}
+
+' ============================================================
+' CONTROLLER
+' ============================================================
+package "com.ktx.controller" #EDE9FE {
+
+    class AuthController {
+        - view : DangNhapFrame
+        - authService : AuthService
+        - callback : LoginCallback
+        --
+        + AuthController(view, authService, callback)
+        - bindListeners() : void
+        - handleDangNhap() : void
+    }
+
+    interface LoginCallback {
+        + onLoginSuccess(user : NhanVien) : void
+    }
+
+    class NhanVienController {
+        - view : QuanLyNhanVienPanel
+        - service : NhanVienService
+        - fullList : List<NhanVien>
+        --
+        + NhanVienController(view, service)
+        + loadAll() : void
+        - filterData() : void
+        - handleThem() : void
+        - handleSua() : void
+        - handleXoa() : void
+        - handleResetPass() : void
+        - openDialog(existing : NhanVien) : NhanVien
+    }
+}
+
+AuthController --> DangNhapFrame : controls
+AuthController --> AuthService : calls
+AuthController +-- LoginCallback
+NhanVienController --> QuanLyNhanVienPanel : controls
+NhanVienController --> NhanVienService : calls
+
+' ============================================================
+' DATA FLOW
+' ============================================================
+NhanVienRepositoryImpl --> NhanVien : manages
+AuthServiceImpl ..> BCrypt : <<uses>>\ncheckpw()
+NhanVienServiceImpl ..> BCrypt : <<uses>>\nhashpw()
+
+note right of NhanVien
+  VaiTro = 'Manager':
+  - Quản lý nhân viên
+  - Cấu hình giá
+  - Xóa HĐ đã TT
+  VaiTro = 'Staff':
+  - Nghiệp vụ hàng ngày
+end note
+
+note bottom of AuthServiceImpl
+  Dùng BCrypt.checkpw()
+  để xác thực mật khẩu.
+  Ném IllegalArgumentException
+  nếu tài khoản không tồn tại,
+  SecurityException nếu sai MK.
+end note
+
+@enduml

@@ -1,0 +1,87 @@
+@startuml AD03a_SinhVien_Xem_TimKiem_PhanTrang
+title AD03a - Xem Danh Sách / Tìm Kiếm / Phân Trang Sinh Viên
+
+skinparam ActivityBackgroundColor LightYellow
+skinparam ActivityBorderColor DarkOrange
+skinparam ArrowColor DarkOrange
+skinparam ActivityStartColor DarkGreen
+skinparam ActivityEndColor DarkRed
+skinparam ActivityDiamondBackgroundColor LightBlue
+skinparam ActivityDiamondBorderColor Navy
+
+|Nhân Viên|
+start
+:Chọn menu "Quản lý Sinh viên";
+
+|Hệ Thống|
+:Khởi tạo currentPage = 1\npageSize = 20;
+:Gọi demTongSo() để lấy tổng số bản ghi;
+:Gọi layDanhSachPhanTrang(page=1, size=20);
+:Với mỗi SV trong kết quả,\ntra HopDong đang hiệu lực\n→ gán phongHienTai;
+:Tính totalPages = ceil(totalCount / pageSize);
+:Hiển thị bảng danh sách SV\n(trang 1);
+:Hiển thị thông tin phân trang:\n"Trang 1 / N – Tổng cộng: X";
+:Bật/tắt nút Prev/Next\ntheo trang hiện tại;
+
+|Nhân Viên|
+:Chọn thao tác;
+
+switch (Thao tác?)
+case (Tìm kiếm)
+    :Nhập từ khóa vào ô tìm kiếm\n(MSSV hoặc Tên SV);
+    :Nhấn "Tìm kiếm";
+    |Hệ Thống|
+    :Reset currentPage = 1;
+    if (Từ khóa rỗng?) then (Có)
+        :Gọi demTongSo() và\nlayDanhSachPhanTrang(1, 20);
+    else (Không)
+        :Gọi demTheoKeyword(keyword);
+        :Gọi timTheoKeywordPhanTrang\n(keyword, page=1, size=20);
+        note right
+          Tìm kiếm LIKE không phân
+          biệt hoa thường theo
+          cả MaSV và HoTen
+        end note
+    endif
+    :Gán phongHienTai cho từng SV;
+    :Cập nhật bảng và\nthông tin phân trang;
+
+case (Chuyển trang - Prev)
+    :Nhấn nút "<" (Prev);
+    |Hệ Thống|
+    :currentPage = currentPage - 1;
+    if (Từ khóa hiện tại rỗng?) then (Có)
+        :Gọi layDanhSachPhanTrang\n(currentPage, 20);
+    else (Không)
+        :Gọi timTheoKeywordPhanTrang\n(keyword, currentPage, 20);
+    endif
+    :Gán phongHienTai cho từng SV;
+    :Cập nhật bảng và thông tin trang;
+    :Cập nhật trạng thái nút Prev/Next;
+
+case (Chuyển trang - Next)
+    :Nhấn nút ">" (Next);
+    |Hệ Thống|
+    :currentPage = currentPage + 1;
+    if (Từ khóa hiện tại rỗng?) then (Có)
+        :Gọi layDanhSachPhanTrang\n(currentPage, 20);
+    else (Không)
+        :Gọi timTheoKeywordPhanTrang\n(keyword, currentPage, 20);
+    endif
+    :Gán phongHienTai cho từng SV;
+    :Cập nhật bảng và thông tin trang;
+    :Cập nhật trạng thái nút Prev/Next;
+
+case (Làm mới)
+    :Nhấn "Làm mới";
+    |Hệ Thống|
+    :Reset currentPage = 1;
+    :Xóa từ khóa tìm kiếm;
+    :Tải lại toàn bộ danh sách\ntừ trang 1;
+    :Cập nhật bảng và phân trang;
+
+endswitch
+
+stop
+
+@enduml

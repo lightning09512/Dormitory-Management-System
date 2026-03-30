@@ -1,0 +1,50 @@
+@startuml AD04c_Phong_Sua
+title AD04c - Cập Nhật Thông Tin Phòng
+
+skinparam ActivityBackgroundColor LightYellow
+skinparam ActivityBorderColor DarkOrange
+skinparam ArrowColor DarkOrange
+skinparam ActivityStartColor DarkGreen
+skinparam ActivityEndColor DarkRed
+skinparam ActivityDiamondBackgroundColor LightBlue
+skinparam ActivityDiamondBorderColor Navy
+
+|Nhân Viên|
+start
+:Chọn 1 dòng trong bảng phòng;
+:Nhấn nút "Sửa";
+
+|Hệ Thống|
+:Lấy MaPhong từ dòng được chọn;
+
+if (Chưa chọn dòng nào?) then (Có)
+    :Thông báo "Vui lòng chọn\nphòng cần sửa";
+    stop
+else (Đã chọn)
+endif
+
+:Gọi service.timTheoMa(maPhong)\n→ lấy thông tin phòng hiện tại;
+:Tải danh sách DayNha;
+:Mở PhongFormDialog\n(tiêu đề: "Sửa thông tin phòng");
+:Điền sẵn dữ liệu hiện tại vào form;
+:Trường MaPhong: hiển thị nhưng\nKHÔNG cho chỉnh sửa (setEditable=false);
+:Chọn đúng DayNha tương ứng\ntrong ComboBox;
+
+|Nhân Viên|
+:Chỉnh sửa: TenPhong, LoaiPhong,\nSucChua, GiaPhong,\nTrangThai, DayNha;
+:Nhấn "✅ Lưu";
+
+|Hệ Thống|
+:Đọc dữ liệu từ form\n→ tạo đối tượng Phong mới\nvới MaPhong cũ;
+:Gọi service.capNhatPhong(phong)\n→ phongRepo.update (merge);
+:Thông báo "Cập nhật thành công!";
+
+|Nhân Viên|
+:Xác nhận thông báo;
+
+|Hệ Thống|
+:Tải lại danh sách phòng;
+
+stop
+
+@enduml

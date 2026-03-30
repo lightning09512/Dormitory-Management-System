@@ -1,0 +1,58 @@
+@startuml AD08c_TienPhong_XacNhanThanhToan
+title AD08c - Xác Nhận Thanh Toán Tiền Phòng
+
+skinparam ActivityBackgroundColor LightYellow
+skinparam ActivityBorderColor DarkOrange
+skinparam ArrowColor DarkOrange
+skinparam ActivityStartColor DarkGreen
+skinparam ActivityEndColor DarkRed
+skinparam ActivityDiamondBackgroundColor LightBlue
+skinparam ActivityDiamondBorderColor Navy
+
+|Nhân Viên|
+start
+:Chọn 1 dòng trong bảng\nhóa đơn tiền phòng;
+:Nhấn nút "Xác nhận Đóng tiền";
+
+|Hệ Thống|
+:Lấy MaHDTP từ dòng được chọn;
+
+if (Chưa chọn dòng nào?) then (Có)
+    :Thông báo "Vui lòng chọn\n1 hóa đơn để thanh toán";
+    stop
+else (Đã chọn)
+endif
+
+:Hiển thị hộp thoại xác nhận:\n"Xác nhận sinh viên đã đóng tiền\ncho hóa đơn [MaHDTP]?"\n(YES / NO);
+
+|Nhân Viên|
+if (Xác nhận?) then (NO)
+    :Hủy thao tác;
+    stop
+else (YES)
+endif
+
+|Hệ Thống|
+:Gọi service.xacNhanThanhToan(maHDTP);
+:Gọi hoadonRepo.findById(maHDTP);
+
+if (Không tìm thấy HĐTP?) then (Có)
+    :Ném IllegalArgumentException\n"Không tìm thấy hóa đơn: [MaHDTP]";
+    :Thông báo lỗi;
+    stop
+else (Tìm thấy)
+endif
+
+:Cập nhật TrangThai\n= "Đã thanh toán";
+:Gọi hoadonRepo.update(hdtp);
+:Thông báo "Xác nhận thanh toán\nthành công!";
+
+|Nhân Viên|
+:Xác nhận thông báo;
+
+|Hệ Thống|
+:Tải lại danh sách hóa đơn tiền phòng;
+
+stop
+
+@enduml

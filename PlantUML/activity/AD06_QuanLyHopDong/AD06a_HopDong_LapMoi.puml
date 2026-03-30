@@ -1,0 +1,115 @@
+@startuml AD06a_HopDong_LapMoi
+title AD06a - Lập Hợp Đồng Lưu Trú Mới
+
+skinparam ActivityBackgroundColor LightYellow
+skinparam ActivityBorderColor DarkOrange
+skinparam ArrowColor DarkOrange
+skinparam ActivityStartColor DarkGreen
+skinparam ActivityEndColor DarkRed
+skinparam ActivityDiamondBackgroundColor LightBlue
+skinparam ActivityDiamondBorderColor Navy
+
+|Nhân Viên|
+start
+:Chọn menu "Lập Hợp Đồng";
+
+|Hệ Thống|
+:componentShown kích hoạt → refreshView();
+
+fork
+    :Tải SV chưa có phòng vào ComboBox\n(filter: phongHienTai = "Chưa xếp phòng");
+fork again
+    :Tải phòng còn trống vào ComboBox\n(findPhongTrong:\nkhông Bảo trì & soNguoi < sucChua);
+fork again
+    :Tải HopDong đang hiệu lực\nvào bảng (findHopDongHieuLuc);
+end fork
+
+:Hiển thị form lập HĐ + bảng danh sách;
+:DatePicker mặc định = ngày hôm nay;
+:ComboBox Gói: 6 / 9 / 12 tháng;
+
+|Nhân Viên|
+:Chọn Sinh viên từ ComboBox;
+:Chọn Phòng từ ComboBox;
+:Chọn Ngày bắt đầu qua DatePicker;
+:Chọn Gói: 6 / 9 / 12 tháng;
+
+|Hệ Thống|
+:Tự động tính Ngày kết thúc\n= NgayBatDau + GoiThangToan;
+:Hiển thị NgayKetThuc (readonly);
+
+|Nhân Viên|
+:Nhấn "Lập hợp đồng";
+
+|Hệ Thống|
+if (SV chưa chọn?) then (Có)
+    :Thông báo "Vui lòng chọn sinh viên";
+    stop
+else (Đã chọn)
+endif
+
+if (Phòng chưa chọn?) then (Có)
+    :Thông báo "Vui lòng chọn phòng";
+    stop
+else (Đã chọn)
+endif
+
+if (Ngày bắt đầu chưa chọn?) then (Có)
+    :Thông báo "Vui lòng chọn\nngày bắt đầu";
+    stop
+else (Đã chọn)
+endif
+
+if (NgayKetThuc <= NgayBatDau?) then (Có)
+    :Thông báo "Ngày kết thúc\nphải sau ngày bắt đầu";
+    stop
+else (Hợp lệ)
+endif
+
+:Gọi hopDongService.taoHopDongLuuTru\n(maSV, maPhong, ngayBatDau,\nngayKetThuc, staffUser);
+
+:Kiểm tra SinhVien tồn tại trong DB;
+:Lấy danh sách HopDong của SV đó;
+
+if (SV đã có HĐ đang hiệu lực?) then (Có)
+    :Thông báo "Sinh viên đang có\nhợp đồng phòng [X] hiệu lực.\nKhông thể xếp thêm phòng!";
+    stop
+else (Chưa có)
+endif
+
+:Kiểm tra Phong tồn tại trong DB;
+
+if (Phòng đang Bảo trì?) then (Có)
+    :Thông báo "Phòng đang trong\ntrạng thái bảo trì";
+    stop
+else (Không)
+endif
+
+if (soNguoiHienTai >= sucChua?) then (Có)
+    :Thông báo "Phòng đã hết chỗ!\n(Sức chứa: X | Hiện tại: Y)";
+    stop
+else (Còn chỗ)
+endif
+
+:Sinh mã HĐ tự động:\n"HD-" + yyMMdd + "-" + random(5 số);
+:Tạo HopDong:\n(TrangThai = "Đang hiệu lực"\nTienCoc = 0\nNgayLap = hôm nay);
+:Tăng soNguoiHienTai của Phong + 1;
+:Cập nhật TrangThai Phong\n= "Đang sử dụng";
+
+fork
+    :hopDongRepo.save(hopDong);
+fork again
+    :phongRepo.update(phong);
+end fork
+
+:Thông báo "Lập hợp đồng thành công!\nMã hợp đồng: [MaHD]";
+
+|Nhân Viên|
+:Xác nhận thông báo;
+
+|Hệ Thống|
+:Làm mới View (refreshView)\n→ tải lại ComboBox + bảng;
+
+stop
+
+@enduml

@@ -1,0 +1,63 @@
+@startuml AD03d_SinhVien_Xoa
+title AD03d - Xóa Sinh Viên
+
+skinparam ActivityBackgroundColor LightYellow
+skinparam ActivityBorderColor DarkOrange
+skinparam ArrowColor DarkOrange
+skinparam ActivityStartColor DarkGreen
+skinparam ActivityEndColor DarkRed
+skinparam ActivityDiamondBackgroundColor LightBlue
+skinparam ActivityDiamondBorderColor Navy
+
+|Nhân Viên|
+start
+:Chọn 1 dòng trong bảng\ndanh sách sinh viên;
+:Nhấn nút "Xóa";
+
+|Hệ Thống|
+:Lấy MaSV từ dòng được chọn;
+
+if (Chưa chọn dòng nào?) then (Có)
+    :Thông báo "Vui lòng chọn\nsinh viên cần xóa";
+    stop
+else (Đã chọn)
+endif
+
+:Hiển thị hộp thoại xác nhận:\n"Xác nhận xóa sinh viên [MaSV]?"\n(YES / NO);
+
+|Nhân Viên|
+if (Xác nhận?) then (NO)
+    :Hủy thao tác;
+    stop
+else (YES)
+endif
+
+|Hệ Thống|
+:Gọi service.timTheoMa(maSV)\n→ kiểm tra SV tồn tại;
+
+if (SV không tồn tại?) then (Có)
+    :Thông báo lỗi "Không tìm thấy SV";
+    stop
+else (Tồn tại)
+endif
+
+:Gọi sinhVienRepo.delete(maSV);
+
+if (Lỗi FK Constraint?\n(SV đang có HĐ liên kết)) then (Có)
+    :Bắt RuntimeException;
+    :Thông báo "Không thể xóa,\nsinh viên đang có\nliên kết dữ liệu";
+    stop
+else (Không lỗi)
+endif
+
+:Thông báo "Xóa thành công!";
+
+|Nhân Viên|
+:Xác nhận thông báo;
+
+|Hệ Thống|
+:Tải lại danh sách sinh viên\n(reset trang 1 nếu cần);
+
+stop
+
+@enduml

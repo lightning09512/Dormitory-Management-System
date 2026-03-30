@@ -1,0 +1,171 @@
+@startuml SD03_LapHopDong
+title SD03 - Sequence Diagram: Lập Hợp Đồng Lưu Trú
+
+skinparam sequenceArrowThickness 2
+skinparam sequenceParticipantBackgroundColor LightYellow
+skinparam sequenceParticipantBorderColor DarkOrange
+skinparam sequenceLifeLineBorderColor DarkOrange
+skinparam sequenceGroupBackgroundColor LightBlue
+skinparam noteBorderColor Navy
+skinparam noteBackgroundColor LightCyan
+
+actor "Nhân Viên" as User
+participant "LapHopDongPanel\n(View)" as View
+participant "HopDongController\n(Controller)" as Controller
+participant "HopDongServiceImpl\n(Service)" as Service
+participant "SinhVienRepositoryImpl" as SVRepo
+participant "HopDongRepositoryImpl" as HDRepo
+participant "PhongRepositoryImpl" as PhongRepo
+database "Database\n(MySQL)" as DB
+
+== Load dữ liệu ban đầu ==
+User -> View : Chọn menu "Lập Hợp Đồng"
+activate View
+View -> Controller : componentShown(e)\n→ refreshView()
+activate Controller
+
+Controller -> Controller : loadComboBoxes()
+Controller -> "SinhVienServiceImpl" as SVSvc : layTatCa()
+activate SVSvc
+SVSvc -> SVRepo : findAll()
+SVRepo -> DB : SELECT * FROM SinhVien
+DB --> SVRepo : List<SinhVien>
+SVRepo --> SVSvc : List<SinhVien>
+SVSvc -> SVSvc : filter: phongHienTai\n= "Chưa xếp phòng"
+SVSvc --> Controller : List<SinhVien> chưa có phòng
+deactivate SVSvc
+
+Controller -> "PhongServiceImpl" as PhongSvc : layPhongConTrong()
+activate PhongSvc
+PhongSvc -> PhongRepo : findPhongTrong()
+PhongRepo -> DB : SELECT * FROM Phong\nWHERE TrangThai != 'Bảo trì'\nAND SoNguoiHienTai < SucChua
+DB --> PhongRepo : List<Phong>
+PhongRepo --> PhongSvc : List<Phong>
+PhongSvc --> Controller : List<Phong> còn trống
+deactivate PhongSvc
+
+Controller -> View : setSinhVienList(list)
+Controller -> View : setPhongList(list)
+Controller -> Controller : loadTable()
+Controller -> Service : layHopDongHieuLuc()
+activate Service
+Service -> HDRepo : findHopDongHieuLuc()
+HDRepo -> DB : SELECT * FROM HopDong\nWHERE TrangThai = 'Đang hiệu lực'
+DB --> HDRepo : List<HopDong>
+HDRepo --> Service : List<HopDong>
+Service --> Controller : List<HopDong>
+deactivate Service
+Controller -> View : setHopDongList(list)
+View --> User : Hiển thị form + bảng HĐ
+
+== Nhập thông tin lập HĐ ==
+User -> View : Chọn Sinh viên từ ComboBox
+User -> View : Chọn Phòng từ ComboBox
+User -> View : Chọn Ngày bắt đầu (DatePicker)
+User -> View : Chọn Gói: 6/9/12 tháng
+View -> View : setupAutoUpdateNgayKT()\n→ tính NgayKetThuc tự động
+User -> View : Nhấn "Lập hợp đồng"
+
+View -> Controller : actionPerformed(e)\n→ handleLapHopDong()
+
+== Validate phía Controller ==
+Controller -> View : getSelectedSinhVien()
+View --> Controller : SinhVien object
+Controller -> View : getSelectedPhong()
+View --> Controller : Phong object
+Controller -> View : getNgayBatDau()
+View --> Controller : LocalDate ngayBatDau
+Controller -> View : getNgayKetThuc()
+View --> Controller : LocalDate ngayKetThuc
+
+alt SV, Phòng hoặc ngày bắt đầu null
+    Controller --> View : showError("Vui lòng chọn...")
+    View --> User : Hiển thị lỗi
+else NgayKetThuc <= NgayBatDau
+    Controller --> View : showError("Ngày kết thúc phải\nsau ngày bắt đầu.")
+    View --> User : Hiển thị lỗi
+else Dữ liệu hợp lệ
+end
+
+== Gọi Service lập HĐ ==
+Controller -> Service : taoHopDongLuuTru\n(maSV, maPhong, ngayBatDau,\nngayKetThuc, currentUser)
+activate Service
+
+== Kiểm tra Sinh viên ==
+Service -> SVRepo : findById(maSV)
+activate SVRepo
+SVRepo -> DB : SELECT * FROM SinhVien WHERE MaSV = ?
+DB --> SVRepo : Optional<SinhVien>
+SVRepo --> Service : SinhVien
+deactivate SVRepo
+
+Service -> HDRepo : findBySinhVien(maSV)
+activate HDRepo
+HDRepo -> DB : SELECT * FROM HopDong WHERE MaSV = ?
+DB --> HDRepo : List<HopDong>
+HDRepo --> Service : List<HopDong>
+deactivate HDRepo
+
+alt SV đang có HĐ hiệu lực
+    Service --> Controller : throw IllegalStateException\n("Sinh viên đang có hợp đồng\nphòng [X] hiệu lực!")
+    Controller --> View : showError(message)
+    View --> User : Hiển thị lỗi
+else SV chưa có HĐ hiệu lực
+end
+
+== Kiểm tra Phòng ==
+Service -> PhongRepo : findById(maPhong)
+activate PhongRepo
+PhongRepo -> DB : SELECT * FROM Phong WHERE MaPhong = ?
+DB --> PhongRepo : Optional<Phong>
+PhongRepo --> Service : Phong
+deactivate PhongRepo
+
+alt Phòng đang "Bảo trì"
+    Service --> Controller : throw IllegalStateException\n("Phòng đang bảo trì")
+    Controller --> View : showError(message)
+    View --> User : Hiển thị lỗi
+else soNguoiHienTai >= sucChua
+    Service --> Controller : throw IllegalStateException\n("Phòng đã hết chỗ!")
+    Controller --> View : showError(message)
+    View --> User : Hiển thị lỗi
+else Phòng hợp lệ
+end
+
+== Tạo và lưu HĐ ==
+Service -> Service : sinhMaHopDong()\n"HD-" + yyMMdd + "-" + random
+Service -> Service : new HopDong(maHD, today,\nngayBatDau, ngayKetThuc,\nBigDecimal.ZERO, "Đang hiệu lực",\nmaSV, maPhong, maNV)
+
+Service -> Service : soNguoiMoi = phong.getSoNguoiHienTai() + 1\nphong.setSoNguoiHienTai(soNguoiMoi)\nphong.setTrangThai("Đang sử dụng")
+
+Service -> HDRepo : save(hopDong)
+activate HDRepo
+HDRepo -> DB : BEGIN TRANSACTION
+HDRepo -> DB : INSERT INTO HopDong VALUES (...)
+DB --> HDRepo : OK
+HDRepo -> DB : COMMIT
+HDRepo --> Service : void
+deactivate HDRepo
+
+Service -> PhongRepo : update(phong)
+activate PhongRepo
+PhongRepo -> DB : BEGIN TRANSACTION
+PhongRepo -> DB : UPDATE Phong SET\nSoNguoiHienTai = ?,\nTrangThai = ?\nWHERE MaPhong = ?
+DB --> PhongRepo : OK
+PhongRepo -> DB : COMMIT
+PhongRepo --> Service : void
+deactivate PhongRepo
+
+Service --> Controller : HopDong (vừa tạo)
+deactivate Service
+
+== Thông báo và làm mới ==
+Controller --> View : showInfo("Lập hợp đồng thành công!\nMã hợp đồng: " + maHD)
+View --> User : Hiển thị thông báo thành công
+User -> View : Nhấn OK
+Controller -> Controller : refreshView()\n→ loadComboBoxes() + loadTable()
+View --> User : View cập nhật\n(ComboBox + bảng HĐ)
+deactivate View
+deactivate Controller
+
+@enduml

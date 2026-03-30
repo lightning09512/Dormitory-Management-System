@@ -1,0 +1,56 @@
+@startuml UC09_QuanLyTrangThietBi
+title UC09 - Quản Lý Trang Thiết Bị
+
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+skinparam usecase {
+    BackgroundColor LightYellow
+    BorderColor DarkOrange
+    ArrowColor DarkOrange
+}
+skinparam actor {
+    BackgroundColor LightBlue
+    BorderColor Navy
+}
+
+actor "Nhân Viên" as Staff
+actor "Quản Lý" as Manager
+
+Manager --|> Staff
+
+rectangle "Hệ Thống Quản Lý KTX" {
+    usecase "UC09.1\nXem danh sách trang thiết bị" as UC09_1
+    usecase "UC09.2\nThêm trang thiết bị mới" as UC09_2
+    usecase "UC09.3\nCập nhật thông tin\ntrang thiết bị" as UC09_3
+    usecase "UC09.4\nXóa trang thiết bị" as UC09_4
+    usecase "UC09.5\nXem TTB theo phòng" as UC09_5
+    usecase "UC09.6\nCập nhật trạng thái TTB\n(Tốt / Hỏng / Cần bảo trì)" as UC09_6
+    usecase "UC09.7\nKiểm tra phòng tồn tại" as UC09_7
+}
+
+Staff --> UC09_1
+Staff --> UC09_2
+Staff --> UC09_3
+Staff --> UC09_4
+Staff --> UC09_5
+Staff --> UC09_6
+
+UC09_3 ..> UC09_6 : <<extend>>
+UC09_2 ..> UC09_7 : <<include>>
+UC09_3 ..> UC09_7 : <<include>>
+
+note right of UC09_6
+  Trạng thái hợp lệ:
+  - Tốt
+  - Hỏng
+  - Cần bảo trì
+end note
+
+note right of UC09_7
+  Bắt buộc phòng phải tồn tại
+  trong hệ thống trước khi
+  thêm / cập nhật thiết bị
+end note
+
+@enduml

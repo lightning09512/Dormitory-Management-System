@@ -1,0 +1,47 @@
+@startuml UC02_Dashboard_ThongKe
+title UC02 - Dashboard / Thống Kê
+
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+skinparam usecase {
+    BackgroundColor LightYellow
+    BorderColor DarkOrange
+    ArrowColor DarkOrange
+}
+skinparam actor {
+    BackgroundColor LightBlue
+    BorderColor Navy
+}
+
+actor "Nhân Viên" as Staff
+actor "Quản Lý" as Manager
+
+Manager --|> Staff
+
+rectangle "Hệ Thống Quản Lý KTX" {
+    usecase "UC02.1\nXem tổng quan hệ thống" as UC02_1
+    usecase "UC02.2\nXem thống kê sinh viên" as UC02_2
+    usecase "UC02.3\nXem thống kê phòng" as UC02_3
+    usecase "UC02.4\nXem thống kê hợp đồng" as UC02_4
+    usecase "UC02.5\nXem thống kê doanh thu\n(Điện nước + Tiền phòng)" as UC02_5
+}
+
+Staff --> UC02_1
+Staff --> UC02_2
+Staff --> UC02_3
+Staff --> UC02_4
+Staff --> UC02_5
+
+UC02_1 ..> UC02_2 : <<include>>
+UC02_1 ..> UC02_3 : <<include>>
+UC02_1 ..> UC02_4 : <<include>>
+UC02_1 ..> UC02_5 : <<include>>
+
+note right of UC02_5
+  Bao gồm: Doanh thu điện nước,
+  doanh thu tiền phòng,
+  tổng doanh thu tích lũy
+end note
+
+@enduml

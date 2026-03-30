@@ -1,0 +1,241 @@
+@startuml CD04_Phong_DayNha
+
+title CD04 – Quản lý Phòng & Dãy nhà
+
+skinparam backgroundColor #F8FAFC
+skinparam defaultFontName Segoe UI
+skinparam defaultFontSize 12
+skinparam classAttributeIconSize 0
+
+skinparam class {
+    BackgroundColor #FFFFFF
+    BorderColor     #94A3B8
+    HeaderBackgroundColor #E2E8F0
+    HeaderFontColor #0F172A
+    FontColor       #1E293B
+    ArrowColor      #64748B
+}
+
+skinparam package {
+    BackgroundColor #F1F5F9
+    BorderColor     #CBD5E1
+    FontStyle       bold
+}
+
+' ============================================================
+' MODEL
+' ============================================================
+package "com.ktx.model" #FEE2E2 {
+
+    class DayNha {
+        - maDay : String    <<PK, VARCHAR(10), NOT NULL>>
+        - tenDay : String   <<NVARCHAR(100), NOT NULL>>
+        - loaiDay : String  <<NVARCHAR(50) — Nam/Nữ/Hỗn hợp>>
+        - soTang : Integer  <<TINYINT UNSIGNED>>
+        --
+        + DayNha()
+        + DayNha(maDay, tenDay, loaiDay, soTang)
+        + getMaDay() : String
+        + setMaDay(v : String) : void
+        + getTenDay() : String
+        + setTenDay(v : String) : void
+        + getLoaiDay() : String
+        + setLoaiDay(v : String) : void
+        + getSoTang() : Integer
+        + setSoTang(v : Integer) : void
+    }
+
+    class Phong {
+        - maPhong : String           <<PK, VARCHAR(10), NOT NULL>>
+        - tenPhong : String          <<VARCHAR(20), NOT NULL>>
+        - loaiPhong : String         <<NVARCHAR(50) — Đơn/Đôi/Tập thể>>
+        - sucChua : int              <<TINYINT UNSIGNED, NOT NULL>>
+        - soNguoiHienTai : int       <<TINYINT UNSIGNED, DEFAULT 0>>
+        - giaPhong : BigDecimal      <<DECIMAL(12,2), NOT NULL>>
+        - trangThai : String         <<ENUM: Còn trống/Đang sử dụng/Bảo trì>>
+        - maDay : String             <<FK → DayNha.MaDay>>
+        --
+        + Phong()
+        + Phong(maPhong, tenPhong, loaiPhong,\n  sucChua, soNguoiHienTai,\n  giaPhong, trangThai, maDay)
+        + getMaPhong() : String
+        + setMaPhong(v : String) : void
+        + getTenPhong() : String
+        + setTenPhong(v : String) : void
+        + getLoaiPhong() : String
+        + setLoaiPhong(v : String) : void
+        + getSucChua() : int
+        + setSucChua(v : int) : void
+        + getSoNguoiHienTai() : int
+        + setSoNguoiHienTai(v : int) : void
+        + getGiaPhong() : BigDecimal
+        + setGiaPhong(v : BigDecimal) : void
+        + getTrangThai() : String
+        + setTrangThai(v : String) : void
+        + getMaDay() : String
+        + setMaDay(v : String) : void
+    }
+
+    DayNha "1" o-- "0..*" Phong : chứa\n(MaDay FK)
+}
+
+' ============================================================
+' REPOSITORY
+' ============================================================
+package "com.ktx.repository" #E0F2FE {
+
+    interface DayNhaRepository {
+        + findAll() : List<DayNha>
+        + findById(maDay : String) : Optional<DayNha>
+        + save(d : DayNha) : void
+        + update(d : DayNha) : void
+        + delete(maDay : String) : void
+    }
+
+    interface PhongRepository {
+        + save(p : Phong) : void
+        + update(p : Phong) : void
+        + delete(maPhong : String) : void
+        + findById(maPhong : String) : Optional<Phong>
+        + findAll() : List<Phong>
+        + findPhongTrong() : List<Phong>
+    }
+}
+
+package "com.ktx.repository.impl" #DBEAFE {
+
+    class DayNhaRepositoryImpl {
+        + findAll() : List<DayNha>
+        + findById(maDay : String) : Optional<DayNha>
+        + save(d : DayNha) : void
+        + update(d : DayNha) : void
+        + delete(maDay : String) : void
+    }
+
+    class PhongRepositoryImpl {
+        + save(p : Phong) : void
+        + update(p : Phong) : void
+        + delete(maPhong : String) : void
+        + findById(maPhong : String) : Optional<Phong>
+        + findAll() : List<Phong>
+        + findPhongTrong() : List<Phong>
+    }
+}
+
+DayNhaRepositoryImpl ..|> DayNhaRepository
+PhongRepositoryImpl ..|> PhongRepository
+
+' ============================================================
+' SERVICE
+' ============================================================
+package "com.ktx.service" #D1FAE5 {
+
+    interface PhongService {
+        + themPhong(p : Phong) : void
+        + capNhatPhong(p : Phong) : void
+        + xoaPhong(maPhong : String) : void
+        + timTheoMa(maPhong : String) : Phong
+        + layTatCa() : List<Phong>
+        + layPhongConTrong() : List<Phong>
+    }
+}
+
+package "com.ktx.service.impl" #DCFCE7 {
+
+    class PhongServiceImpl {
+        - phongRepo : PhongRepository
+        --
+        + PhongServiceImpl(phongRepo)
+        + themPhong(p : Phong) : void
+        + capNhatPhong(p : Phong) : void
+        + xoaPhong(maPhong : String) : void
+        + timTheoMa(maPhong : String) : Phong
+        + layTatCa() : List<Phong>
+        + layPhongConTrong() : List<Phong>
+    }
+}
+
+PhongServiceImpl ..|> PhongService
+PhongServiceImpl --> PhongRepository : uses
+
+' ============================================================
+' VIEW
+' ============================================================
+package "com.ktx.view" #FEF9C3 {
+
+    class QuanLyPhongPanel {
+        - table : JTable
+        - tableModel : DefaultTableModel
+        - cbFilter : JComboBox
+        - btnLoc / btnThem / btnSua : JButton
+        - btnXoa / btnLamMoi : JButton
+        --
+        + setPhongList(list : List<Phong>) : void
+        + getSelectedFilter() : String
+        + getSelectedMaPhong() : String
+        + addLocListener(l : ActionListener) : void
+        + addThemListener(l : ActionListener) : void
+        + addSuaListener(l : ActionListener) : void
+        + addXoaListener(l : ActionListener) : void
+        + addLamMoiListener(l : ActionListener) : void
+    }
+}
+
+' ============================================================
+' CONTROLLER
+' ============================================================
+package "com.ktx.controller" #EDE9FE {
+
+    class PhongController {
+        - view : QuanLyPhongPanel
+        - service : PhongService
+        - dayNhaRepo : DayNhaRepository
+        --
+        + PhongController(view, service, dayNhaRepo)
+        - bindListeners() : void
+        - handleLoc() : void
+        - handleThem() : void
+        - handleSua() : void
+        - handleXoa() : void
+        - loadAll() : void
+        - loadDayNha() : List<DayNha>
+    }
+
+    class PhongFormDialog <<inner class>> {
+        - confirmed : boolean
+        - txtMaPhong / txtTenPhong : JTextField
+        - txtLoaiPhong / txtSucChua : JTextField
+        - txtGiaPhong : JTextField
+        - cbTrangThai : JComboBox
+        - cbDayNha : "JComboBox<DayNha>"
+        + isConfirmed() : boolean
+        + getPhong() : Phong
+    }
+}
+
+PhongController --> QuanLyPhongPanel : controls
+PhongController --> PhongService : calls
+PhongController --> DayNhaRepository : loads danh sách
+PhongController +-- PhongFormDialog
+PhongRepositoryImpl --> Phong : manages
+DayNhaRepositoryImpl --> DayNha : manages
+
+note right of Phong
+  DB Constraint:
+  CHECK (SoNguoiHienTai <= SucChua)
+  UNIQUE INDEX IDX_Phong_TrangThai
+  
+  Khi lập HĐ → soNguoiHienTai++
+  Khi thanh lý → soNguoiHienTai--
+  Tự động cập nhật TrangThai:
+  0 → "Còn trống"
+  0 < n < sucChua → "Đang sử dụng"
+  n == sucChua → "Đang sử dụng"
+end note
+
+note bottom of PhongRepositoryImpl
+  findPhongTrong():
+  WHERE TrangThai != 'Bảo trì'
+  AND SoNguoiHienTai < SucChua
+end note
+
+@enduml

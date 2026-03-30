@@ -1,0 +1,125 @@
+@startuml SD06_ThanhToanHoaDon
+title SD06 - Sequence Diagram: Thanh Toán Hóa Đơn Điện Nước
+
+skinparam sequenceArrowThickness 2
+skinparam sequenceParticipantBackgroundColor LightYellow
+skinparam sequenceParticipantBorderColor DarkOrange
+skinparam sequenceLifeLineBorderColor DarkOrange
+skinparam sequenceGroupBackgroundColor LightBlue
+skinparam noteBorderColor Navy
+skinparam noteBackgroundColor LightCyan
+
+actor "Nhân Viên" as User
+participant "QuanLyHoaDonPanel\n(View)" as View
+participant "HoaDonController\n(Controller)" as Controller
+participant "HoaDonServiceImpl\n(Service)" as Service
+participant "HoaDonRepositoryImpl\n(Repository)" as Repo
+database "Database\n(MySQL)" as DB
+
+== Chọn hóa đơn cần thanh toán ==
+User -> View : Chọn 1 dòng trong bảng\nhóa đơn (TrangThai = "Chưa thanh toán")
+User -> View : Nhấn nút "Thanh toán"
+activate View
+
+View -> Controller : actionPerformed(e)\n→ thanhToan()
+activate Controller
+
+Controller -> View : getSelectedMaHDon()
+View --> Controller : maHD (String)
+
+alt Chưa chọn dòng nào (null)
+    Controller --> View : showError\n("Vui lòng chọn 1 hóa đơn\nđể thanh toán.")
+    View --> User : Hiển thị lỗi
+    deactivate Controller
+    deactivate View
+else Đã chọn
+end
+
+== Xác nhận thanh toán ==
+Controller -> View : JOptionPane.showConfirmDialog\n("Xác nhận thanh toán\nhóa đơn [maHD]?")
+View --> User : Hiển thị dialog YES/NO
+
+alt Người dùng chọn NO
+    Controller --> View : (hủy)
+    deactivate Controller
+    deactivate View
+else Người dùng chọn YES
+end
+
+== Gọi Service thanh toán ==
+Controller -> Service : thanhToanHoaDon(maHD)
+activate Service
+
+Service -> Repo : findById(maHD)
+activate Repo
+Repo -> DB : SELECT * FROM HoaDon\nWHERE MaHDon = ?
+activate DB
+DB --> Repo : Optional<HoaDon>
+deactivate DB
+Repo --> Service : Optional<HoaDon>
+deactivate Repo
+
+alt Hóa đơn không tồn tại
+    Service --> Controller : throw Exception\n("Hóa đơn không tồn tại.")
+    Controller --> View : showError(message)
+    View --> User : Hiển thị lỗi
+    deactivate Service
+    deactivate Controller
+    deactivate View
+else Tồn tại
+end
+
+Service -> Service : hoaDon.getTrangThaiThanhToan()
+
+alt TrangThai = "Đã thanh toán"
+    Service --> Controller : throw Exception\n("Hóa đơn này đã được\nthanh toán rồi.")
+    Controller --> View : showError(message)
+    View --> User : Hiển thị lỗi
+    deactivate Service
+    deactivate Controller
+    deactivate View
+else "Chưa thanh toán"
+end
+
+== Cập nhật trạng thái ==
+Service -> Service : hoaDon.setTrangThaiThanhToan\n("Đã thanh toán")
+
+Service -> Repo : update(hoaDon)
+activate Repo
+Repo -> DB : BEGIN TRANSACTION
+activate DB
+Repo -> DB : UPDATE HoaDon\nSET TrangThaiThanhToan = 'Đã thanh toán'\nWHERE MaHDon = ?
+DB --> Repo : OK
+Repo -> DB : COMMIT
+deactivate DB
+Repo --> Service : void
+deactivate Repo
+
+Service --> Controller : void (thành công)
+deactivate Service
+
+== Thông báo và cập nhật View ==
+Controller --> View : showInfo\n("Đã thanh toán hóa đơn thành công!")
+View --> User : Thông báo thành công
+User -> View : Nhấn OK
+
+Controller -> Controller : loadAll()
+Controller -> Service : layTatCaHoaDon()
+activate Service
+Service -> Repo : findAll()
+activate Repo
+Repo -> DB : SELECT * FROM HoaDon\nORDER BY Nam DESC, Thang DESC
+activate DB
+DB --> Repo : List<HoaDon>
+deactivate DB
+Repo --> Service : List<HoaDon>
+deactivate Repo
+Service --> Controller : List<HoaDon>
+deactivate Service
+
+Controller -> View : setTableModel(list)
+View --> User : Bảng hóa đơn cập nhật\n(dòng vừa thanh toán đổi màu/trạng thái)
+deactivate View
+deactivate Controller
+
+@enduml

@@ -1,0 +1,71 @@
+@startuml AD05b_NhanVien_Them
+title AD05b - Thêm Nhân Viên Mới
+
+skinparam ActivityBackgroundColor LightYellow
+skinparam ActivityBorderColor DarkOrange
+skinparam ArrowColor DarkOrange
+skinparam ActivityStartColor DarkGreen
+skinparam ActivityEndColor DarkRed
+skinparam ActivityDiamondBackgroundColor LightBlue
+skinparam ActivityDiamondBorderColor Navy
+
+|Quản Lý (Manager)|
+start
+:Nhấn nút "Thêm Nhân viên"\ntrên màn hình Quản lý Nhân viên;
+
+|Hệ Thống|
+:Mở dialog nhập thông tin NV\nvới các trường:\nHoTen, SoDT, TaiKhoan, VaiTro;
+
+|Quản Lý (Manager)|
+:Nhập HoTen (bắt buộc);
+:Nhập SoDT (tùy chọn);
+:Nhập TaiKhoan (bắt buộc);
+:Chọn VaiTro: Staff hoặc Manager;
+:Nhấn "Lưu";
+
+|Hệ Thống|
+:Validate HoTen và TaiKhoan\nkhông được rỗng;
+
+if (HoTen hoặc TaiKhoan rỗng?) then (Có)
+    :Thông báo "Họ tên và Tài khoản\nkhông được để trống";
+    |Quản Lý (Manager)|
+    :Nhập lại thông tin;
+    |Hệ Thống|
+else (Hợp lệ)
+endif
+
+:Tạo đối tượng NhanVien;
+:Gọi service.addNhanVien(nv);
+:Sinh MaNV tự động:\n"NV" + (timestamp % 100000000);
+:Kiểm tra MaNV đã tồn tại chưa\n(repo.findById);
+
+if (MaNV trùng?) then (Có)
+    :Thông báo "Mã NV đã tồn tại";
+    stop
+else (Chưa tồn tại)
+endif
+
+:Kiểm tra TaiKhoan đã tồn tại chưa\n(repo.findByTaiKhoan);
+
+if (TaiKhoan trùng?) then (Có)
+    :Thông báo "Tài khoản đã tồn tại: [TaiKhoan]";
+    |Quản Lý (Manager)|
+    :Sửa lại TaiKhoan;
+    |Hệ Thống|
+else (Chưa tồn tại)
+endif
+
+:Hash mật khẩu mặc định "123456"\nbằng BCrypt.hashpw;
+:Gán MatKhau đã hash cho NhanVien;
+:Gọi nhanVienRepo.save(nv);
+:Thông báo "Thêm nhân viên thành công!\nMật khẩu mặc định: 123456";
+
+|Quản Lý (Manager)|
+:Xác nhận thông báo;
+
+|Hệ Thống|
+:Tải lại danh sách nhân viên;
+
+stop
+
+@enduml

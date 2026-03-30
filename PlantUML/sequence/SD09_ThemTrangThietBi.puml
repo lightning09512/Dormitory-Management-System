@@ -1,0 +1,170 @@
+@startuml SD09_ThemTrangThietBi
+title SD09 - Sequence Diagram: Thêm Trang Thiết Bị Mới
+
+skinparam sequenceArrowThickness 2
+skinparam sequenceParticipantBackgroundColor LightYellow
+skinparam sequenceParticipantBorderColor DarkOrange
+skinparam sequenceLifeLineBorderColor DarkOrange
+skinparam sequenceGroupBackgroundColor LightBlue
+skinparam noteBorderColor Navy
+skinparam noteBackgroundColor LightCyan
+
+actor "Nhân Viên" as User
+participant "TrangThietBiPanel\n(View)" as View
+participant "TrangThietBiController\n(Controller)" as Controller
+participant "TrangThietBiServiceImpl\n(Service)" as Service
+participant "PhongRepositoryImpl" as PhongRepo
+participant "TrangThietBiRepositoryImpl" as TTBRepo
+participant "EntityManager\n(JPA)" as EM
+database "Database\n(MySQL)" as DB
+
+== Nhập thông tin thiết bị ==
+User -> View : Nhập MaTB vào txtMaTB
+User -> View : Nhập TenTB vào txtTenTB
+User -> View : Chọn TinhTrang từ cbTinhTrang\n(Tốt / Hỏng / Cần bảo trì)
+User -> View : Nhập GiaTri vào txtGiaTri
+User -> View : Nhập MaPhong vào txtMaPhong
+User -> View : Nhấn nút "Thêm"
+activate View
+
+View -> Controller : actionPerformed(e)\n→ handleThem()
+activate Controller
+
+== Đọc dữ liệu từ form ==
+Controller -> View : getMaTB()
+View --> Controller : maTB (String)
+Controller -> View : getTenTB()
+View --> Controller : tenTB (String)
+Controller -> View : getTinhTrang()
+View --> Controller : TinhTrangTB (enum)
+Controller -> View : getGiaTri()
+View --> Controller : giaTri (String)
+Controller -> View : getMaPhong()
+View --> Controller : maPhong (String)
+
+Controller -> Controller : getTrangThietBiFromForm()
+
+alt GiaTri rỗng
+    Controller -> Controller : tb.setGiaTri(BigDecimal.ZERO)
+else GiaTri không phải số
+    Controller -> Controller : new BigDecimal(giaTriStr)
+    note right: Ném NumberFormatException
+    Controller --> View : showError\n("Giá trị phải là một số hợp lệ!")
+    View --> User : Hiển thị lỗi
+    deactivate Controller
+    deactivate View
+else Hợp lệ
+    Controller -> Controller : tb.setGiaTri(new BigDecimal(str))
+end
+
+Controller -> Controller : new Phong()\nphong.setMaPhong(maPhong)\ntb.setPhong(phong)
+
+== Gọi Service thêm thiết bị ==
+Controller -> Service : themThietBi(trangThietBi)
+activate Service
+
+== Validate trong Service ==
+Service -> Service : validate(trangThietBi)
+
+alt MaTB rỗng
+    Service --> Controller : throw Exception\n("Mã thiết bị không được để trống")
+    Controller --> View : showError(message)
+    View --> User : Hiển thị lỗi
+    deactivate Service
+    deactivate Controller
+    deactivate View
+else MaTB không rỗng
+end
+
+alt MaPhong rỗng hoặc null
+    Service --> Controller : throw Exception\n("Thông tin phòng không hợp lệ")
+    Controller --> View : showError(message)
+    View --> User : Hiển thị lỗi
+    deactivate Service
+    deactivate Controller
+    deactivate View
+else MaPhong hợp lệ
+end
+
+== Kiểm tra Phòng tồn tại ==
+Service -> PhongRepo : findById(maPhong)
+activate PhongRepo
+PhongRepo -> DB : SELECT * FROM Phong\nWHERE MaPhong = ?
+activate DB
+DB --> PhongRepo : Optional<Phong>
+deactivate DB
+PhongRepo --> Service : Optional<Phong>
+deactivate PhongRepo
+
+alt Phòng không tồn tại (empty)
+    Service --> Controller : throw Exception\n("Phòng không tồn tại")
+    Controller --> View : showError(message)
+    View --> User : Hiển thị lỗi
+    deactivate Service
+    deactivate Controller
+    deactivate View
+else Phòng tồn tại
+end
+
+== Lưu thiết bị vào DB ==
+Service -> TTBRepo : save(trangThietBi)
+activate TTBRepo
+
+TTBRepo -> EM : getTransaction().begin()
+activate EM
+
+TTBRepo -> EM : em.getReference(Phong.class, maPhong)
+note right of EM
+  getReference() trả về Phong proxy
+  mà không cần SELECT thêm.
+  Tránh LazyInitializationException
+  khi persist TrangThietBi.
+end note
+EM --> TTBRepo : Phong (proxy reference)
+
+TTBRepo -> TTBRepo : trangThietBi.setPhong(phongRef)
+
+TTBRepo -> EM : em.persist(trangThietBi)
+EM -> DB : INSERT INTO TrangThietBi\n(MaTB, TenTB, TinhTrang, GiaTri, MaPhong)\nVALUES (?, ?, ?, ?, ?)
+activate DB
+DB --> EM : OK
+deactivate DB
+
+TTBRepo -> EM : getTransaction().commit()
+EM --> TTBRepo : committed
+deactivate EM
+TTBRepo --> Service : void
+deactivate TTBRepo
+
+Service --> Controller : void (thành công)
+deactivate Service
+
+== Thông báo và làm mới ==
+Controller --> View : JOptionPane.showMessageDialog\n("Thêm thiết bị thành công!")
+View --> User : Thông báo thành công
+User -> View : Nhấn OK
+
+Controller -> Controller : handleLamMoi()
+Controller -> View : clearForm()
+View -> View : txtMaTB/TenTB/GiaTri/MaPhong = ""\ncbTinhTrang.setSelectedIndex(0)\ntxtMaTB.requestFocus()
+
+Controller -> Service : layTatCaThietBi()
+activate Service
+Service -> TTBRepo : findAll()
+activate TTBRepo
+TTBRepo -> DB : SELECT t FROM TrangThietBi t\nLEFT JOIN FETCH t.phong
+activate DB
+DB --> TTBRepo : List<TrangThietBi>
+deactivate DB
+TTBRepo --> Service : List<TrangThietBi>
+deactivate TTBRepo
+Service --> Controller : List<TrangThietBi>
+deactivate Service
+
+Controller -> Controller : loadDataToTable(list)
+Controller -> View : tableModel.addRow\n([maTB, tenTB, tinhTrang, giaTri, maPhong])
+View --> User : Bảng thiết bị cập nhật
+deactivate View
+deactivate Controller
+
+@enduml

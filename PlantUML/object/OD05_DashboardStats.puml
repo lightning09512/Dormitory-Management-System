@@ -1,0 +1,181 @@
+@startuml OD05_DashboardStats
+title OD05 – Object Diagram: DashboardStatsDto Tại Thời Điểm Cụ Thể
+
+skinparam backgroundColor #F8FAFC
+skinparam defaultFontName Segoe UI
+skinparam defaultFontSize 12
+skinparam objectAttributeIconSize 0
+
+skinparam object {
+    BackgroundColor #FFFFFF
+    BorderColor     #94A3B8
+    HeaderBackgroundColor #E2E8F0
+    HeaderFontColor #0F172A
+    FontColor       #1E293B
+    ArrowColor      #64748B
+}
+
+skinparam note {
+    BackgroundColor #FEF9C3
+    BorderColor     #CA8A04
+    FontColor       #1E293B
+}
+
+' ============================================================
+' Kịch bản: Dashboard tải lúc 09:15 ngày 28/03/2025
+' Năm thống kê: 2025
+' ============================================================
+
+package "ThongKeRepositoryImpl — 6 truy vấn JPQL" #DBEAFE {
+
+    object "thongKeRepo : ThongKeRepositoryImpl" as TKRepo {
+        ' Dùng 1 EntityManager duy nhất
+        ' Thực hiện tuần tự 6 truy vấn
+    }
+}
+
+package "DashboardStatsDto — Kết quả tổng hợp" #D1FAE5 {
+
+    object "stats : DashboardStatsDto" as Stats {
+        tongSinhVien        = 247
+        tongPhongTrong      = 18
+        tongHopDongHieuLuc  = 198
+        doanhThuDienNuoc    = 45_820_000.00
+        doanhThuTienPhong   = 312_500_000.00
+    }
+}
+
+package "doanhThuTheoThang : Map<String, BigDecimal>" #EDE9FE {
+
+    object "thang01 : Entry" as T01 {
+        key   = "01/2025"
+        value = 32_500_000.00
+    }
+
+    object "thang02 : Entry" as T02 {
+        key   = "02/2025"
+        value = 31_800_000.00
+    }
+
+    object "thang03 : Entry" as T03 {
+        key   = "03/2025"
+        value = 28_100_000.00
+    }
+
+    object "thang04 : Entry" as T04 {
+        key   = "04/2025"
+        value = 0.00
+    }
+
+    object "thang05 : Entry" as T05 {
+        key   = "05/2025"
+        value = 0.00
+    }
+
+    object "thang06 : Entry" as T06 {
+        key   = "06/2025"
+        value = 0.00
+    }
+
+    object "thang07_12 : Entry" as T0712 {
+        key   = "07/2025 → 12/2025"
+        value = 0.00
+    }
+}
+
+package "DashboardPanel — Hiển thị 6 thẻ stat" #FEF9C3 {
+
+    object "dashPanel : DashboardPanel" as DashPanel {
+        lblSinhVien  = "247"
+        lblPhongTrong = "18"
+        lblHopDong   = "198"
+        lblDienNuoc  = "45,820,000 ₫"
+        lblTienPhong = "312,500,000 ₫"
+        lblTongDT    = "358,320,000 ₫"
+    }
+}
+
+package "DashboardController" #FEE2E2 {
+
+    object "dashCtrl : DashboardController" as DashCtrl {
+        view           = dashPanel
+        thongKeService = thongKeSvcImpl
+    }
+}
+
+' ============================================================
+' Relationships — luồng tạo và hiển thị DTO
+' ============================================================
+
+' 6 truy vấn → stats
+TKRepo --> Stats : getDashboardStats()\n→ tổng hợp 6 truy vấn COUNT/SUM
+
+' Map entries thuộc stats
+Stats *-- T01   : doanhThuTheoThang
+Stats *-- T02   : doanhThuTheoThang
+Stats *-- T03   : doanhThuTheoThang
+Stats *-- T04   : doanhThuTheoThang\n(khởi tạo = 0, chưa có dữ liệu)
+Stats *-- T05   : doanhThuTheoThang\n(khởi tạo = 0)
+Stats *-- T06   : doanhThuTheoThang\n(khởi tạo = 0)
+Stats *-- T0712 : doanhThuTheoThang\n(khởi tạo = 0)
+
+' Controller → View
+DashCtrl --> Stats     : layThongKeDashboard()
+DashCtrl --> DashPanel : setStats(stats)
+
+' Stats → DashPanel
+Stats ..> DashPanel : tongSinhVien → lblSinhVien = "247"\ntongPhongTrong → lblPhongTrong = "18"\ntongHopDongHieuLuc → lblHopDong = "198"\ndoanhThuDienNuoc → lblDienNuoc = "45,820,000 ₫"\ndoanhThuTienPhong → lblTienPhong = "312,500,000 ₫"\ndtTong = 45,820,000 + 312,500,000\n       = 358,320,000 ₫
+
+note top of Stats
+  Thời điểm chụp: 09:15 ngày 28/03/2025
+  ─────────────────────────────────────
+  tongSinhVien = 247
+    (COUNT * FROM SinhVien)
+  tongPhongTrong = 18
+    (COUNT * FROM Phong WHERE TrangThai='Còn trống')
+  tongHopDongHieuLuc = 198
+    (COUNT * FROM HopDong WHERE TrangThai='Đang hiệu lực')
+end note
+
+note right of T04
+  Tháng 4-12/2025 chưa có
+  dữ liệu hóa đơn nào
+  → value = 0.00 (mặc định)
+  ──────────────────────
+  LinkedHashMap đảm bảo
+  thứ tự 01→12 khi hiển thị
+  trên biểu đồ hoặc báo cáo
+end note
+
+note bottom of DashPanel
+  Công thức tính lblTongDT:
+  dtDienNuoc = stats.getDoanhThuDienNuoc()
+  dtTienPhong = stats.getDoanhThuTienPhong()
+  dtTong = dtDienNuoc.add(dtTienPhong)
+  ────────────────────────────────────
+  Format hiển thị:
+  new DecimalFormat("#,### ₫")
+  → 358,320,000 ₫
+  ────────────────────────────────────
+  Nếu null → dùng BigDecimal.ZERO
+  (tránh NullPointerException)
+end note
+
+note left of TKRepo
+  6 truy vấn trong 1 EntityManager:
+  ① COUNT(SinhVien) → 247
+  ② COUNT(Phong WHERE Còn trống) → 18
+  ③ COUNT(HopDong WHERE Hiệu lực) → 198
+  ④ SUM(HoaDon) GROUP BY Thang
+     WHERE Nam=2025 AND ĐãTT
+     → Map 12 tháng
+  ⑤ SUM(HoaDon) WHERE ĐãTT (tích lũy)
+     → 45,820,000
+  ⑥ SUM(HoaDonTienPhong) WHERE ĐãTT
+     → 312,500,000
+  ──────────────────────────────────
+  Dùng try-catch cho Q6:
+  phòng trường hợp bảng chưa có dữ liệu
+end note
+
+@enduml

@@ -1,0 +1,41 @@
+@startuml AD07a_HoaDonDichVu_Xem_Loc
+title AD07a - Xem Danh Sách / Lọc Hóa Đơn Dịch Vụ
+
+skinparam ActivityBackgroundColor LightYellow
+skinparam ActivityBorderColor DarkOrange
+skinparam ArrowColor DarkOrange
+skinparam ActivityStartColor DarkGreen
+skinparam ActivityEndColor DarkRed
+skinparam ActivityDiamondBackgroundColor LightBlue
+skinparam ActivityDiamondBorderColor Navy
+
+|Nhân Viên|
+start
+:Chọn menu "Hóa đơn điện nước";
+
+|Hệ Thống|
+:Gọi service.layTatCaHoaDon()\n(findAll ORDER BY Nam DESC, Thang DESC);
+:Hiển thị bảng danh sách hóa đơn\nvới các cột:\nMã HĐ, Tháng, Năm, Phòng,\nĐiện (Cũ-Mới), Nước (Cũ-Mới),\nTổng tiền, Trạng thái, Nhân viên;
+
+|Nhân Viên|
+switch (Thao tác?)
+case (Lọc theo Tháng/Năm)
+    :Chọn Tháng (1-12) từ ComboBox;
+    :Chọn Năm từ SpinnerNumber;
+    :Nhấn "Lọc";
+    |Hệ Thống|
+    :Gọi service.locHoaDonTheoThangNam\n(thang, nam)\n(findTheoThangNam JPQL);
+    :Cập nhật bảng với kết quả lọc;
+
+case (Làm mới)
+    :Nhấn "Làm mới";
+    |Hệ Thống|
+    :Gọi service.layTatCaHoaDon();
+    :Tải lại toàn bộ danh sách;
+    :Cập nhật bảng;
+
+endswitch
+
+stop
+
+@enduml

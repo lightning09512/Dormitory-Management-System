@@ -1,0 +1,89 @@
+@startuml AD07b_HoaDonDichVu_LapMoi
+title AD07b - Lập Hóa Đơn Điện Nước Mới
+
+skinparam ActivityBackgroundColor LightYellow
+skinparam ActivityBorderColor DarkOrange
+skinparam ArrowColor DarkOrange
+skinparam ActivityStartColor DarkGreen
+skinparam ActivityEndColor DarkRed
+skinparam ActivityDiamondBackgroundColor LightBlue
+skinparam ActivityDiamondBorderColor Navy
+
+|Nhân Viên|
+start
+:Nhấn "Lập hóa đơn"\ntrên màn hình Hóa đơn điện nước;
+
+|Hệ Thống|
+:Mở dialog nhập thông tin;
+:Tải danh sách Phong vào ComboBox;
+:Chọn phòng đầu tiên (index 0) mặc định;
+:Gọi layHoaDonGanNhatTheoPhong(maPhong)\n→ tự động điền:\n  - Chỉ số Điện cũ = chiSoDienMoi kỳ trước\n  - Chỉ số Nước cũ = chiSoNuocMoi kỳ trước;
+
+if (Không có hóa đơn kỳ trước?) then (Có)
+    :Điền Chỉ số Điện cũ = 0\nChỉ số Nước cũ = 0;
+else (Có kỳ trước)
+endif
+
+:Hiển thị dialog với:\n- ComboBox Phòng\n- ComboBox Tháng (1-12)\n- SpinnerNumber Năm\n- Chỉ số Điện cũ (đã tự điền)\n- Chỉ số Điện mới (nhập tay)\n- Chỉ số Nước cũ (đã tự điền)\n- Chỉ số Nước mới (nhập tay);
+
+|Nhân Viên|
+:Chọn Phòng từ ComboBox;
+
+|Hệ Thống|
+:Listener onChange: tự động cập nhật\nchỉ số cũ theo phòng vừa chọn;
+
+|Nhân Viên|
+:Kiểm tra / chỉnh sửa Chỉ số cũ\n(nếu cần thiết);
+:Nhập Chỉ số Điện mới;
+:Nhập Chỉ số Nước mới;
+:Chọn Tháng và Năm;
+:Nhấn "OK";
+
+|Hệ Thống|
+:Parse các giá trị nhập vào\nthành BigDecimal;
+
+if (Parse thất bại\n(không phải số)?) then (Có)
+    :Thông báo "Vui lòng nhập đúng\nđịnh dạng số cho\nchỉ số điện nước";
+    stop
+else (Hợp lệ)
+endif
+
+:Gọi service.taoHoaDon\n(thang, nam, maPhong, maNV,\nchiSoDienCu, chiSoDienMoi,\nchiSoNuocCu, chiSoNuocMoi);
+
+if (chiSoDienMoi < chiSoDienCu?) then (Có)
+    :Thông báo "Chỉ số điện mới không\nđược nhỏ hơn chỉ số cũ";
+    stop
+else (Hợp lệ)
+endif
+
+if (chiSoNuocMoi < chiSoNuocCu?) then (Có)
+    :Thông báo "Chỉ số nước mới không\nđược nhỏ hơn chỉ số cũ";
+    stop
+else (Hợp lệ)
+endif
+
+:Kiểm tra Phong tồn tại;
+:Kiểm tra đã có hóa đơn\ntháng này chưa:\nexistsByPhongAndThangNam;
+
+if (Đã có HD tháng này?) then (Có)
+    :Thông báo "Phòng [X] đã có\nhóa đơn trong tháng\n[M/Y]";
+    stop
+else (Chưa có)
+endif
+
+:Lấy đơn giá từ CauHinhGia:\ngiaDien = getDonGia("Điện")\ngiaNuoc = getDonGia("Nước");
+:Tính tiền:\ndienTieuThu = dienMoi - dienCu\ntienDien = dienTieuThu x giaDien\nnuocTieuThu = nuocMoi - nuocCu\ntienNuoc = nuocTieuThu x giaNuoc\ntongTien = tienDien + tienNuoc;
+:Sinh mã hóa đơn:\n"HD" + MM + YY + MaPhong\n(cắt tối đa 15 ký tự);
+:Tạo HoaDon\n(TrangThai = "Chưa thanh toán");
+:Gọi hoaDonRepo.save(hoaDon);
+:Thông báo "Lập hóa đơn thành công!";
+
+|Nhân Viên|
+:Xác nhận thông báo;
+
+|Hệ Thống|
+:Tải lại danh sách hóa đơn;
+
+stop
+
+@enduml

@@ -1,0 +1,182 @@
+@startuml OD03_LapHopDong_TruocVaSau
+title OD03 – Object Diagram: Lập Hợp Đồng — Trạng Thái Trước & Sau
+
+skinparam backgroundColor #F8FAFC
+skinparam defaultFontName Segoe UI
+skinparam defaultFontSize 12
+skinparam objectAttributeIconSize 0
+
+skinparam object {
+    BackgroundColor #FFFFFF
+    BorderColor     #94A3B8
+    HeaderBackgroundColor #E2E8F0
+    HeaderFontColor #0F172A
+    FontColor       #1E293B
+    ArrowColor      #64748B
+}
+
+skinparam note {
+    BackgroundColor #FEF9C3
+    BorderColor     #CA8A04
+    FontColor       #1E293B
+}
+
+' ============================================================
+' Kịch bản: NV002 lập HĐ cho SV20220078 vào phòng P101
+' P101 có sucChua=4, đang có 3 người → còn 1 chỗ trống
+' ============================================================
+
+together {
+    package "TRƯỚC KHI LẬP HỢP ĐỒNG" #FEE2E2 {
+
+        object "p101_before : Phong" as P101Before {
+            maPhong         = "P101"
+            tenPhong        = "Phòng 101"
+            loaiPhong       = "Tập thể"
+            sucChua         = 4
+            soNguoiHienTai  = 3
+            giaPhong        = 500_000
+            trangThai       = "Đang sử dụng"
+            maDay           = "DA"
+        }
+
+        object "sv3_before : SinhVien" as SV3Before {
+            maSV            = "SV20220078"
+            hoTen           = "Phạm Quốc Hùng"
+            lop             = "XD03"
+            khoa            = "Xây dựng"
+            phongHienTai    = "Chưa xếp phòng"
+        }
+
+        object "dayNha_A : DayNha" as DayNhaA {
+            maDay   = "DA"
+            tenDay  = "Dãy A"
+            loaiDay = "Nam"
+            soTang  = 5
+        }
+
+        DayNhaA "1" o-- "0..*" P101Before : chứa (MaDay FK)
+    }
+}
+
+together {
+    package "SAU KHI LẬP HỢP ĐỒNG" #D1FAE5 {
+
+        object "p101_after : Phong" as P101After {
+            maPhong         = "P101"
+            tenPhong        = "Phòng 101"
+            loaiPhong       = "Tập thể"
+            sucChua         = 4
+            soNguoiHienTai  = 4
+            giaPhong        = 500_000
+            trangThai       = "Đang sử dụng"
+            maDay           = "DA"
+        }
+
+        object "sv3_after : SinhVien" as SV3After {
+            maSV            = "SV20220078"
+            hoTen           = "Phạm Quốc Hùng"
+            lop             = "XD03"
+            khoa            = "Xây dựng"
+            phongHienTai    = "P101"
+        }
+
+        object "hopDong_moi : HopDong" as HDMoi {
+            maHD        = "HD-250328-83741"
+            ngayLap     = 2025-03-28
+            ngayBatDau  = 2025-04-01
+            ngayKetThuc = 2025-10-01
+            tienCoc     = 0.00
+            trangThai   = "Đang hiệu lực"
+            maSV        = "SV20220078"
+            maPhong     = "P101"
+            maNV        = "NV002"
+        }
+    }
+}
+
+package "Nhân viên lập hợp đồng" #EDE9FE {
+
+    object "nv002 : NhanVien" as NV002 {
+        maNV     = "NV002"
+        hoTen    = "Trần Thị Bình"
+        vaiTro   = "Staff"
+        taiKhoan = "staff01"
+    }
+}
+
+package "HopDongServiceImpl — nghiệp vụ" #DBEAFE {
+
+    object "hopDongSvc : HopDongServiceImpl" as HDSvc {
+        hopDongRepo  = hopDongRepoImpl
+        sinhVienRepo = sinhVienRepoImpl
+        phongRepo    = phongRepoImpl
+    }
+}
+
+' ============================================================
+' Relationships — luồng nghiệp vụ
+' ============================================================
+
+' Đầu vào
+NV002   --> HDSvc : taoHopDongLuuTru(\n  "SV20220078", "P101",\n  2025-04-01, 2025-10-01,\n  nv002)
+SV3Before ..> HDSvc : kiểm tra: chưa có HĐ hiệu lực ✓
+P101Before ..> HDSvc : kiểm tra: soNguoiHienTai(3) < sucChua(4) ✓\nvà trangThai != "Bảo trì" ✓
+
+' Kết quả
+HDSvc --> HDMoi       : hopDongRepo.save(hopDong)
+HDSvc --> P101After   : phongRepo.update(phong)\nsoNguoiHienTai: 3→4
+
+' Biến đổi trạng thái
+P101Before  ..> P101After  : soNguoiHienTai: 3 → 4\ntrangThai: giữ "Đang sử dụng"
+SV3Before   ..> SV3After   : phongHienTai:\n"Chưa xếp phòng" → "P101"
+
+' HĐ mới liên kết
+HDMoi --> SV3After  : maSV = "SV20220078"
+HDMoi --> P101After : maPhong = "P101"
+HDMoi --> NV002     : maNV = "NV002"
+
+note top of P101Before
+  TRƯỚC:
+  soNguoiHienTai = 3
+  → Còn 1 chỗ trống
+  → Được hiển thị trong
+    ComboBox chọn phòng
+end note
+
+note top of P101After
+  SAU:
+  soNguoiHienTai = 4 = sucChua
+  → Phòng đầy!
+  → BIẾN MẤT khỏi ComboBox
+    "Phòng trống" lần sau
+  → Nếu sucChua=4 thì:
+    vẫn giữ "Đang sử dụng"
+end note
+
+note left of HDMoi
+  Mã HĐ sinh tự động:
+  "HD-" + yyMMdd + "-" + random(5 số)
+  = "HD-250328-83741"
+  ─────────────────────
+  TienCoc = 0 (mặc định,
+  cập nhật thủ công sau nếu cần)
+  ─────────────────────
+  Gói: 6 tháng
+  (01/04/2025 → 01/10/2025)
+end note
+
+note bottom of HDSvc
+  Logic taoHopDongLuuTru():
+  ① findById("SV20220078") → tồn tại ✓
+  ② findBySinhVien → không có HĐ hiệu lực ✓
+  ③ findById("P101") → tồn tại ✓
+  ④ trangThai != "Bảo trì" ✓
+  ⑤ soNguoiHienTai(3) < sucChua(4) ✓
+  ⑥ sinhMaHopDong() → "HD-250328-83741"
+  ⑦ soNguoiMoi = 3+1 = 4
+  ⑧ phong.setTrangThai("Đang sử dụng")
+  ⑨ hopDongRepo.save() + phongRepo.update()
+end note
+
+@enduml

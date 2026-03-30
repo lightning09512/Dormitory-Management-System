@@ -1,0 +1,65 @@
+@startuml AD09c_ThietBi_CapNhat
+title AD09c - Cập Nhật Thông Tin Trang Thiết Bị
+
+skinparam ActivityBackgroundColor LightYellow
+skinparam ActivityBorderColor DarkOrange
+skinparam ArrowColor DarkOrange
+skinparam ActivityStartColor DarkGreen
+skinparam ActivityEndColor DarkRed
+skinparam ActivityDiamondBackgroundColor LightBlue
+skinparam ActivityDiamondBorderColor Navy
+
+|Nhân Viên|
+start
+:Chọn 1 dòng trong bảng\n(thông tin tự điền vào form)\nHOẶC nhập trực tiếp vào form;
+:Chỉnh sửa thông tin trong form:\n- TenTB\n- TinhTrang (ComboBox)\n- GiaTri\n- MaPhong;
+:Nhấn nút "Cập nhật";
+
+|Hệ Thống|
+:Đọc dữ liệu từ form\n→ gọi getTrangThietBiFromForm();
+:Tạo đối tượng TrangThietBi\nvới MaTB từ ô form;
+
+if (GiaTri không phải số?) then (Có)
+    :Thông báo "Giá trị phải là\nmột số hợp lệ!";
+    stop
+else (Hợp lệ)
+endif
+
+:Gọi service.capNhatThietBi(trangThietBi);
+
+:Validate trong service:;
+if (MaTB rỗng?) then (Có)
+    :Thông báo "Mã thiết bị\nkhông được để trống";
+    stop
+else (Không rỗng)
+endif
+
+if (MaPhong rỗng?) then (Có)
+    :Thông báo "Thông tin phòng\nkhông hợp lệ";
+    stop
+else (Không rỗng)
+endif
+
+:Kiểm tra Phong tồn tại:\nphongRepository.findById(maPhong);
+
+if (Phòng không tồn tại?) then (Có)
+    :Thông báo "Phòng không tồn tại";
+    stop
+else (Tồn tại)
+endif
+
+:Lấy reference Phong từ EntityManager\n(em.getReference(Phong.class, maPhong));
+:Gán reference vào TrangThietBi;
+:Gọi em.merge(trangThietBi)\n→ cập nhật DB;
+:Thông báo "Cập nhật thiết bị\nthành công!";
+
+|Nhân Viên|
+:Xác nhận thông báo;
+
+|Hệ Thống|
+:Xóa trắng form (clearForm);
+:Tải lại toàn bộ bảng thiết bị;
+
+stop
+
+@enduml

@@ -1,0 +1,174 @@
+@startuml CD01_KienTruc_Chung
+
+title CD01 – Kiến trúc Chung & Nền tảng Kỹ thuật
+
+skinparam backgroundColor #F8FAFC
+skinparam defaultFontName Segoe UI
+skinparam defaultFontSize 12
+skinparam classAttributeIconSize 0
+
+skinparam class {
+    BackgroundColor #FFFFFF
+    BorderColor     #94A3B8
+    HeaderBackgroundColor #E2E8F0
+    HeaderFontColor #0F172A
+    FontColor       #1E293B
+    ArrowColor      #64748B
+}
+
+skinparam package {
+    BackgroundColor #F1F5F9
+    BorderColor     #CBD5E1
+    FontColor       #334155
+    FontStyle       bold
+}
+
+' ============================================================
+' CONFIG PACKAGE
+' ============================================================
+package "com.ktx.config" #EDE9FE {
+
+    class DBConfig {
+        - {static} HOST : String = "localhost"
+        - {static} PORT : String = "3306"
+        - {static} DATABASE : String = "QuanLyKTX"
+        - {static} USERNAME : String
+        - {static} PASSWORD : String
+        - {static} URL : String
+        - {static} connection : Connection
+        --
+        - DBConfig()
+        + {static} getConnection() : Connection
+        + {static} closeConnection() : void
+    }
+
+    class JpaUtil {
+        - {static} PERSISTENCE_UNIT : String = "ktxPU"
+        - {static} emf : EntityManagerFactory
+        --
+        - JpaUtil()
+        + {static} getEmf() : EntityManagerFactory
+        + {static} shutdown() : void
+    }
+}
+
+' ============================================================
+' UTIL PACKAGE
+' ============================================================
+package "com.ktx.util" #D1FAE5 {
+
+    class LoggerUtil {
+        + {static} getLogger(clazz : Class<?>) : Logger
+        + {static} logEntry(logger : Logger, methodName : String, params : Object[]) : void
+        + {static} logExit(logger : Logger, methodName : String, result : Object) : void
+        + {static} logExit(logger : Logger, methodName : String) : void
+        + {static} logError(logger : Logger, methodName : String, exception : Exception) : void
+        + {static} logValidationError(logger : Logger, methodName : String, errors : String) : void
+    }
+
+    class ValidationUtil {
+        - {static} factory : ValidatorFactory
+        - {static} validator : Validator
+        --
+        + {static} validate(object : Object) : String
+        + {static} isValid(object : Object) : boolean
+        + {static} validatePassword(password : String) : String
+    }
+
+    class UIValidator {
+        + {static} validateForm(parent : Component, components : FormComponent[]) : boolean
+        + {static} clearHighlights(components : FormComponent[]) : void
+    }
+
+    interface FormComponent {
+        + getValidationError() : String
+        + highlightError() : void
+        + clearHighlight() : void
+    }
+    class ValidatableTextField
+    class "ValidatableComboBox<T>" as ValidatableComboBoxT
+
+    UIValidator +-- FormComponent
+    UIValidator +-- ValidatableTextField
+    UIValidator +-- ValidatableComboBoxT
+    ValidatableTextField ..|> FormComponent
+    ValidatableComboBoxT ..|> FormComponent
+}
+
+' ============================================================
+' VIEW THEME
+' ============================================================
+package "com.ktx.view" #FEF9C3 {
+
+    class UITheme {
+        + {static} SIDEBAR_BG : Color
+        + {static} SIDEBAR_HOVER : Color
+        + {static} SIDEBAR_ACTIVE : Color
+        + {static} CONTENT_BG : Color
+        + {static} BLUE : Color
+        + {static} INDIGO : Color
+        + {static} GREEN : Color
+        + {static} AMBER : Color
+        + {static} RED : Color
+        + {static} SLATE : Color
+        + {static} TEXT_PRIMARY : Color
+        + {static} TEXT_SECONDARY : Color
+        + {static} BORDER_COLOR : Color
+        + {static} FONT_TITLE : Font
+        + {static} FONT_BOLD : Font
+        + {static} FONT_BODY : Font
+        --
+        - UITheme()
+        + {static} button(text : String, bg : Color) : JButton
+        + {static} textField(cols : int) : JTextField
+        + {static} textField(cols : int, placeholder : String) : JTextField
+        + {static} pageTitle(text : String) : JLabel
+        + {static} styleTable(table : JTable) : void
+        + {static} cleanScrollPane(table : JTable) : JScrollPane
+        + {static} card() : JPanel
+        + {static} cardBorder() : Border
+    }
+}
+
+' ============================================================
+' APP ENTRY POINT
+' ============================================================
+package "com.ktx" #E0F2FE {
+
+    class App {
+        + {static} main(args : String[]) : void
+        - {static} startLogin() : void
+        - {static} startMain(user : NhanVien) : void
+    }
+}
+
+' ============================================================
+' RELATIONSHIPS
+' ============================================================
+App ..> JpaUtil       : uses (shutdown)
+App ..> DBConfig      : uses
+App ..> UITheme       : uses
+JpaUtil ..> DBConfig  : depends on same DB
+LoggerUtil ..> ValidationUtil : used by services
+
+note top of JpaUtil
+  Singleton EMF –
+  dùng chung toàn app.
+  Đóng khi JVM tắt qua
+  ShutdownHook.
+end note
+
+note top of DBConfig
+  Singleton Connection –
+  chỉ dùng khi cần
+  truy vấn JDBC thuần,
+  không qua JPA.
+end note
+
+note right of ValidationUtil
+  Dùng Jakarta Bean Validation
+  @NotBlank, @Size, @Pattern,
+  @Email, @Past trên SinhVien.
+end note
+
+@enduml

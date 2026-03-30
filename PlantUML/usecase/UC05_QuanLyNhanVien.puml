@@ -1,0 +1,51 @@
+@startuml UC05_QuanLyNhanVien
+title UC05 - Quản Lý Nhân Viên
+
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+skinparam usecase {
+    BackgroundColor LightYellow
+    BorderColor DarkOrange
+    ArrowColor DarkOrange
+}
+skinparam actor {
+    BackgroundColor LightBlue
+    BorderColor Navy
+}
+
+actor "Quản Lý" as Manager
+
+rectangle "Hệ Thống Quản Lý KTX" {
+    usecase "UC05.1\nXem danh sách nhân viên" as UC05_1
+    usecase "UC05.2\nThêm nhân viên mới" as UC05_2
+    usecase "UC05.3\nCập nhật thông tin nhân viên" as UC05_3
+    usecase "UC05.4\nXóa nhân viên" as UC05_4
+    usecase "UC05.5\nPhân quyền vai trò\n(Staff / Manager)" as UC05_5
+    usecase "UC05.6\nĐặt lại mật khẩu\nnhân viên" as UC05_6
+    usecase "UC05.7\nValidate thông tin đầu vào" as UC05_7
+}
+
+Manager --> UC05_1
+Manager --> UC05_2
+Manager --> UC05_3
+Manager --> UC05_4
+Manager --> UC05_5
+Manager --> UC05_6
+
+UC05_2 ..> UC05_7 : <<include>>
+UC05_3 ..> UC05_7 : <<include>>
+UC05_2 ..> UC05_5 : <<include>>
+
+note top of Manager
+  Chỉ Quản lý mới có
+  quyền quản lý nhân viên
+end note
+
+note right of UC05_6
+  Mật khẩu được reset
+  về mặc định "123456"
+  (BCrypt hash)
+end note
+
+@enduml

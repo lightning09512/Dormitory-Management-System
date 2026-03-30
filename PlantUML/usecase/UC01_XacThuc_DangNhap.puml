@@ -1,0 +1,58 @@
+@startuml UC01_XacThuc_DangNhap
+title UC01 - Xác Thực / Đăng Nhập
+
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+skinparam usecase {
+    BackgroundColor LightYellow
+    BorderColor DarkOrange
+    ArrowColor DarkOrange
+}
+skinparam actor {
+    BackgroundColor LightBlue
+    BorderColor Navy
+}
+
+actor "Nhân Viên" as Staff
+actor "Quản Lý" as Manager
+
+rectangle "Hệ Thống Quản Lý KTX" {
+    usecase "UC01.1\nĐăng nhập hệ thống" as UC01_1
+    usecase "UC01.2\nXác thực tài khoản\n(BCrypt)" as UC01_2
+    usecase "UC01.3\nKiểm tra vai trò\n(Staff / Manager)" as UC01_3
+    usecase "UC01.3a\nẨn/hiện chức năng\ntheo vai trò" as UC01_3a
+    usecase "UC01.4\nĐăng xuất hệ thống" as UC01_4
+    usecase "UC01.5\nQuản lý phiên làm việc\n(Session Timeout 30p)" as UC01_5
+}
+
+Staff --> UC01_1
+Manager --> UC01_1
+
+UC01_1 ..> UC01_2 : <<include>>
+UC01_1 ..> UC01_3 : <<include>>
+UC01_3 ..> UC01_3a : <<include>>
+UC01_5 ..> UC01_1 : <<extend>>
+
+Staff --> UC01_4
+Manager --> UC01_4
+
+note right of UC01_2
+  Mật khẩu được mã hoá
+  bằng thuật toán BCrypt
+end note
+
+note right of UC01_3a
+  - Staff: ẩn menu Nhân viên,
+    Cấu hình giá
+  - Manager: hiển thị toàn bộ
+    chức năng
+end note
+
+note bottom of UC01_5
+  Phiên tự động hết hạn
+  sau 30 phút không hoạt động
+  (extend từ UC01.1)
+end note
+
+@enduml

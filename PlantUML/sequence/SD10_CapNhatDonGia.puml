@@ -1,0 +1,148 @@
+@startuml SD10_CapNhatDonGia
+title SD10 - Sequence Diagram: Cập Nhật Đơn Giá Dịch Vụ
+
+skinparam sequenceArrowThickness 2
+skinparam sequenceParticipantBackgroundColor LightYellow
+skinparam sequenceParticipantBorderColor DarkOrange
+skinparam sequenceLifeLineBorderColor DarkOrange
+skinparam sequenceGroupBackgroundColor LightBlue
+skinparam noteBorderColor Navy
+skinparam noteBackgroundColor LightCyan
+
+actor "Quản Lý\n(Manager)" as User
+participant "QuanLyGiaPanel\n(View)" as View
+participant "CauHinhGiaController\n(Controller)" as Controller
+participant "CauHinhGiaServiceImpl\n(Service)" as Service
+participant "CauHinhGiaRepositoryImpl\n(Repository)" as Repo
+database "Database\n(MySQL)" as DB
+
+== Load dữ liệu ban đầu ==
+User -> View : Chọn menu "Cấu hình Giá"\n(Chỉ hiển thị với Manager)
+activate View
+
+View -> Controller : new CauHinhGiaController\n(view, service)\n→ setupListeners() + loadAll()
+activate Controller
+
+Controller -> Controller : loadAll()
+Controller -> Service : getAll()
+activate Service
+
+Service -> Repo : findAll()
+activate Repo
+Repo -> DB : SELECT g FROM CauHinhGia g
+activate DB
+DB --> Repo : List<CauHinhGia>
+deactivate DB
+Repo --> Service : List<CauHinhGia>
+deactivate Repo
+
+Service --> Controller : List<CauHinhGia>
+deactivate Service
+
+Controller -> View : setTableModel(list)
+View -> View : Hiển thị bảng:\nLoại DV | Đơn giá | Ngày áp dụng
+View --> User : Bảng giá hiện tại hiển thị
+
+== Chọn loại dịch vụ cần cập nhật ==
+User -> View : Chọn 1 dòng trong bảng\n(VD: "Điện")
+User -> View : Nhấn "Cập nhật Giá"
+
+View -> Controller : actionPerformed(e)\n→ handleCapNhat()
+activate Controller
+
+Controller -> View : getSelectedLoaiDichVu()
+View --> Controller : loaiDichVu (String)
+
+alt Chưa chọn dòng nào (null)
+    Controller --> View : JOptionPane.showMessageDialog\n("Vui lòng chọn loại dịch vụ\nmuốn cập nhật.")
+    View --> User : Hiển thị thông báo
+    deactivate Controller
+else Đã chọn
+end
+
+Controller -> Controller : Tìm CauHinhGia trong list\n(stream filter theo LoaiDichVu)
+Controller --> Controller : CauHinhGia g
+
+== Nhập đơn giá mới ==
+Controller -> View : JOptionPane.showInputDialog\n("Nhập đơn giá mới cho\n[loaiDichVu] (VNĐ):", g.getDonGia())
+View --> User : Input dialog với\ngiá trị hiện tại điền sẵn
+
+User -> View : Nhập đơn giá mới\n(VD: 4000)
+User -> View : Nhấn "OK"
+
+View --> Controller : input (String)
+
+alt Nhấn Cancel hoặc input null/rỗng
+    Controller --> View : (không làm gì)
+    View --> User : Dialog đóng lại
+    deactivate Controller
+else input hợp lệ
+end
+
+== Validate và cập nhật ==
+Controller -> Controller : new BigDecimal(input.trim())
+
+alt Không phải số (NumberFormatException)
+    Controller --> View : JOptionPane.showMessageDialog\n("Đơn giá không hợp lệ.\nVui lòng nhập số.")
+    View --> User : Hiển thị lỗi
+    deactivate Controller
+else Hợp lệ
+end
+
+Controller -> Controller : g.setDonGia(value)\ng.setNgayApDung(LocalDate.now())
+note right of Controller
+  Cập nhật trực tiếp đối tượng
+  đang có trong list (in-memory)
+  rồi gọi service update
+end note
+
+Controller -> Service : updateGia(g)
+activate Service
+
+Service -> Repo : update(g)
+activate Repo
+
+Repo -> DB : BEGIN TRANSACTION
+activate DB
+Repo -> DB : em.merge(cauHinhGia)\n→ UPDATE CauHinhGia\nSET DonGia = ?,\n    NgayApDung = ?\nWHERE MaGia = ?
+DB --> Repo : OK
+Repo -> DB : COMMIT
+deactivate DB
+Repo --> Service : void
+deactivate Repo
+
+Service --> Controller : void (thành công)
+deactivate Service
+
+Controller --> View : JOptionPane.showMessageDialog\n("Cập nhật thành công!")
+View --> User : Thông báo thành công
+User -> View : Nhấn OK
+
+== Làm mới bảng ==
+Controller -> Controller : loadAll()
+Controller -> Service : getAll()
+activate Service
+Service -> Repo : findAll()
+activate Repo
+Repo -> DB : SELECT g FROM CauHinhGia g
+activate DB
+DB --> Repo : List<CauHinhGia> (đã có giá mới)
+deactivate DB
+Repo --> Service : List<CauHinhGia>
+deactivate Repo
+Service --> Controller : List<CauHinhGia>
+deactivate Service
+Controller -> View : setTableModel(list)
+View --> User : Bảng giá cập nhật\n(Đơn giá + NgayApDung mới)
+deactivate View
+deactivate Controller
+
+note over User, DB
+  Giá mới sẽ được áp dụng cho tất cả
+  hóa đơn điện nước được TẠO SAU thời điểm này.
+  Hóa đơn đã tạo trước đó không bị ảnh hưởng.
+  (HoaDonServiceImpl.taoHoaDon → getDonGia()
+   → findByLoai ORDER BY NgayApDung DESC LIMIT 1)
+end note
+
+@enduml

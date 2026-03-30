@@ -1,0 +1,196 @@
+@startuml SD05_LapHoaDonDichVu
+title SD05 - Sequence Diagram: Lập Hóa Đơn Điện Nước
+
+skinparam sequenceArrowThickness 2
+skinparam sequenceParticipantBackgroundColor LightYellow
+skinparam sequenceParticipantBorderColor DarkOrange
+skinparam sequenceLifeLineBorderColor DarkOrange
+skinparam sequenceGroupBackgroundColor LightBlue
+skinparam noteBorderColor Navy
+skinparam noteBackgroundColor LightCyan
+
+actor "Nhân Viên" as User
+participant "QuanLyHoaDonPanel\n(View)" as View
+participant "HoaDonController\n(Controller)" as Controller
+participant "HoaDonServiceImpl\n(Service)" as Service
+participant "HoaDonRepositoryImpl" as HDRepo
+participant "PhongRepositoryImpl" as PhongRepo
+participant "CauHinhGiaServiceImpl" as GiaSvc
+participant "CauHinhGiaRepositoryImpl" as GiaRepo
+database "Database\n(MySQL)" as DB
+
+== Mở dialog lập hóa đơn ==
+User -> View : Nhấn "Lập hóa đơn"
+activate View
+View -> Controller : actionPerformed(e)\n→ lapMoi()
+activate Controller
+
+Controller -> PhongRepo : findAll()
+activate PhongRepo
+PhongRepo -> DB : SELECT * FROM Phong\nORDER BY MaPhong
+DB --> PhongRepo : List<Phong>
+PhongRepo --> Controller : List<Phong>
+deactivate PhongRepo
+
+Controller -> Controller : Tạo JPanel dialog:\ncboPhong, cboThang, spinNam,\ntxtDienCu, txtDienMoi,\ntxtNuocCu, txtNuocMoi
+
+== Auto-fill chỉ số cũ khi chọn phòng ==
+Controller -> Service : layHoaDonGanNhatTheoPhong(maPhong)
+activate Service
+Service -> HDRepo : findLatestByPhong(maPhong)
+activate HDRepo
+HDRepo -> DB : SELECT * FROM HoaDon\nWHERE MaPhong = ?\nORDER BY Nam DESC, Thang DESC\nLIMIT 1
+activate DB
+DB --> HDRepo : HoaDon (kỳ gần nhất)
+deactivate DB
+HDRepo --> Service : Optional<HoaDon>
+deactivate HDRepo
+Service --> Controller : HoaDon | null
+deactivate Service
+
+alt Có hóa đơn kỳ trước
+    Controller -> Controller : txtDienCu.setText\n(latest.getChiSoDienMoi())\ntxtNuocCu.setText\n(latest.getChiSoNuocMoi())
+    note right of Controller
+      Chỉ số cũ = chỉ số mới
+      của kỳ trước (kế thừa)
+    end note
+else Không có hóa đơn kỳ trước
+    Controller -> Controller : txtDienCu.setText("0")\ntxtNuocCu.setText("0")
+end
+
+Controller --> View : Hiển thị dialog với\nchỉ số cũ đã điền sẵn
+View --> User : Dialog mở, chỉ số cũ tự động điền
+
+== Người dùng nhập liệu ==
+User -> View : Có thể chọn phòng khác\n(listener tự cập nhật chỉ số cũ)
+User -> View : Nhập chỉ số Điện mới
+User -> View : Nhập chỉ số Nước mới
+User -> View : Chọn Tháng / Năm
+User -> View : Nhấn "OK"
+
+View -> Controller : result = JOptionPane.OK_OPTION
+
+== Parse và validate cơ bản ==
+Controller -> Controller : Parse BigDecimal:\ndienCu, dienMoi, nuocCu, nuocMoi
+
+alt Parse thất bại (không phải số)
+    Controller --> View : showError("Vui lòng nhập đúng\nđịnh dạng số")
+    View --> User : Hiển thị lỗi
+    deactivate Controller
+    deactivate View
+else Parse thành công
+end
+
+== Gọi Service tạo hóa đơn ==
+Controller -> Service : taoHoaDon(thang, nam, maPhong, maNV,\ndienCu, dienMoi, nuocCu, nuocMoi)
+activate Service
+
+alt dienMoi < dienCu
+    Service --> Controller : throw Exception\n("Chỉ số điện mới không được\nnhỏ hơn chỉ số cũ.")
+    Controller --> View : showError(message)
+    View --> User : Hiển thị lỗi
+    deactivate Service
+else nuocMoi < nuocCu
+    Service --> Controller : throw Exception\n("Chỉ số nước mới không được\nnhỏ hơn chỉ số cũ.")
+    Controller --> View : showError(message)
+    View --> User : Hiển thị lỗi
+    deactivate Service
+else Chỉ số hợp lệ
+end
+
+== Kiểm tra phòng và trùng tháng ==
+Service -> PhongRepo : findById(maPhong)
+activate PhongRepo
+PhongRepo -> DB : SELECT * FROM Phong WHERE MaPhong = ?
+DB --> PhongRepo : Optional<Phong>
+PhongRepo --> Service : Phong
+deactivate PhongRepo
+
+alt Phòng không tồn tại
+    Service --> Controller : throw Exception\n("Phòng không tồn tại")
+    Controller --> View : showError(message)
+    View --> User : Hiển thị lỗi
+    deactivate Service
+else Phòng tồn tại
+end
+
+Service -> HDRepo : existsByPhongAndThangNam\n(maPhong, thang, nam)
+activate HDRepo
+HDRepo -> DB : SELECT COUNT(*) FROM HoaDon\nWHERE MaPhong = ?\nAND Thang = ? AND Nam = ?
+DB --> HDRepo : count
+HDRepo --> Service : boolean
+deactivate HDRepo
+
+alt Đã có hóa đơn tháng này
+    Service --> Controller : throw Exception\n("Phòng đã có hóa đơn\ntrong tháng " + thang + "/" + nam)
+    Controller --> View : showError(message)
+    View --> User : Hiển thị lỗi
+    deactivate Service
+else Chưa có
+end
+
+== Lấy đơn giá và tính tiền ==
+Service -> GiaSvc : getDonGia("Điện")
+activate GiaSvc
+GiaSvc -> GiaRepo : findByLoai("Điện")
+activate GiaRepo
+GiaRepo -> DB : SELECT * FROM CauHinhGia\nWHERE LoaiDichVu = 'Điện'\nORDER BY NgayApDung DESC\nLIMIT 1
+DB --> GiaRepo : CauHinhGia
+GiaRepo --> GiaSvc : Optional<CauHinhGia>
+deactivate GiaRepo
+GiaSvc --> Service : BigDecimal giaDien
+deactivate GiaSvc
+
+Service -> GiaSvc : getDonGia("Nước")
+activate GiaSvc
+GiaSvc -> GiaRepo : findByLoai("Nước")
+activate GiaRepo
+GiaRepo -> DB : SELECT * FROM CauHinhGia\nWHERE LoaiDichVu = 'Nước'\nORDER BY NgayApDung DESC\nLIMIT 1
+DB --> GiaRepo : CauHinhGia
+GiaRepo --> GiaSvc : Optional<CauHinhGia>
+deactivate GiaRepo
+GiaSvc --> Service : BigDecimal giaNuoc
+deactivate GiaSvc
+
+Service -> Service : tienDien = (dienMoi - dienCu) × giaDien\ntienNuoc = (nuocMoi - nuocCu) × giaNuoc\ntongTien = tienDien + tienNuoc
+note right of Service
+  phuPhi = 0 (mặc định)
+  tongTien = tienDien + tienNuoc + phuPhi
+end note
+
+== Sinh mã và lưu hóa đơn ==
+Service -> Service : maHDon = "HD" + MM + YY + maPhong\n(cắt tối đa 15 ký tự)
+
+Service -> Service : new HoaDon(maHDon, thang, nam,\ndienCu, dienMoi, nuocCu, nuocMoi,\nphuPhi, tongTien,\n"Chưa thanh toán", maPhong, maNV)
+
+Service -> HDRepo : save(hoaDon)
+activate HDRepo
+HDRepo -> DB : BEGIN TRANSACTION
+HDRepo -> DB : INSERT INTO HoaDon VALUES (...)
+DB --> HDRepo : OK
+HDRepo -> DB : COMMIT
+HDRepo --> Service : void
+deactivate HDRepo
+
+Service --> Controller : void (thành công)
+deactivate Service
+
+== Thông báo và làm mới ==
+Controller --> View : showInfo("Lập hóa đơn thành công!")
+View --> User : Thông báo thành công
+User -> View : Nhấn OK
+Controller -> Controller : loadAll()
+Controller -> Service : layTatCaHoaDon()
+activate Service
+Service -> HDRepo : findAll()
+HDRepo -> DB : SELECT * FROM HoaDon\nORDER BY Nam DESC, Thang DESC
+DB --> HDRepo : List<HoaDon>
+HDRepo --> Service : List<HoaDon>
+Service --> Controller : List<HoaDon>
+deactivate Service
+Controller -> View : setTableModel(list)
+View --> User : Bảng hóa đơn cập nhật
+deactivate View
+deactivate Controller
+
+@enduml

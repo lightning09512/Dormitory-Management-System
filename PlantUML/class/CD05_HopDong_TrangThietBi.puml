@@ -1,0 +1,329 @@
+@startuml CD05_HopDong_TrangThietBi
+
+title CD05 – Quản lý Hợp đồng & Trang thiết bị
+
+skinparam backgroundColor #F8FAFC
+skinparam defaultFontName Segoe UI
+skinparam defaultFontSize 12
+skinparam classAttributeIconSize 0
+
+skinparam class {
+    BackgroundColor #FFFFFF
+    BorderColor     #94A3B8
+    HeaderBackgroundColor #E2E8F0
+    HeaderFontColor #0F172A
+    FontColor       #1E293B
+    ArrowColor      #64748B
+}
+
+skinparam package {
+    BackgroundColor #F1F5F9
+    BorderColor     #CBD5E1
+    FontStyle       bold
+}
+
+' ============================================================
+' MODEL
+' ============================================================
+package "com.ktx.model" #FEE2E2 {
+
+    class HopDong {
+        - maHD : String          <<PK, VARCHAR(15), NOT NULL>>
+        - ngayLap : LocalDate    <<DATE, DEFAULT CURRENT_DATE>>
+        - ngayBatDau : LocalDate <<DATE, NOT NULL>>
+        - ngayKetThuc : LocalDate<<DATE, NOT NULL>>
+        - tienCoc : BigDecimal   <<DECIMAL(12,2), DEFAULT 0>>
+        - trangThai : String     <<ENUM: Đang hiệu lực/Đã hết hạn/Đã thanh lý>>
+        - maSV : String          <<FK → SinhVien.MaSV>>
+        - maPhong : String       <<FK → Phong.MaPhong>>
+        - maNV : String          <<FK → NhanVien.MaNV>>
+        --
+        + HopDong()
+        + HopDong(maHD, ngayLap, ngayBatDau,\n  ngayKetThuc, tienCoc, trangThai,\n  maSV, maPhong, maNV)
+        + getMaHD() : String
+        + setMaHD(v : String) : void
+        + getNgayLap() : LocalDate
+        + setNgayLap(v : LocalDate) : void
+        + getNgayBatDau() : LocalDate
+        + setNgayBatDau(v : LocalDate) : void
+        + getNgayKetThuc() : LocalDate
+        + setNgayKetThuc(v : LocalDate) : void
+        + getTienCoc() : BigDecimal
+        + setTienCoc(v : BigDecimal) : void
+        + getTrangThai() : String
+        + setTrangThai(v : String) : void
+        + getMaSV() : String
+        + setMaSV(v : String) : void
+        + getMaPhong() : String
+        + setMaPhong(v : String) : void
+        + getMaNV() : String
+        + setMaNV(v : String) : void
+    }
+
+    package "entity" #FECACA {
+        class TrangThietBi {
+            - maTB : String          <<PK, VARCHAR(15), NOT NULL>>
+            - tenTB : String         <<NVARCHAR(150), NOT NULL>>
+            - tinhTrang : TinhTrangTB<<ENUM: Tốt/Cần bảo trì/Hỏng>>
+            - giaTri : BigDecimal    <<DECIMAL(14,2), DEFAULT 0>>
+            - phong : Phong          <<FK → Phong.MaPhong, ManyToOne>>
+            --
+            + TrangThietBi()
+            + TrangThietBi(maTB, tenTB, tinhTrang, giaTri, phong)
+            + getMaTB() : String
+            + setMaTB(v : String) : void
+            + getTenTB() : String
+            + setTenTB(v : String) : void
+            + getTinhTrang() : TinhTrangTB
+            + setTinhTrang(v : TinhTrangTB) : void
+            + getGiaTri() : BigDecimal
+            + setGiaTri(v : BigDecimal) : void
+            + getPhong() : Phong
+            + setPhong(v : Phong) : void
+        }
+    }
+
+    package "enums" #FCA5A5 {
+        enum TinhTrangTB {
+            TOT         = "Tốt"
+            CAN_BAO_TRI = "Cần bảo trì"
+            HONG        = "Hỏng"
+            --
+            - description : String
+            + getDescription() : String
+            + toString() : String
+        }
+    }
+
+    package "converter" #FCA5A5 {
+        class TinhTrangTBConverter {
+            + convertToDatabaseColumn(attr : TinhTrangTB) : String
+            + convertToEntityAttribute(dbData : String) : TinhTrangTB
+        }
+    }
+
+    TrangThietBi --> TinhTrangTB : has status
+    TinhTrangTBConverter ..> TinhTrangTB : converts
+    TrangThietBi ..> TinhTrangTBConverter : <<uses>>\n@Convert
+}
+
+' External reference (defined in CD04)
+class Phong <<external>>
+class SinhVien <<external>>
+class NhanVien <<external>>
+
+HopDong "many" --> "1" SinhVien : maSV FK
+HopDong "many" --> "1" Phong   : maPhong FK
+HopDong "many" --> "1" NhanVien: maNV FK
+TrangThietBi "many" --> "1" Phong : maPhong FK\n@ManyToOne LAZY
+
+' ============================================================
+' REPOSITORY
+' ============================================================
+package "com.ktx.repository" #E0F2FE {
+
+    interface HopDongRepository {
+        + save(hd : HopDong) : void
+        + update(hd : HopDong) : void
+        + delete(maHD : String) : void
+        + findById(maHD : String) : Optional<HopDong>
+        + findAll() : List<HopDong>
+        + findBySinhVien(maSV : String) : List<HopDong>
+        + findHopDongHieuLuc() : List<HopDong>
+    }
+
+    interface TrangThietBiRepository {
+        + save(tb : TrangThietBi) : void
+        + update(tb : TrangThietBi) : void
+        + delete(maTB : String) : void
+        + findAll() : List<TrangThietBi>
+        + findByMaPhong(maPhong : String) : List<TrangThietBi>
+    }
+}
+
+package "com.ktx.repository.impl" #DBEAFE {
+
+    class HopDongRepositoryImpl {
+        + save(hd : HopDong) : void
+        + update(hd : HopDong) : void
+        + delete(maHD : String) : void
+        + findById(maHD : String) : Optional<HopDong>
+        + findAll() : List<HopDong>
+        + findBySinhVien(maSV : String) : List<HopDong>
+        + findHopDongHieuLuc() : List<HopDong>
+    }
+
+    class TrangThietBiRepositoryImpl {
+        + save(tb : TrangThietBi) : void
+        + update(tb : TrangThietBi) : void
+        + delete(maTB : String) : void
+        + findAll() : List<TrangThietBi>
+        + findByMaPhong(maPhong : String) : List<TrangThietBi>
+    }
+}
+
+HopDongRepositoryImpl ..|> HopDongRepository
+TrangThietBiRepositoryImpl ..|> TrangThietBiRepository
+
+' ============================================================
+' SERVICE
+' ============================================================
+package "com.ktx.service" #D1FAE5 {
+
+    interface HopDongService {
+        + taoHopDongLuuTru(maSV, maPhong, ngayBD, ngayKT, staff) : HopDong
+        + thanhLyHopDong(maHD : String) : void
+        + layTatCa() : List<HopDong>
+        + layHopDongHieuLuc() : List<HopDong>
+        + layTheoDongSinhVien(maSV : String) : List<HopDong>
+    }
+
+    interface TrangThietBiService {
+        + themThietBi(tb : TrangThietBi) : void
+        + capNhatThietBi(tb : TrangThietBi) : void
+        + xoaThietBi(maTB : String) : void
+        + layTatCaThietBi() : List<TrangThietBi>
+        + timKiemTheoPhong(maPhong : String) : List<TrangThietBi>
+    }
+}
+
+package "com.ktx.service.impl" #DCFCE7 {
+
+    class HopDongServiceImpl {
+        - hopDongRepo : HopDongRepository
+        - sinhVienRepo : SinhVienRepository
+        - phongRepo : PhongRepository
+        --
+        + HopDongServiceImpl(hopDongRepo, sinhVienRepo, phongRepo)
+        + taoHopDongLuuTru(maSV, maPhong, ngayBD, ngayKT, staff) : HopDong
+        + thanhLyHopDong(maHD : String) : void
+        + layTatCa() : List<HopDong>
+        + layHopDongHieuLuc() : List<HopDong>
+        + layTheoDongSinhVien(maSV : String) : List<HopDong>
+        - sinhMaHopDong() : String
+    }
+
+    class TrangThietBiServiceImpl {
+        - trangThietBiRepository : TrangThietBiRepository
+        - phongRepository : PhongRepository
+        --
+        + TrangThietBiServiceImpl(tbRepo, phongRepo)
+        + themThietBi(tb : TrangThietBi) : void
+        + capNhatThietBi(tb : TrangThietBi) : void
+        + xoaThietBi(maTB : String) : void
+        + layTatCaThietBi() : List<TrangThietBi>
+        + timKiemTheoPhong(maPhong : String) : List<TrangThietBi>
+        - validate(tb : TrangThietBi) : void
+    }
+}
+
+HopDongServiceImpl ..|> HopDongService
+TrangThietBiServiceImpl ..|> TrangThietBiService
+HopDongServiceImpl --> HopDongRepository : uses
+HopDongServiceImpl ..> "SinhVienRepository" : uses
+HopDongServiceImpl ..> "PhongRepository" : uses
+TrangThietBiServiceImpl --> TrangThietBiRepository : uses
+TrangThietBiServiceImpl ..> "PhongRepository" : validate phòng tồn tại
+
+' ============================================================
+' VIEW & CONTROLLER
+' ============================================================
+package "com.ktx.view" #FEF9C3 {
+
+    class LapHopDongPanel {
+        - cbSinhVien : JComboBox<SinhVien>
+        - cbPhong : JComboBox<Phong>
+        - dpNgayBD : DatePicker
+        - cboGoi : JComboBox<Integer>
+        - txtNgayKT : JTextField
+        - table : JTable
+        --
+        + setSinhVienList(list : List<SinhVien>) : void
+        + setPhongList(list : List<Phong>) : void
+        + setHopDongList(list : List<HopDong>) : void
+        + getSelectedSinhVien() : SinhVien
+        + getSelectedPhong() : Phong
+        + getNgayBatDau() : LocalDate
+        + getNgayKetThuc() : LocalDate
+        + getSelectedMaHopDong() : String
+        + addLapHopDongListener(l : ActionListener) : void
+        + addChamDutListener(l : ActionListener) : void
+        + addLamMoiListener(l : ActionListener) : void
+    }
+
+    class TrangThietBiPanel {
+        - txtMaTB / txtTenTB / txtGiaTri : JTextField
+        - txtMaPhong : JTextField
+        - cbTinhTrang : JComboBox<TinhTrangTB>
+        - tableThietBi : JTable
+        - tableModel : DefaultTableModel
+        --
+        + getMaTB() : String
+        + getTenTB() : String
+        + getTinhTrang() : TinhTrangTB
+        + getGiaTri() : String
+        + getMaPhong() : String
+        + setMaTB / setTenTB / setTinhTrang / setGiaTri / setMaPhong()
+        + getTableModel() : DefaultTableModel
+        + clearForm() : void
+        + addThemListener / addCapNhatListener / addXoaListener()
+        + addLamMoiListener / addTimKiemListener()
+    }
+}
+
+package "com.ktx.controller" #EDE9FE {
+
+    class HopDongController {
+        - view : LapHopDongPanel
+        - hopDongService : HopDongService
+        - sinhVienService : SinhVienService
+        - phongService : PhongService
+        - currentUser : NhanVien
+        --
+        + HopDongController(view, hopDongSvc, svSvc, phongSvc, user)
+        - initView() : void
+        - bindListeners() : void
+        - handleLapHopDong() : void
+        - handleThanhLy() : void
+        - handleLamMoi() : void
+        - loadComboBoxes() : void
+        - loadTable() : void
+    }
+
+    class TrangThietBiController {
+        - view : TrangThietBiPanel
+        - service : TrangThietBiService
+        --
+        + TrangThietBiController(view, service)
+        - initController() : void
+        - handleThem() : void
+        - handleCapNhat() : void
+        - handleXoa() : void
+        - handleLamMoi() : void
+        - handleTimKiem() : void
+        - loadDataToTable(list : List<TrangThietBi>) : void
+        - fillFormFromTable(row : int) : void
+        - getTrangThietBiFromForm() : TrangThietBi
+    }
+}
+
+HopDongController --> LapHopDongPanel : controls
+HopDongController --> HopDongService : calls
+TrangThietBiController --> TrangThietBiPanel : controls
+TrangThietBiController --> TrangThietBiService : calls
+
+note right of HopDongServiceImpl
+  taoHopDongLuuTru():
+  1. Kiểm tra SV tồn tại
+  2. Kiểm tra SV chưa có HĐ hiệu lực
+  3. Kiểm tra phòng còn chỗ, không bảo trì
+  4. Sinh mã HĐ tự động (HD-yyMMdd-xxxxx)
+  5. soNguoiHienTai++ → cập nhật TrangThai phòng
+  
+  thanhLyHopDong():
+  1. Kiểm tra HĐ đang hiệu lực
+  2. TrangThai HĐ → "Đã thanh lý"
+  3. soNguoiHienTai-- → phòng về "Còn trống"
+end note
+
+@enduml

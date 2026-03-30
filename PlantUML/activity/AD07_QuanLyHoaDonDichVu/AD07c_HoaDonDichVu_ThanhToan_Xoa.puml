@@ -1,0 +1,75 @@
+@startuml AD07c_HoaDonDichVu_ThanhToan_Xoa
+title AD07c - Thanh Toán / Xóa Hóa Đơn Dịch Vụ
+
+skinparam ActivityBackgroundColor LightYellow
+skinparam ActivityBorderColor DarkOrange
+skinparam ArrowColor DarkOrange
+skinparam ActivityStartColor DarkGreen
+skinparam ActivityEndColor DarkRed
+skinparam ActivityDiamondBackgroundColor LightBlue
+skinparam ActivityDiamondBorderColor Navy
+
+|Nhân Viên / Quản Lý|
+start
+:Chọn 1 dòng trong bảng\nhóa đơn điện nước;
+
+|Hệ Thống|
+if (Chưa chọn dòng nào?) then (Có)
+    :Thông báo "Vui lòng chọn\n1 hóa đơn";
+    stop
+else (Đã chọn)
+endif
+
+|Nhân Viên / Quản Lý|
+switch (Thao tác?)
+case (Thanh toán)
+    :Nhấn nút "Thanh toán";
+    |Hệ Thống|
+    :Hiển thị xác nhận:\n"Xác nhận thanh toán\nhóa đơn [MaHDon]?"\n(YES / NO);
+    |Nhân Viên / Quản Lý|
+    if (Xác nhận?) then (NO)
+        :Hủy thao tác;
+        stop
+    else (YES)
+    endif
+    |Hệ Thống|
+    :Gọi service.thanhToanHoaDon(maHDon);
+    :Kiểm tra HoaDon tồn tại;
+    if (Đã thanh toán rồi?) then (Có)
+        :Thông báo "Hóa đơn này đã\nđược thanh toán rồi";
+        stop
+    else (Chưa thanh toán)
+    endif
+    :Cập nhật TrangThaiThanhToan\n= "Đã thanh toán";
+    :Gọi hoaDonRepo.update(hoaDon);
+    :Thông báo "Đã thanh toán\nhóa đơn thành công!";
+    :Tải lại danh sách;
+
+case (Xóa)
+    :Nhấn nút "Xóa";
+    |Hệ Thống|
+    :Hiển thị xác nhận:\n"Bạn có chắc muốn xóa\nhóa đơn [MaHDon]?"\n(YES / NO);
+    |Nhân Viên / Quản Lý|
+    if (Xác nhận?) then (NO)
+        :Hủy thao tác;
+        stop
+    else (YES)
+    endif
+    |Hệ Thống|
+    :Gọi service.xoaHoaDon\n(maHDon, vaiTroNguoiXoa);
+    :Kiểm tra HoaDon tồn tại;
+    :Kiểm tra TrangThaiThanhToan;
+    if (Đã thanh toán\nVÀ VaiTro = "Staff"?) then (Có)
+        :Thông báo "Không thể xóa\nhóa đơn đã thanh toán.\nVui lòng liên hệ quản lý";
+        stop
+    else (Manager hoặc Chưa TT)
+    endif
+    :Gọi hoaDonRepo.delete(maHDon);
+    :Thông báo "Đã xóa hóa đơn!";
+    :Tải lại danh sách;
+
+endswitch
+
+stop
+
+@enduml

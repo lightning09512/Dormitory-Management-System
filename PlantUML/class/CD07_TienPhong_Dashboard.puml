@@ -1,0 +1,261 @@
+@startuml CD07_TienPhong_Dashboard
+
+title CD07 – Hóa đơn Tiền phòng & Dashboard / Thống kê
+
+skinparam backgroundColor #F8FAFC
+skinparam defaultFontName Segoe UI
+skinparam defaultFontSize 12
+skinparam classAttributeIconSize 0
+
+skinparam class {
+    BackgroundColor #FFFFFF
+    BorderColor     #94A3B8
+    HeaderBackgroundColor #E2E8F0
+    HeaderFontColor #0F172A
+    FontColor       #1E293B
+    ArrowColor      #64748B
+}
+
+skinparam package {
+    BackgroundColor #F1F5F9
+    BorderColor     #CBD5E1
+    FontStyle       bold
+}
+
+' ============================================================
+' MODEL
+' ============================================================
+package "com.ktx.model" #FEE2E2 {
+
+    class HoaDonTienPhong {
+        - maHDTP : String        <<PK, VARCHAR(15)>>
+        - maHD : String          <<FK → HopDong.MaHD, INDEX>>
+        - goiThanhToan : int     <<INT — số tháng: 6/9/12>>
+        - ngayLap : LocalDate    <<DATE, NOT NULL>>
+        - tongTien : BigDecimal  <<DECIMAL(14,2), NOT NULL>>
+        - trangThai : String     <<VARCHAR(50): Chưa TT / Đã TT>>
+        - maNV : String          <<FK → NhanVien.MaNV, INDEX>>
+        --
+        + HoaDonTienPhong()
+        + HoaDonTienPhong(maHDTP, maHD, goiThanhToan,\n  ngayLap, tongTien, trangThai, maNV)
+        + getMaHDTP() / setMaHDTP() : String
+        + getMaHD() / setMaHD() : String
+        + getGoiThanhToan() / setGoiThanhToan() : int
+        + getNgayLap() / setNgayLap() : LocalDate
+        + getTongTien() / setTongTien() : BigDecimal
+        + getTrangThai() / setTrangThai() : String
+        + getMaNV() / setMaNV() : String
+    }
+
+    package "dto" #FECACA {
+        class DashboardStatsDto {
+            - tongSinhVien : long
+            - tongPhongTrong : long
+            - tongHopDongHieuLuc : long
+            - doanhThuTheoThang : Map<String, BigDecimal>
+            - doanhThuDienNuoc : BigDecimal
+            - doanhThuTienPhong : BigDecimal
+            --
+            + DashboardStatsDto()
+            + DashboardStatsDto(tongSV, tongPT, tongHD,\n  dtThang, dtDienNuoc, dtTienPhong)
+            + getTongSinhVien() : long
+            + setTongSinhVien(v : long) : void
+            + getTongPhongTrong() : long
+            + setTongPhongTrong(v : long) : void
+            + getTongHopDongHieuLuc() : long
+            + setTongHopDongHieuLuc(v : long) : void
+            + getDoanhThuTheoThang() : Map<String, BigDecimal>
+            + setDoanhThuTheoThang(v : Map) : void
+            + getDoanhThuDienNuoc() : BigDecimal
+            + setDoanhThuDienNuoc(v : BigDecimal) : void
+            + getDoanhThuTienPhong() : BigDecimal
+            + setDoanhThuTienPhong(v : BigDecimal) : void
+        }
+    }
+}
+
+class HopDong <<external>>
+class NhanVien <<external>>
+
+HoaDonTienPhong "many" --> "1" HopDong  : maHD FK\n<<include>> lấy HĐ hiệu lực
+HoaDonTienPhong "many" --> "1" NhanVien : maNV FK
+
+' ============================================================
+' REPOSITORY
+' ============================================================
+package "com.ktx.repository" #E0F2FE {
+
+    interface HoaDonTienPhongRepository {
+        + save(hd : HoaDonTienPhong) : void
+        + update(hd : HoaDonTienPhong) : void
+        + delete(maHDTP : String) : void
+        + findById(maHDTP : String) : Optional<HoaDonTienPhong>
+        + findAll() : List<HoaDonTienPhong>
+        + findByHopDong(maHD : String) : List<HoaDonTienPhong>
+        + findBySinhVien(maSV : String) : List<HoaDonTienPhong>
+        + findByPhong(maPhong : String) : List<HoaDonTienPhong>
+    }
+
+    interface ThongKeRepository {
+        + getDashboardStats() : DashboardStatsDto
+    }
+}
+
+package "com.ktx.repository.impl" #DBEAFE {
+
+    class HoaDonTienPhongRepositoryImpl {
+        + save(hd : HoaDonTienPhong) : void
+        + update(hd : HoaDonTienPhong) : void
+        + delete(maHDTP : String) : void
+        + findById(maHDTP : String) : Optional<HoaDonTienPhong>
+        + findAll() : List<HoaDonTienPhong>
+        + findByHopDong(maHD : String) : List<HoaDonTienPhong>
+        + findBySinhVien(maSV : String) : List<HoaDonTienPhong>
+        + findByPhong(maPhong : String) : List<HoaDonTienPhong>
+    }
+
+    class ThongKeRepositoryImpl {
+        + getDashboardStats() : DashboardStatsDto
+        ' Thực hiện 6 truy vấn JPQL:
+        ' 1. COUNT SinhVien
+        ' 2. COUNT Phong WHERE TrangThai = Còn trống
+        ' 3. COUNT HopDong WHERE TrangThai = Đang hiệu lực
+        ' 4. SUM HoaDon TongTien GROUP BY Thang (năm hiện tại)
+        ' 5. SUM HoaDon TongTien WHERE Đã TT (tích lũy)
+        ' 6. SUM HoaDonTienPhong TongTien WHERE Đã TT (tích lũy)
+    }
+}
+
+HoaDonTienPhongRepositoryImpl ..|> HoaDonTienPhongRepository
+ThongKeRepositoryImpl ..|> ThongKeRepository
+
+' ============================================================
+' SERVICE
+' ============================================================
+package "com.ktx.service" #D1FAE5 {
+
+    interface HoaDonTienPhongService {
+        + lapHoaDonTienPhong(maHD, goi, maNV) : HoaDonTienPhong
+        + xacNhanThanhToan(maHDTP : String) : void
+        + layTatCa() : List<HoaDonTienPhong>
+        + timTheoSinhVien(maSV : String) : List<HoaDonTienPhong>
+        + timTheoPhong(maPhong : String) : List<HoaDonTienPhong>
+    }
+
+    interface ThongKeService {
+        + layThongKeDashboard() : DashboardStatsDto
+    }
+}
+
+package "com.ktx.service.impl" #DCFCE7 {
+
+    class HoaDonTienPhongServiceImpl {
+        - hoadonRepo : HoaDonTienPhongRepository
+        - hopDongRepo : HopDongRepository
+        - phongRepo : PhongRepository
+        --
+        + HoaDonTienPhongServiceImpl(hoadonRepo, hopDongRepo, phongRepo)
+        + lapHoaDonTienPhong(maHD, goi, maNV) : HoaDonTienPhong
+        + xacNhanThanhToan(maHDTP : String) : void
+        + layTatCa() : List<HoaDonTienPhong>
+        + timTheoSinhVien(maSV : String) : List<HoaDonTienPhong>
+        + timTheoPhong(maPhong : String) : List<HoaDonTienPhong>
+    }
+
+    class ThongKeServiceImpl {
+        - thongKeRepo : ThongKeRepository
+        --
+        + ThongKeServiceImpl(thongKeRepo)
+        + layThongKeDashboard() : DashboardStatsDto
+    }
+}
+
+HoaDonTienPhongServiceImpl ..|> HoaDonTienPhongService
+ThongKeServiceImpl ..|> ThongKeService
+HoaDonTienPhongServiceImpl --> HoaDonTienPhongRepository : uses
+HoaDonTienPhongServiceImpl ..> "HopDongRepository" : lấy HĐ và Phòng
+ThongKeServiceImpl --> ThongKeRepository : uses
+
+' ============================================================
+' VIEW
+' ============================================================
+package "com.ktx.view" #FEF9C3 {
+
+    class QuanLyTienPhongPanel {
+        - table : JTable
+        - tableModel : DefaultTableModel
+        - txtTimKiem : JTextField
+        - cboTrangThai : JComboBox
+        - btnLoc / btnLapHD : JButton
+        - btnThanhToan / btnLamMoi : JButton
+        --
+        + setTableModel(list : List<HoaDonTienPhong>) : void
+        + getSelectedMaHDTP() : String
+        + getSearchKeyword() : String
+        + getSelectedTrangThai() : String
+        + addLocListener / addLapHDListener()
+        + addThanhToanListener / addLamMoiListener()
+    }
+
+    class DashboardPanel {
+        - lblSinhVien / lblPhongTrong : JLabel
+        - lblHopDong : JLabel
+        - lblDienNuoc / lblTienPhong / lblTongDT : JLabel
+        --
+        + setStats(s : DashboardStatsDto) : void
+    }
+}
+
+' ============================================================
+' CONTROLLER
+' ============================================================
+package "com.ktx.controller" #EDE9FE {
+
+    class HoaDonTienPhongController {
+        - view : QuanLyTienPhongPanel
+        - service : HoaDonTienPhongService
+        - hopDongRepo : HopDongRepository
+        - maNVDangNhap : String
+        --
+        + HoaDonTienPhongController(view, service, hopDongRepo, maNV)
+        - bindListeners() : void
+        - loadAll() : void
+        - loc() : void
+        - thanhToan() : void
+        - lapMoi() : void
+    }
+
+    class DashboardController {
+        - view : DashboardPanel
+        - thongKeService : ThongKeService
+        --
+        + DashboardController(view, thongKeService)
+        + loadStats() : void
+    }
+}
+
+HoaDonTienPhongController --> QuanLyTienPhongPanel : controls
+HoaDonTienPhongController --> HoaDonTienPhongService : calls
+DashboardController --> DashboardPanel : controls
+DashboardController --> ThongKeService : calls
+DashboardPanel --> DashboardStatsDto : displays
+
+note right of HoaDonTienPhongServiceImpl
+  lapHoaDonTienPhong():
+  1. Lấy HopDong theo maHD
+  2. Lấy Phong từ HopDong
+  3. tongTien = giaPhong * goiThanhToan
+  4. Sinh mã: "TP" + timestamp % 10^8
+  5. TrangThai = "Chưa thanh toán"
+end note
+
+note right of ThongKeRepositoryImpl
+  getDashboardStats():
+  Dùng 1 EntityManager duy nhất
+  để tối ưu, thực hiện 6 truy vấn
+  COUNT/SUM trong cùng session.
+  Khởi tạo sẵn 12 tháng = 0
+  để biểu đồ hiển thị đầy đủ.
+end note
+
+@enduml

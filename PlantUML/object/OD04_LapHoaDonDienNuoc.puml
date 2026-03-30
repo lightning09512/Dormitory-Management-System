@@ -1,0 +1,190 @@
+@startuml OD04_LapHoaDonDienNuoc
+title OD04 – Object Diagram: Lập Hóa Đơn Điện Nước
+
+skinparam backgroundColor #F8FAFC
+skinparam defaultFontName Segoe UI
+skinparam defaultFontSize 12
+skinparam objectAttributeIconSize 0
+
+skinparam object {
+    BackgroundColor #FFFFFF
+    BorderColor     #94A3B8
+    HeaderBackgroundColor #E2E8F0
+    HeaderFontColor #0F172A
+    FontColor       #1E293B
+    ArrowColor      #64748B
+}
+
+skinparam note {
+    BackgroundColor #FEF9C3
+    BorderColor     #CA8A04
+    FontColor       #1E293B
+}
+
+' ============================================================
+' Kịch bản: NV002 lập hóa đơn tháng 3/2025 cho phòng P101
+' Chỉ số điện: cũ=120, mới=195 → tiêu thụ 75 kWh
+' Chỉ số nước: cũ=30,  mới=42  → tiêu thụ 12 m³
+' ============================================================
+
+package "Đơn giá hiện hành (CauHinhGia)" #FEE2E2 {
+
+    object "giaDien : CauHinhGia" as GiaDien {
+        maGia       = 1
+        loaiDichVu  = "Điện"
+        donGia      = 3_800
+        ngayApDung  = 2025-01-01
+    }
+
+    object "giaNuoc : CauHinhGia" as GiaNuoc {
+        maGia       = 2
+        loaiDichVu  = "Nước"
+        donGia      = 22_000
+        ngayApDung  = 2025-01-01
+    }
+
+    object "giaInternet : CauHinhGia" as GiaInternet {
+        maGia       = 3
+        loaiDichVu  = "Internet"
+        donGia      = 50_000
+        ngayApDung  = 2024-09-01
+    }
+}
+
+package "Phòng và Nhân viên liên quan" #EDE9FE {
+
+    object "p101 : Phong" as P101 {
+        maPhong         = "P101"
+        tenPhong        = "Phòng 101"
+        loaiPhong       = "Tập thể"
+        sucChua         = 4
+        soNguoiHienTai  = 4
+        giaPhong        = 500_000
+        trangThai       = "Đang sử dụng"
+        maDay           = "DA"
+    }
+
+    object "nv002 : NhanVien" as NV002 {
+        maNV     = "NV002"
+        hoTen    = "Trần Thị Bình"
+        vaiTro   = "Staff"
+        taiKhoan = "staff01"
+    }
+}
+
+package "Hóa đơn kỳ trước (auto-fill chỉ số cũ)" #DBEAFE {
+
+    object "hdTruoc : HoaDon" as HDTruoc {
+        maHDon              = "HD0225P101"
+        thang               = 2
+        nam                 = 2025
+        chiSoDienCu         = 50.00
+        chiSoDienMoi        = 120.00
+        chiSoNuocCu         = 20.00
+        chiSoNuocMoi        = 30.00
+        phuPhi              = 0.00
+        tongTien            = 266_000.00
+        trangThaiThanhToan  = "Đã thanh toán"
+        maPhong             = "P101"
+        maNV                = "NV002"
+    }
+}
+
+package "Hóa đơn mới tạo — Tháng 3/2025" #D1FAE5 {
+
+    object "hdMoi : HoaDon" as HDMoi {
+        maHDon              = "HD0325P101"
+        thang               = 3
+        nam                 = 2025
+        chiSoDienCu         = 120.00
+        chiSoDienMoi        = 195.00
+        chiSoNuocCu         = 30.00
+        chiSoNuocMoi        = 42.00
+        phuPhi              = 0.00
+        tongTien            = 549_000.00
+        trangThaiThanhToan  = "Chưa thanh toán"
+        maPhong             = "P101"
+        maNV                = "NV002"
+    }
+}
+
+package "HoaDonServiceImpl — tính tiền" #DCFCE7 {
+
+    object "hoaDonSvc : HoaDonServiceImpl" as HDSvc {
+        hoaDonRepo = hoaDonRepoImpl
+        phongRepo  = phongRepoImpl
+        giaSvc     = cauHinhGiaSvcImpl
+    }
+}
+
+' ============================================================
+' Relationships
+' ============================================================
+
+' Auto-fill chỉ số cũ
+HDTruoc ..> HDMoi : findLatestByPhong("P101")\n→ chiSoDienCu = hdTruoc.chiSoDienMoi(120)\n→ chiSoNuocCu = hdTruoc.chiSoNuocMoi(30)
+
+' Lấy đơn giá
+GiaDien  ..> HDSvc : getDonGia("Điện")\n→ 3,800 VNĐ/kWh
+GiaNuoc  ..> HDSvc : getDonGia("Nước")\n→ 22,000 VNĐ/m³
+
+' Kiểm tra phòng
+P101  ..> HDSvc : findById("P101") → tồn tại ✓\nexistsByPhongAndThangNam\n("P101", 3, 2025) → false ✓
+
+' Liên kết kết quả
+NV002 ..> HDMoi : maNV = "NV002"
+P101  ..> HDMoi : maPhong = "P101"
+HDSvc --> HDMoi : hoaDonRepo.save(hdMoi)
+
+note top of HDTruoc
+  Hóa đơn tháng 2/2025 đã thanh toán.
+  Khi NV chọn phòng P101 trong dialog,
+  hệ thống tự động gọi:
+  layHoaDonGanNhatTheoPhong("P101")
+  → chiSoDienCu = 120 (auto-fill)
+  → chiSoNuocCu = 30  (auto-fill)
+end note
+
+note top of HDMoi
+  tongTien tính như sau:
+  ──────────────────────────────
+  dienTieuThu = 195 - 120 = 75 kWh
+  tienDien = 75 × 3,800 = 285,000 ₫
+  ──────────────────────────────
+  nuocTieuThu = 42 - 30 = 12 m³
+  tienNuoc = 12 × 22,000 = 264,000 ₫
+  ──────────────────────────────
+  phuPhi = 0
+  tongTien = 285,000 + 264,000
+           = 549,000 ₫
+  ──────────────────────────────
+  Mã HD: "HD" + "03" + "25" + "P101"
+       = "HD0325P101" (10 ký tự ≤ 15)
+end note
+
+note right of GiaDien
+  findByLoai("Điện")
+  ORDER BY NgayApDung DESC
+  LIMIT 1
+  → Lấy giá MỚI NHẤT
+  (nếu Manager vừa cập nhật
+   giá thì HĐ mới dùng giá mới)
+end note
+
+note right of GiaInternet
+  Loại "Internet" chưa dùng
+  trong HoaDon hiện tại
+  (chỉ tính Điện + Nước)
+end note
+
+note bottom of HDSvc
+  Validate trước khi lưu:
+  ① chiSoDienMoi(195) >= chiSoDienCu(120) ✓
+  ② chiSoNuocMoi(42) >= chiSoNuocCu(30) ✓
+  ③ Phong "P101" tồn tại ✓
+  ④ Chưa có HD tháng 3/2025 cho P101 ✓
+  ⑤ Tính tiền → 549,000 VNĐ
+  ⑥ hoaDonRepo.save()
+end note
+
+@enduml

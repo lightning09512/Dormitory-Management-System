@@ -1,0 +1,56 @@
+@startuml AD09a_ThietBi_Xem_TimKiem
+title AD09a - Xem Danh Sách / Tìm Kiếm Thiết Bị Theo Phòng
+
+skinparam ActivityBackgroundColor LightYellow
+skinparam ActivityBorderColor DarkOrange
+skinparam ArrowColor DarkOrange
+skinparam ActivityStartColor DarkGreen
+skinparam ActivityEndColor DarkRed
+skinparam ActivityDiamondBackgroundColor LightBlue
+skinparam ActivityDiamondBorderColor Navy
+
+|Nhân Viên|
+start
+:Chọn menu "Trang Thiết Bị";
+
+|Hệ Thống|
+:Gọi service.layTatCaThietBi()\n(findAll với LEFT JOIN FETCH Phong);
+:Hiển thị bảng danh sách thiết bị\nvới các cột:\nMã TB, Tên TB, Tình trạng,\nGiá trị, Mã Phòng;
+:Áp dụng StatusCellRenderer\n(màu xanh: Tốt / đỏ: Hỏng / vàng: Bảo trì);
+:Áp dụng CurrencyCellRenderer\n(định dạng số tiền có dấu phẩy);
+
+|Nhân Viên|
+switch (Thao tác?)
+case (Tìm thiết bị theo phòng)
+    :Nhập MaPhong vào ô tìm kiếm;
+    :Nhấn "Tìm theo Phòng";
+    |Hệ Thống|
+    if (MaPhong rỗng?) then (Có)
+        :Thông báo "Vui lòng nhập\nmã phòng để tìm kiếm!";
+    else (Không rỗng)
+        :Gọi service.timKiemTheoPhong(maPhong)\n(findByMaPhong với LEFT JOIN FETCH);
+        :Cập nhật bảng với\nthiết bị của phòng đó;
+    endif
+
+case (Chọn hàng trong bảng)
+    :Click vào 1 dòng trong bảng;
+    |Hệ Thống|
+    :MouseAdapter bắt sự kiện mouseClicked;
+    :Lấy row = table.getSelectedRow();
+    :Đọc dữ liệu từ tableModel\n(row, column);
+    :Điền vào form:\n- MaTB ← cột 0\n- TenTB ← cột 1\n- TinhTrang ← cột 2 (TinhTrangTB enum)\n- GiaTri ← cột 3\n- MaPhong ← cột 4;
+    :Hiển thị thông tin\nvào các ô nhập liệu;
+
+case (Làm mới)
+    :Nhấn "Làm mới";
+    |Hệ Thống|
+    :Xóa trắng tất cả ô form\n(clearForm);
+    :Focus về ô MaTB;
+    :Gọi service.layTatCaThietBi();
+    :Tải lại toàn bộ bảng;
+
+endswitch
+
+stop
+
+@enduml

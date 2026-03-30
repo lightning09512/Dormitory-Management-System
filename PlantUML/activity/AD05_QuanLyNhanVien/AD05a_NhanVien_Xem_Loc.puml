@@ -1,0 +1,44 @@
+@startuml AD05a_NhanVien_Xem_Loc
+title AD05a - Xem Danh Sách / Lọc Nhân Viên
+
+skinparam ActivityBackgroundColor LightYellow
+skinparam ActivityBorderColor DarkOrange
+skinparam ArrowColor DarkOrange
+skinparam ActivityStartColor DarkGreen
+skinparam ActivityEndColor DarkRed
+skinparam ActivityDiamondBackgroundColor LightBlue
+skinparam ActivityDiamondBorderColor Navy
+
+|Quản Lý (Manager)|
+start
+:Chọn menu "Quản lý Nhân viên"\n(Chỉ hiển thị với vai trò Manager);
+
+|Hệ Thống|
+:Gọi service.getAll()\n(findAll ORDER BY HoTen);
+:Lưu vào fullList (cache tại controller);
+:Gọi filterData() với keyword rỗng\nvà VaiTro = "Tất cả";
+:Hiển thị toàn bộ danh sách\nvới các cột:\nMaNV, HoTen, VaiTro, SoDT, TaiKhoan;
+
+|Quản Lý (Manager)|
+switch (Thao tác?)
+case (Tìm kiếm / Lọc)
+    :Nhập từ khóa (Tên hoặc Mã NV)\nvà/hoặc chọn Vai trò\n(Tất cả / Staff / Manager);
+    :Nhấn "Lọc";
+    |Hệ Thống|
+    :Lấy keyword.toLowerCase();
+    :Lấy roleFilter từ ComboBox;
+    :Filter fullList theo điều kiện:\n- keyword khớp MaNV / HoTen / TaiKhoan\n- VaiTro khớp roleFilter\n(nếu không phải "Tất cả");
+    :Hiển thị danh sách đã lọc;
+
+case (Làm mới)
+    :Nhấn "Làm mới";
+    |Hệ Thống|
+    :Gọi loadAll() → tải lại từ DB;
+    :Cập nhật fullList;
+    :Hiển thị toàn bộ danh sách;
+
+endswitch
+
+stop
+
+@enduml

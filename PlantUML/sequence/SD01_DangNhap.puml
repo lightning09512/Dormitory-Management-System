@@ -1,0 +1,111 @@
+@startuml SD01_DangNhap
+title SD01 - Sequence Diagram: Đăng Nhập Hệ Thống
+
+skinparam sequenceArrowThickness 2
+skinparam sequenceParticipantBackgroundColor LightYellow
+skinparam sequenceParticipantBorderColor DarkOrange
+skinparam sequenceLifeLineBorderColor DarkOrange
+skinparam sequenceGroupBackgroundColor LightBlue
+skinparam noteBorderColor Navy
+skinparam noteBackgroundColor LightCyan
+
+actor "Người Dùng" as User
+participant "DangNhapFrame\n(View)" as View
+participant "AuthController\n(Controller)" as Controller
+participant "AuthServiceImpl\n(Service)" as Service
+participant "NhanVienRepositoryImpl\n(Repository)" as Repo
+database "Database\n(MySQL)" as DB
+
+== Khởi động ứng dụng ==
+User -> View : Mở ứng dụng KTX Manager
+activate View
+View -> View : buildUI()\nnew DangNhapFrame()
+View --> User : Hiển thị màn hình đăng nhập
+
+== Nhập thông tin ==
+User -> View : Nhập TaiKhoan + MatKhau
+User -> View : Nhấn nút "Đăng nhập"
+View -> Controller : actionPerformed(e)\n→ handleDangNhap()
+activate Controller
+
+== Validate cơ bản ==
+Controller -> View : getTaiKhoan()
+View --> Controller : taiKhoan (String)
+Controller -> View : getMatKhau()
+View --> Controller : matKhau (String)
+
+alt TaiKhoan hoặc MatKhau rỗng
+    Controller -> View : setThongBao("Vui lòng nhập đầy đủ\ntài khoản và mật khẩu.")
+    View --> User : Hiển thị thông báo lỗi
+else Dữ liệu hợp lệ
+end
+
+== Xác thực tài khoản ==
+Controller -> Service : dangNhap(taiKhoan, matKhau)
+activate Service
+
+Service -> Repo : findByTaiKhoan(taiKhoan)
+activate Repo
+Repo -> DB : SELECT * FROM NhanVien\nWHERE TaiKhoan = ?
+activate DB
+DB --> Repo : ResultSet
+deactivate DB
+Repo --> Service : Optional<NhanVien>
+deactivate Repo
+
+alt Tài khoản không tồn tại (Optional.empty)
+    Service --> Controller : throw IllegalArgumentException\n("Tài khoản không tồn tại")
+    Controller -> View : setThongBao("Tài khoản không tồn tại.")
+    View --> User : Hiển thị lỗi
+else Tài khoản tồn tại
+    Service -> Service : BCrypt.checkpw(matKhau, nv.getMatKhau())
+    note right of Service
+      So sánh plaintext với
+      BCrypt hash lưu trong DB
+    end note
+
+    alt Mật khẩu sai
+        Service --> Controller : throw SecurityException\n("Mật khẩu không đúng")
+        Controller -> View : setThongBao("Mật khẩu không đúng.")
+        View --> User : Hiển thị lỗi
+    else Mật khẩu đúng
+        Service --> Controller : NhanVien (đã xác thực)
+        deactivate Service
+    end
+end
+
+== Mở MainFrame ==
+Controller -> View : clearThongBao()
+Controller -> View : dispose()
+deactivate View
+
+Controller -> Controller : callback.onLoginSuccess(nhanVien)
+note right of Controller
+  LoginCallback được
+  định nghĩa trong App.java
+end note
+
+Controller -> "App\n(Main)" as App : startMain(nhanVien)
+activate App
+
+== Khởi tạo hệ thống ==
+App -> App : Khởi tạo tất cả Repository
+App -> App : Khởi tạo tất cả Service
+App -> App : Khởi tạo tất cả Panel (View)
+App -> App : Khởi tạo tất cả Controller
+
+App -> "MainFrame\n(View)" as MainFrame : new MainFrame(nhanVien)
+activate MainFrame
+
+alt VaiTro = "Manager"
+    MainFrame -> MainFrame : Hiển thị đầy đủ menu:\nDashboard, SV, Phòng, HĐ,\nTiền phòng, HD dịch vụ, TTB,\nNhân viên, Cấu hình giá
+else VaiTro = "Staff"
+    MainFrame -> MainFrame : Hiển thị menu giới hạn:\n(Ẩn Nhân viên + Cấu hình giá)
+end
+
+MainFrame --> User : Hiển thị MainFrame\n(Dashboard mặc định)
+deactivate MainFrame
+deactivate App
+deactivate Controller
+
+@enduml

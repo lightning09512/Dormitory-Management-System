@@ -1,0 +1,125 @@
+@startuml SD08_Dashboard
+title SD08 - Sequence Diagram: Tải Dữ Liệu Dashboard
+
+skinparam sequenceArrowThickness 2
+skinparam sequenceParticipantBackgroundColor LightYellow
+skinparam sequenceParticipantBorderColor DarkOrange
+skinparam sequenceLifeLineBorderColor DarkOrange
+skinparam sequenceGroupBackgroundColor LightBlue
+skinparam noteBorderColor Navy
+skinparam noteBackgroundColor LightCyan
+
+actor "Người Dùng" as User
+participant "DashboardPanel\n(View)" as View
+participant "DashboardController\n(Controller)" as Controller
+participant "ThongKeServiceImpl\n(Service)" as Service
+participant "ThongKeRepositoryImpl\n(Repository)" as Repo
+database "Database\n(MySQL)" as DB
+
+== Kích hoạt Dashboard ==
+User -> View : Chuyển sang tab Dashboard
+activate View
+
+View -> Controller : componentShown(e)\n→ loadStats()
+activate Controller
+
+note right of Controller
+  ComponentAdapter bắt sự kiện
+  mỗi khi tab Dashboard
+  được hiển thị
+end note
+
+Controller -> Service : layThongKeDashboard()
+activate Service
+
+Service -> Repo : getDashboardStats()
+activate Repo
+
+note right of Repo
+  Tất cả truy vấn thực hiện
+  trong 1 EntityManager duy nhất
+  để tối ưu số lần mở kết nối
+end note
+
+== Truy vấn song song (cùng 1 EntityManager) ==
+
+Repo -> DB : [Q1] SELECT COUNT(s)\nFROM SinhVien s
+activate DB
+DB --> Repo : tongSinhVien (long)
+deactivate DB
+
+Repo -> DB : [Q2] SELECT COUNT(p)\nFROM Phong p\nWHERE p.trangThai = 'Còn trống'
+activate DB
+DB --> Repo : tongPhongTrong (long)
+deactivate DB
+
+Repo -> DB : [Q3] SELECT COUNT(h)\nFROM HopDong h\nWHERE h.trangThai = 'Đang hiệu lực'
+activate DB
+DB --> Repo : tongHopDongHieuLuc (long)
+deactivate DB
+
+Repo -> DB : [Q4] SELECT h.thang, h.nam, SUM(h.tongTien)\nFROM HoaDon h\nWHERE h.nam = :currentYear\nAND h.trangThaiThanhToan = 'Đã thanh toán'\nGROUP BY h.thang, h.nam\nORDER BY h.thang ASC
+activate DB
+DB --> Repo : List<Object[]> [thang, nam, total]
+deactivate DB
+
+Repo -> Repo : Khởi tạo LinkedHashMap 12 tháng\n(key: "MM/YYYY", value: 0)\n→ Điền dữ liệu từ Q4 vào Map\n→ Tháng không có dữ liệu giữ = 0
+
+Repo -> DB : [Q5] SELECT SUM(h.tongTien)\nFROM HoaDon h\nWHERE h.trangThaiThanhToan = 'Đã thanh toán'
+activate DB
+DB --> Repo : doanhThuDienNuoc (BigDecimal)
+deactivate DB
+
+alt doanhThuDienNuoc null
+    Repo -> Repo : doanhThuDienNuoc = BigDecimal.ZERO
+end
+
+Repo -> DB : [Q6] SELECT SUM(h.tongTien)\nFROM HoaDonTienPhong h\nWHERE h.trangThai = 'Đã thanh toán'
+activate DB
+DB --> Repo : doanhThuTienPhong (BigDecimal)
+deactivate DB
+
+alt doanhThuTienPhong null
+    Repo -> Repo : doanhThuTienPhong = BigDecimal.ZERO
+end
+
+== Tổng hợp kết quả ==
+Repo -> Repo : new DashboardStatsDto(\ntongSinhVien,\ntongPhongTrong,\ntongHopDongHieuLuc,\ndoanhThuTheoThang (Map 12 tháng),\ndoanhThuDienNuoc,\ndoanhThuTienPhong)
+
+Repo --> Service : DashboardStatsDto
+deactivate Repo
+
+Service --> Controller : DashboardStatsDto
+deactivate Service
+
+== Cập nhật View ==
+Controller -> View : setStats(dto)
+activate View
+
+View -> View : lblSinhVien.setText\n(tongSinhVien)
+View -> View : lblPhongTrong.setText\n(tongPhongTrong)
+View -> View : lblHopDong.setText\n(tongHopDongHieuLuc)
+View -> View : dtTong = dtDienNuoc + dtTienPhong\nlblDienNuoc.setText(format(dtDienNuoc))\nlblTienPhong.setText(format(dtTienPhong))\nlblTongDT.setText(format(dtTong))
+
+note right of View
+  DecimalFormat "#,### ₫"
+  dùng để format số tiền
+  hiển thị trên thẻ stat
+end note
+
+View --> User : 6 thẻ số liệu cập nhật:\n- Tổng sinh viên\n- Phòng còn trống\n- Hợp đồng hiệu lực\n- Doanh thu điện nước\n- Doanh thu tiền phòng\n- Tổng doanh thu
+deactivate View
+deactivate Controller
+
+alt Lỗi xảy ra trong quá trình tải
+    Repo --> Service : throw RuntimeException
+    Service --> Controller : throw Exception
+    Controller -> Controller : System.err.println\n("[DashboardController] Lỗi: " + msg)
+    note right of Controller
+      Lỗi được log nhưng
+      KHÔNG crash ứng dụng.
+      View giữ nguyên giá trị 0.
+    end note
+end
+
+@enduml

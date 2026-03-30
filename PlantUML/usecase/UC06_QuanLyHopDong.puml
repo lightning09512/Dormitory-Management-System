@@ -1,0 +1,61 @@
+@startuml UC06_QuanLyHopDong
+title UC06 - Quản Lý Hợp Đồng
+
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+skinparam usecase {
+    BackgroundColor LightYellow
+    BorderColor DarkOrange
+    ArrowColor DarkOrange
+}
+skinparam actor {
+    BackgroundColor LightBlue
+    BorderColor Navy
+}
+
+actor "Nhân Viên" as Staff
+actor "Quản Lý" as Manager
+
+Manager --|> Staff
+
+rectangle "Hệ Thống Quản Lý KTX" {
+    usecase "UC06.1\nXem danh sách hợp đồng" as UC06_1
+    usecase "UC06.2\nLập hợp đồng mới\n(Sinh viên - Phòng)" as UC06_2
+    usecase "UC06.3\nChấm dứt hợp đồng" as UC06_3
+    usecase "UC06.4\nXem hợp đồng đang hiệu lực" as UC06_4
+    usecase "UC06.5\nTính toán ngày kết thúc\ntheo gói (6/9/12 tháng)" as UC06_5
+    usecase "UC06.6\nKiểm tra phòng còn trống\nvà chưa đầy sức chứa" as UC06_6
+    usecase "UC06.7\nKiểm tra SV không có\nHĐ đang hiệu lực" as UC06_7
+}
+
+Staff --> UC06_1
+Staff --> UC06_2
+Staff --> UC06_3
+Staff --> UC06_4
+
+UC06_2 ..> UC06_5 : <<include>>
+UC06_2 ..> UC06_6 : <<include>>
+UC06_2 ..> UC06_7 : <<include>>
+
+note right of UC06_3
+  Khi chấm dứt HĐ:
+  - Giảm số người hiện tại
+    trong phòng
+  - Cập nhật trạng thái phòng
+    về "Còn trống" nếu còn chỗ
+end note
+
+note right of UC06_7
+  Một sinh viên chỉ được
+  có MỘT hợp đồng
+  đang hiệu lực tại một thời điểm
+end note
+
+note right of UC06_6
+  Kiểm tra: phòng không ở
+  trạng thái "Bảo trì" và
+  soNguoiHienTai < sucChua
+end note
+
+@enduml
