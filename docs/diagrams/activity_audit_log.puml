@@ -1,0 +1,19 @@
+@startuml activity_audit_log
+start
+:Hê thống nhận yêu cầu thực hiện hành động nhạy cảm;
+:(Xóa/Sửa/Thêm dữ liệu);
+:Thực hiện nghiệp vụ chính;
+if (Thành công?) then (có)
+  partition "Ghi nhật ký" {
+    :Lấy mã nhân viên đang đăng nhập;
+    :Lấy thời gian hiện tại;
+    :Tạo nội dung chi tiết hành động;
+    :Lưu vào bảng AuditLog;
+  }
+  :Thông báo kết quả cho người dùng;
+else (không)
+  :Ghi nhận lỗi (nếu cần);
+  :Thông báo lỗi;
+endif
+stop
+@enduml

@@ -29,7 +29,12 @@ public class SinhVienRepositoryImpl implements SinhVienRepository {
             tx.commit();
         } catch (Exception e) {
             if (tx.isActive()) tx.rollback();
-            throw new RuntimeException("Lỗi khi lưu SinhVien: " + e.getMessage(), e);
+            Throwable cause = e;
+            while (cause.getCause() != null && cause != cause.getCause()) {
+                cause = cause.getCause();
+            }
+            String detail = cause.getMessage() != null ? cause.getMessage() : e.getMessage();
+            throw new RuntimeException("Lỗi khi lưu SinhVien: " + detail, e);
         } finally {
             em.close();
         }
