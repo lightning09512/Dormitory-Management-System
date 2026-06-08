@@ -56,7 +56,7 @@ public class DashboardPanel extends JPanel {
 
         // Logo Panel hiển thị ảnh thu phóng động
         JPanel imagePanel = new JPanel() {
-            private final Image img = new ImageIcon("d:/hoc/OOSE/KTX/ktxlogo.png").getImage();
+            private final Image img = new ImageIcon(getClass().getResource("/images/ktxlogo.png")).getImage();
             @Override protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 if (img != null) {

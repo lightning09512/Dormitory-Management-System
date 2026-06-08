@@ -43,7 +43,7 @@ public class DangNhapFrame extends JFrame {
 
         // Logo
         try {
-            ImageIcon logoIcon = new ImageIcon("images.png");
+            ImageIcon logoIcon = new ImageIcon(getClass().getResource("/images/images.png"));
             Image scaledImage = logoIcon.getImage().getScaledInstance(140, 140, Image.SCALE_SMOOTH);
             JLabel logo = new JLabel(new ImageIcon(scaledImage));
             card.add(logo, gc);

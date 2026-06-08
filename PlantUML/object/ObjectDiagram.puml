@@ -1,0 +1,58 @@
+@startuml ObjectDiagram
+title Biểu đồ Đối tượng (Object Diagram) - Quá trình Đặt phòng và Thanh toán
+
+' --- Định nghĩa các đối tượng ---
+
+object "sv1 : SinhVien" as sv1 {
+  maSV = "SV2021001"
+  hoTen = "Nguyen Van A"
+  gioiTinh = "Nam"
+  lop = "KTPM"
+  khoa = "CNTT"
+  email = "nva@gmail.com"
+}
+
+object "nv1 : NhanVien" as nv1 {
+  maNV = "NV01"
+  hoTen = "Tran Thi B"
+  vaiTro = "Staff"
+}
+
+object "p101 : Phong" as p101 {
+  maPhong = "P101"
+  tenPhong = "Phòng 101"
+  loaiPhong = "Thường"
+  sucChua = 4
+  soNguoiHienTai = 3
+  giaPhong = 450000
+  trangThai = "Còn trống"
+  maDay = "D1"
+}
+
+object "hd01 : HopDong" as hd01 {
+  maHD = "HD20240401"
+  ngayLap = "2024-04-01"
+  ngayBatDau = "2024-04-05"
+  ngayKetThuc = "2025-04-05"
+  tienCoc = 500000
+  trangThai = "Đang hiệu lực"
+}
+
+object "hdtp01 : HoaDonTienPhong" as hdtp01 {
+  maHDTP = "TP_HD240401_1"
+  goiThanhToan = 6
+  ngayLap = "2024-04-01"
+  tongTien = 2700000
+  trangThai = "Đã thanh toán"
+}
+
+' --- Thiết lập các liên kết (Links) ---
+
+sv1 -down-> hd01 : Ký kết (1..*)
+p101 -down-> hd01 : Nằm trong
+nv1 -right-> hd01 : Lập (1..*)
+
+hd01 -down-> hdtp01 : Có (1..*)
+nv1 -down-> hdtp01 : Lập (1..*)
+
+@enduml

@@ -57,7 +57,7 @@ public class MainFrame extends JFrame {
         brand.setBorder(BorderFactory.createEmptyBorder(0, 0, 24, 0));
         
         // Cover Image
-        ImageIcon coverIcon = new ImageIcon("sinh-vien-truong-nao-duoc-thue-ktx-khu-b-dhqg-tphcm-o-tro-hay-o-ktx-tiet-kiem-hon.webp");
+        ImageIcon coverIcon = new ImageIcon(getClass().getResource("/images/sinh-vien-truong-nao-duoc-thue-ktx-khu-b-dhqg-tphcm-o-tro-hay-o-ktx-tiet-kiem-hon.webp"));
         Image scaledCover = coverIcon.getImage().getScaledInstance(240, 120, Image.SCALE_SMOOTH);
         JLabel coverLabel = new JLabel(new ImageIcon(scaledCover));
         coverLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -72,7 +72,7 @@ public class MainFrame extends JFrame {
         
         // --- Thêm Logo Ảnh ---
         try {
-            ImageIcon scIcon = new ImageIcon("d:/hoc/OOSE/KTX/images.png");
+            ImageIcon scIcon = new ImageIcon(getClass().getResource("/images/images.png"));
             Image scaled = scIcon.getImage().getScaledInstance(45, 45, Image.SCALE_SMOOTH);
             JLabel lblImage = new JLabel(new ImageIcon(scaled));
             lblImage.setAlignmentX(Component.LEFT_ALIGNMENT);

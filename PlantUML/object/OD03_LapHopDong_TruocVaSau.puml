@@ -1,4 +1,4 @@
-@startuml OD03_LapHopDong_TruocVaSau
+    @startuml OD03_LapHopDong_TruocVaSau
 title OD03 – Object Diagram: Lập Hợp Đồng — Trạng Thái Trước & Sau
 
 skinparam backgroundColor #F8FAFC

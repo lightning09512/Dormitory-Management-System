@@ -50,7 +50,7 @@ public class QuanLySinhVienPanel extends JPanel {
         header.setBorder(BorderFactory.createEmptyBorder(0, 0, 18, 0));
         
         // Add decorative image on the right
-        ImageIcon decorIcon = new ImageIcon("sinh-vien-truong-nao-duoc-thue-ktx-khu-b-dhqg-tphcm-o-tro-hay-o-ktx-tiet-kiem-hon.webp");
+        ImageIcon decorIcon = new ImageIcon(getClass().getResource("/images/sinh-vien-truong-nao-duoc-thue-ktx-khu-b-dhqg-tphcm-o-tro-hay-o-ktx-tiet-kiem-hon.webp"));
         Image scaledDecor = decorIcon.getImage().getScaledInstance(120, 80, Image.SCALE_SMOOTH);
         JLabel decorLabel = new JLabel(new ImageIcon(scaledDecor));
         decorLabel.setBorder(BorderFactory.createLineBorder(UITheme.BORDER_COLOR));

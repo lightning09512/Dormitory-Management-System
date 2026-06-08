@@ -1,0 +1,1725 @@
+2026-05-03 13:05:25.729 [AWT-EventQueue-0] WARN  o.hibernate.orm.connections.pooling - HHH10001002: Using built-in connection pool (not intended for production use)
+2026-05-03 13:05:25.997 [AWT-EventQueue-0] WARN  org.hibernate.orm.deprecation - HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-05-03 13:05:27.468 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        nv1_0.MaNV,
+        nv1_0.HoTen,
+        nv1_0.MatKhau,
+        nv1_0.SoDT,
+        nv1_0.TaiKhoan,
+        nv1_0.VaiTro 
+    from
+        NhanVien nv1_0 
+    where
+        nv1_0.TaiKhoan=?
+2026-05-03 13:05:27.995 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        count(sv1_0.MaSV) 
+    from
+        SinhVien sv1_0
+2026-05-03 13:05:28.020 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        count(p1_0.MaPhong) 
+    from
+        Phong p1_0 
+    where
+        p1_0.TrangThai='Còn trống'
+2026-05-03 13:05:28.040 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        count(hd1_0.MaHD) 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.TrangThai='Đang hiệu lực'
+2026-05-03 13:05:28.167 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.Thang,
+        hd1_0.Nam,
+        sum(hd1_0.TongTien) 
+    from
+        HoaDon hd1_0 
+    where
+        hd1_0.Nam=? 
+        and hd1_0.TrangThaiThanhToan='Đã thanh toán' 
+    group by
+        hd1_0.Thang,
+        hd1_0.Nam 
+    order by
+        hd1_0.Thang
+2026-05-03 13:05:28.191 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        sum(hd1_0.TongTien) 
+    from
+        HoaDon hd1_0 
+    where
+        hd1_0.TrangThaiThanhToan='Đã thanh toán'
+2026-05-03 13:05:28.196 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        sum(hdtp1_0.TongTien) 
+    from
+        HoaDonTienPhong hdtp1_0 
+    where
+        hdtp1_0.TrangThai='Đã thanh toán'
+2026-05-03 13:05:28.218 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        count(sv1_0.MaSV) 
+    from
+        SinhVien sv1_0
+2026-05-03 13:05:28.224 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        sv1_0.MaSV,
+        sv1_0.Email,
+        sv1_0.GioiTinh,
+        sv1_0.HoTen,
+        sv1_0.Khoa,
+        sv1_0.Lop,
+        sv1_0.MatKhau,
+        sv1_0.NgaySinh,
+        sv1_0.QueQuan,
+        sv1_0.SoDT,
+        sv1_0.TaiKhoan 
+    from
+        SinhVien sv1_0 
+    order by
+        sv1_0.HoTen 
+    limit
+        ?, ?
+2026-05-03 13:05:28.240 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.245 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.248 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.253 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.257 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.260 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.263 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.266 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.273 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.277 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.280 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.282 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.285 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.288 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.292 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.294 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.298 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.301 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.305 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.308 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.318 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        p1_0.MaPhong,
+        p1_0.GiaPhong,
+        p1_0.LoaiPhong,
+        p1_0.MaDay,
+        p1_0.SoNguoiHienTai,
+        p1_0.SucChua,
+        p1_0.TenPhong,
+        p1_0.TrangThai 
+    from
+        Phong p1_0 
+    order by
+        p1_0.MaPhong
+2026-05-03 13:05:28.336 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        sv1_0.MaSV,
+        sv1_0.Email,
+        sv1_0.GioiTinh,
+        sv1_0.HoTen,
+        sv1_0.Khoa,
+        sv1_0.Lop,
+        sv1_0.MatKhau,
+        sv1_0.NgaySinh,
+        sv1_0.QueQuan,
+        sv1_0.SoDT,
+        sv1_0.TaiKhoan 
+    from
+        SinhVien sv1_0 
+    order by
+        sv1_0.HoTen
+2026-05-03 13:05:28.353 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.357 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.376 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.380 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.382 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.386 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.388 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.392 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.396 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.400 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.402 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.410 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.414 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.417 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.441 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.445 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.447 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.450 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.454 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.456 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.459 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.463 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.466 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.517 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.520 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.523 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.526 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.527 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.563 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.566 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.570 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.573 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.576 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.579 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.582 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.586 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.590 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.600 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.603 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.606 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.612 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.616 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.619 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.628 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.633 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.635 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.649 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.652 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.659 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.662 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.665 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.666 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.672 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.674 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.676 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.680 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.682 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.684 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.695 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.698 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.704 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.706 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.709 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.711 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.715 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.720 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.722 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.724 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.MaSV=? 
+    order by
+        hd1_0.NgayLap desc
+2026-05-03 13:05:28.731 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        p1_0.MaPhong,
+        p1_0.GiaPhong,
+        p1_0.LoaiPhong,
+        p1_0.MaDay,
+        p1_0.SoNguoiHienTai,
+        p1_0.SucChua,
+        p1_0.TenPhong,
+        p1_0.TrangThai 
+    from
+        Phong p1_0 
+    where
+        p1_0.TrangThai<>'Bảo trì' 
+        and p1_0.SoNguoiHienTai<p1_0.SucChua
+2026-05-03 13:05:28.760 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHD,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.MaSV,
+        hd1_0.NgayBatDau,
+        hd1_0.NgayKetThuc,
+        hd1_0.NgayLap,
+        hd1_0.TienCoc,
+        hd1_0.TrangThai 
+    from
+        HopDong hd1_0 
+    where
+        hd1_0.TrangThai='Đang hiệu lực'
+2026-05-03 13:05:28.792 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hd1_0.MaHDon,
+        hd1_0.ChiSoDienCu,
+        hd1_0.ChiSoDienMoi,
+        hd1_0.ChiSoNuocCu,
+        hd1_0.ChiSoNuocMoi,
+        hd1_0.MaNV,
+        hd1_0.MaPhong,
+        hd1_0.Nam,
+        hd1_0.PhuPhi,
+        hd1_0.Thang,
+        hd1_0.TongTien,
+        hd1_0.TrangThaiThanhToan 
+    from
+        HoaDon hd1_0 
+    order by
+        hd1_0.Nam desc,
+        hd1_0.Thang desc
+2026-05-03 13:05:28.808 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        ttb1_0.MaTB,
+        ttb1_0.GiaTri,
+        p1_0.MaPhong,
+        p1_0.GiaPhong,
+        p1_0.LoaiPhong,
+        p1_0.MaDay,
+        p1_0.SoNguoiHienTai,
+        p1_0.SucChua,
+        p1_0.TenPhong,
+        p1_0.TrangThai,
+        ttb1_0.TenTB,
+        ttb1_0.TinhTrang 
+    from
+        TrangThietBi ttb1_0 
+    left join
+        Phong p1_0 
+            on p1_0.MaPhong=ttb1_0.MaPhong
+2026-05-03 13:05:28.832 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        hdtp1_0.MaHDTP,
+        hdtp1_0.GoiThanhToan,
+        hdtp1_0.MaHD,
+        hdtp1_0.MaNV,
+        hdtp1_0.NgayLap,
+        hdtp1_0.TongTien,
+        hdtp1_0.TrangThai 
+    from
+        HoaDonTienPhong hdtp1_0 
+    order by
+        hdtp1_0.NgayLap desc
+2026-05-03 13:05:28.838 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        nv1_0.MaNV,
+        nv1_0.HoTen,
+        nv1_0.MatKhau,
+        nv1_0.SoDT,
+        nv1_0.TaiKhoan,
+        nv1_0.VaiTro 
+    from
+        NhanVien nv1_0 
+    order by
+        nv1_0.HoTen
+2026-05-03 13:05:28.848 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        chg1_0.MaGia,
+        chg1_0.DonGia,
+        chg1_0.LoaiDichVu,
+        chg1_0.NgayApDung 
+    from
+        CauHinhGia chg1_0
+2026-05-03 13:05:28.875 [AWT-EventQueue-0] DEBUG org.hibernate.SQL - 
+    select
+        al1_0.id,
+        al1_0.ChiTiet,
+        al1_0.HanhDong,
+        al1_0.MaNV,
+        al1_0.ThoiGian 
+    from
+        AuditLog al1_0 
+    order by
+        al1_0.ThoiGian desc
