@@ -1,10 +1,10 @@
 # Hệ Thống Quản Lý Ký Túc Xá (KTX Manager)
 
-## 📋 Giới Thiệu
+## Giới Thiệu
 
 Đây là ứng dụng desktop được phát triển bằng Java Swing và Hibernate ORM để quản lý ký túc xá, với kiến trúc 3-tier và các design patterns hiện đại.
 
-## 🏗️ Kiến Trúc
+## Kiến Trúc
 
 ```
 ┌─────────────────────────────────────────────┐
@@ -35,34 +35,34 @@
 └─────────────────────────────────────────────┘
 ```
 
-## ✨ Tính Năng
+## Tính Năng
 
-### 🔐 Authentication
+### Authentication
 - Đăng nhập với BCrypt password hashing
 - Quản lý vai trò (Staff/Manager)
 - Session management
 
-### 👥 Student Management
+### Student Management
 - Thêm/Sửa/Xóa sinh viên
 - Tìm kiếm thông minh (MSSV + Tên)
 - Validation đầu vào
 
-### 🏠 Room Management  
+### Room Management
 - Quản lý phòng và dãy nhà
 - Lọc theo trạng thái
 - Cập nhật sức chứa
 
-### 📄 Contract Management
+### Contract Management
 - Lập hợp đồng sinh viên-phòng
 - Quản lý hợp đồng hiệu lực
 - Tính toán giá thuê
 
-### 📊 Dashboard & Statistics
+### Dashboard & Statistics
 - Thống kê tổng quan
 - Số liệu real-time
 - Visual reports
 
-## 🔧 Công Nghệ
+## Công Nghệ
 
 ### Backend
 - **Java 17** - Modern Java features
@@ -83,7 +83,7 @@
 - **Bean Validation** - Input validation
 - **SLF4J + Logback** - Structured logging
 
-## 🚀 Cài Đặt
+## Cài Đặt
 
 ### Yêu Cầu Hệ Thống
 - **Java 17+**
@@ -117,7 +117,7 @@
    mvn exec:java -Dexec.mainClass="com.ktx.App"
    ```
 
-## 📁 Cấu Trúc Project
+## Cấu Trúc Project
 
 ```
 QuanLyKTX/
@@ -140,7 +140,7 @@ QuanLyKTX/
 └── pom.xml                      # Maven configuration
 ```
 
-## 🧪 Testing
+## Testing
 
 ### Run Tests
 ```bash
@@ -159,7 +159,7 @@ mvn test jacoco:report
 - Integration tests: Repository layer  
 - UI tests: Form validation
 
-## 📝 Logging
+## Logging
 
 ### Log Files
 - **Console**: Real-time logging
@@ -172,7 +172,7 @@ mvn test jacoco:report
 - `WARN`: Warning messages
 - `ERROR`: Error conditions
 
-## 🔒 Security
+## Security
 
 ### Authentication
 - BCrypt password hashing
@@ -184,7 +184,7 @@ mvn test jacoco:report
 - Custom validators
 - SQL injection prevention
 
-## 🎨 UI/UX Features
+## UI/UX Features
 
 ### Modern Design
 - **FlatLaf Integration**: macOS-style interfaces with clean lines.
@@ -198,7 +198,7 @@ mvn test jacoco:report
 - Screen reader support
 - High contrast mode
 
-## 📈 Performance
+## Performance
 
 ### Database Optimization
 - Connection pooling (HikariCP)
@@ -210,7 +210,7 @@ mvn test jacoco:report
 - Query result caching
 - Session caching
 
-## 🔄 Deployment
+## Deployment
 
 ### Production Configuration
 ```properties
@@ -226,7 +226,7 @@ FORMAT_SQL=false
 - Memory usage
 - Active sessions
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -249,7 +249,7 @@ FORMAT_SQL=false
    - Verify Java version
    - Clear Maven cache
 
-## 📞 Hỗ Trợ
+## Hỗ Trợ
 
 ### Documentation
 - [API Documentation](docs/api/)
@@ -260,11 +260,11 @@ FORMAT_SQL=false
 - Email: support@ktx-manager.com
 - Issues: [GitHub Issues](link-to-repo/issues)
 
-## 📜 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create feature branch
